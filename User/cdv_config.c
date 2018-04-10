@@ -1,0 +1,304 @@
+/**
+  ******************************************************************************
+  * @file    /user_config.c 
+  * @author  MMY
+  * @version V2.0.0
+  * @date    27-June-2015
+  * @brief   a package of stm32 device config and operate function，something like ThirdPart
+  * 
+@verbatim  
+
+               
+@endverbatim        
+  *
+  ******************************************************************************
+  * @attention
+  *
+  * COPYRIGHT 2015 CQT Quartz. Co., Ltd.
+  *
+  ******************************************************************************
+  */
+	
+	#include "cdv_config.h"
+	u8 SPItime_Flag = 0; 
+
+	CDV_INT08S g_dipCtrlWorker = -1;
+	CDV_INT08S g_noWrite = 0;
+
+/** @brief  PERIPH_DRIVER初始化
+  * @param  
+  * @retval 
+  * @note   
+  */
+void PeriphDriverInit(void)
+{
+	u8 i, dat;
+	GPIO_Configuration();
+	
+	CdvInit();  
+	
+	SPI_Configuration();
+	EXTI_Configuration();
+	//USART_Configuration();
+	TIM3_Init(84, 10000);//10ms
+	LED_Init();                                   //资源初始化
+#ifdef __ENABLE_RTC
+	My_RTC_Init();
+#endif
+
+
+#if _NPC_VERSION_ == 2u
+  ADC1_DMA_Init();
+	Adc2_Dma_Init2();
+	Adc3_Dma_Init();	
+#elif _NPC_VERSION_ == 3u
+	Adc2_Dma_Init4();
+#endif
+
+	Dac1_Init();//DAC通道1输出初始化
+	Dac2_Init();//DAC通道2输出初始化
+	DAC7512_Pin_Config();
+//	GetTable();
+	CASCADE_CS_EN;
+	for(i = 0 ; i < 1; i++)
+	  dat = FLASH_ReadWriteByte(0XFF);
+	CASCADE_CS_DS;
+	
+	//Org_Flash_Read((CDV_INT08U *)&dac_par, DAC_PAR_ADDR, sizeof(dac_par));//从flash读DAC的参数
+	Org_Flash_Read((CDV_INT08U *)&dac_par, DAC_PAR_ADDR, sizeof(dac_par));//从flash读DAC的参数
+	Org_Flash_Read((CDV_INT08U *)&adc_par, ADC_PAR_ADDR, sizeof(adc_par));//从flash读ADC的参数
+	
+	
+#ifdef ENABLE_PID
+	Org_Flash_Read((CDV_INT08U *)&Valve_Pid, PID_PAR_ADDR, sizeof(adc_par)); //从flash读PID的参数
+
+
+	PIDInit_Valve();	
+	Valve_PSensor_Coe_Init();
+#endif
+	
+#if ENABLE_FPGA_DOWN
+//	SPI1_Init();//FPGA spi配置
+  Fpga_Config_Init();
+#endif
+
+  mymem_init(SRAMCCM); 	//初始化CCM内存池
+  USART_Configuration();
+#if _NPC_VERSION_ > 2u
+	FSMC_SRAM_Init();
+#if USE_MEMMNG == 1u
+	memmng_init();
+#endif
+//	fsmc_sram_test();
+#if USE_PVD == 1u
+	//g_dipCtrlWorker = PVD_Restore();
+	PVD_Config();
+#endif
+#endif
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void ShutDown(void) {
+	OS_ERR err;
+//	__disable_irq();   // 关闭总中断
+	
+#if USE_PVD == 1u
+	INTX_DISABLE();
+	PVD_Save();
+	AllWorkerCtrl(WORKER_STOP);
+	g_noWrite = 1;
+	INTX_ENABLE();
+#endif
+	OS_TaskSuspend((OS_TCB*)&UsartRecvTaskTCB,&err);
+	while(1);
+}
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void NewMemory(void **p , size_t size ) {
+	OS_ERR err;	
+	if(0 == size)
+		return;
+	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	if(*p!=NULL) { 
+      free(*p);
+      *p = NULL;
+    }
+#if USE_MEMMNG == 1u
+    *p = (memmng_malloc(size));
+#else
+    *p = (malloc(size));
+#endif
+	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+    if(NULL == *p) 
+    {
+      NewError();
+    }
+	memset(*p, 0, size);
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void ReNewMemory(void **p , size_t size ) {
+	OS_ERR err;	
+	if(0 == size)
+		return;
+	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+#if USE_MEMMNG == 1u
+    *p = (memmng_realloc(*p ,size));
+#else
+    *p = (realloc(*p ,size));
+#endif
+	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+    if(NULL == *p) 
+    {
+      NewError();
+    }
+	
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void DelMemory(void **p) {
+	OS_ERR err;	
+	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	if(*p!=NULL) { 
+#if USE_MEMMNG == 1u
+      memmng_free(*p);
+#else
+      free(*p);
+#endif
+      *p = NULL;
+    }
+	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void NewError(void ) {
+	u16 i = 0;
+    u8	j = 0;
+	u8 sw = 1;
+	g_cdvStat = CDV_NEW_ERROR;
+	LED3 = LED_ON;
+	Log_Write("NEW ERROR" , LOG_ERROR);
+	while(sw)
+		if(0 == i++) {
+			if(0 ==  j++)
+			LED2 = ~LED2;		//呼吸灯;
+		}
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void WhileError(void ) {
+	u16 i = 0;
+  u8	j = 0;
+	u8 sw = 1;
+	g_cdvStat = CDV_WHILE_ERROR;
+	LED3 = LED_ON;
+	Log_Write("WHILE ERROR" , LOG_ERROR);
+	while(sw)
+		if(0 == i++) {
+			if(0 ==  j++)
+			LED2 = ~LED2;		//呼吸灯;
+		}
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   1US168条指令
+  *         102261126
+  */
+void DelayUS(u32 cnt)
+{
+	u32 j;
+	cnt=cnt*42;
+	for(j=0;j<cnt;j++);//大概4条指令
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void CDVParamInit(void) {
+	static u8 isInited = 0;
+	LineInit();
+	if(!isInited) {
+		isInited = 1;
+	  FlashToVal(0, CDV_VAR_NUM);
+#if _NPC_VERSION_ > 1u
+		GetTable();
+#endif
+	}
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void SPI_Flash_Write_Check(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
+{
+	CDV_INT08U i;
+  CDV_INT08U *Readbuf;
+//	CDV_INT08U* Readbuf = NULL;
+//	NEW08U(Readbuf , 1000);	
+	SPI_Flash_Read((CDV_INT08U *)&Readbuf,WriteAddr ,NumByteToWrite);
+   for( i=0;i<NumByteToWrite;i++)
+	{
+	 if (Readbuf[i] == pBuffer[i])
+		 ;
+	 	
+	 else
+		 if(SPItime_Flag == 1)
+		 {
+			SPItime_Flag = 0; 
+		  SPI_Flash_Write(pBuffer,WriteAddr,NumByteToWrite);
+		 }
+	  if( Alarmflag == 1)
+		 break;
+	 }		
+}
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void assert(uint8_t* file, uint8_t* function, uint32_t line)
+{ 
+  char tmp[100]={0};
+	char loop = 1;
+	
+	__disable_irq();   // 关闭总中断
+	
+	g_cdvStat = CDV_ASSERT;
+	
+	sprintf(tmp , "assert occur! file:%s\r\nfunction:%s\r\nline:%d\r\n" 
+	,file 
+	,function
+	,line
+	);
+	
+  while (loop)
+  {
+		USARTSend((CDV_INT08U*)tmp, strlen(tmp), MAIN_COM);
+		DelayUS(5000000);
+  }
+	
+	//__enable_irq();
+}
+
