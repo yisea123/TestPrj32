@@ -29,7 +29,7 @@
 	#define CASCADE_ReadWriteByte(a)				SPIx_ReadWriteByte(SPI2,(a))
 
   //级联资源表——版本号
-  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 1/*硬件驱动版本*/, 5/*迭代小版本*/};
+  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 2/*迭代小版本*/};
 	//从机资源表
 	CDV_INT08U *slaveTable = NULL;
 	CDV_INT08U *slaveTable2 = NULL;

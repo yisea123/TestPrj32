@@ -354,7 +354,12 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//ªÒ»°Œ
 	MODBUS_REG_ADDR(addr) = num;
 	
   AddTx(rxBuf , rxLen, uartNo);
+
+#if USE_FLASH_BAK
+	FlashBak_VarBackUpEx((CDV_INT08U *)&num, 2 * (addr), 2);
+#elseif USE_PVD == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
+#endif
 	return 0;
 }
 			
@@ -1046,8 +1051,11 @@ int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	memcpy((*cmdBuf), rxBuf , 6);
-	
+#if USE_FLASH_BAK
+	FlashBak_VarBackUpEx((CDV_INT08U *)&num, 2 * (addr), 2);
+#elseif USE_PVD == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
+#endif
 	return 0;
 }
 			

@@ -240,7 +240,11 @@ void CDVParamInit(void) {
 	LineInit();
 	if(!isInited) {
 		isInited = 1;
+#if USE_FLASH_BAK
+		FlashBak_VarRestore();
+#elseif USE_PVD == 0u
 	  FlashToVal(0, CDV_VAR_NUM);
+#endif
 #if _NPC_VERSION_ > 1u
 		GetTable();
 #endif

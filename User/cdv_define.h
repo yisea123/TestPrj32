@@ -180,6 +180,8 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define USE_PVD 1u
 #define USE_MEMMNG 1u
 #endif
+
+#define USE_FLASH_BAK 0u
 /*LED定义*/
 //#if defined(CDV_V1)
 //#define LED1 PDout(9)	  // LED1 运行指示
@@ -241,8 +243,8 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define MOTOPAR_ADDR		      SCRIP_TRAY+100				   //电机参数存储地址
 #define MOTO_LINE_PAR_ADDR		MOTOPAR_ADDR+1000				 //直线插补参数存储地址
 #define MOTO_ARC_PAR_ADDR		  MOTO_LINE_PAR_ADDR+1000	 //圆弧插补参数存储地址
-#define IPAR_ADDR             0x1FF00                  //I参数存储地址
-#define VAL_STADDR            0x1F000                  //变量值存放起始地址
+#define IPAR_ADDR             0x21000                  //I参数存储地址//180410:原0x1FF00
+#define VAL_STADDR            0x1F000                  //变量值存放起始地址//180410:0x2000为变量备份地址
 #define USART_ADDR            0x1EF00                  //串口设置存储地址
 #define NET_ADDR              USART_ADDR - 0x100       //网络设置存储地址
 

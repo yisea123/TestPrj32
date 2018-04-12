@@ -70,6 +70,7 @@
 #include "UniversalSCom.h"
 #include "VarExp.h"
 #include "memmng.h"
+#include "FlashBak.h"
 /*Config*/
 #include "dmax.h"
 #include "uartx.h"
