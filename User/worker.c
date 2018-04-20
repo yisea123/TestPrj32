@@ -58,11 +58,11 @@ BOOL IsTaskExist(const OS_TCB tcb) {
 RET_STATUS ReadWorkerBuf(DEBUG_SCRIPT *debugWorker) {
 
 	RET_STATUS ret;
-#ifdef  _DEBUG_NPC_
-	Mem_Read(&debugWorker->len, debugWorker->cmdPos + 2, 1);
-#else
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&debugWorker->len, debugWorker->cmdPos + 2, 1);
+//#else
 	debugWorker->len = *(CDV_INT08U*)(SCRIPT_GETADDR(debugWorker->cmdPos + 2));
-#endif	
+//#endif	
 	debugWorker->len += 3;
 	//NEW08U(debugWorker->buf , debugWorker->len);
   //Mem_Read(debugWorker->buf, debugWorker->cmdPos + 3, (CDV_INT16U)(debugWorker->len));	
@@ -120,11 +120,11 @@ RET_STATUS InitWorker(const CDV_INT08U no, DEBUG_SCRIPT *debugWorker) {
 	/*读取脚本信息*/
 	
 	debugWorker->startPos = SCRIPADDR(no);//起始地址
-#ifdef  _DEBUG_NPC_
-	Mem_Read((CDV_INT08U*)&len, SCRIP_LEN(no) - FLASH_WORK_ADDR, 2);
-#else
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read((CDV_INT08U*)&len, SCRIP_LEN(no) - FLASH_WORK_ADDR, 2);
+//#else
 	len = *(CDV_INT16U*)(SCRIPT_GETADDR(SCRIP_LEN(no) - FLASH_WORK_ADDR));
-#endif	
+//#endif	
 
 
   debugWorker->totalLen = len;

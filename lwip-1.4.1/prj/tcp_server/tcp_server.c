@@ -135,9 +135,9 @@ void http_server_serve(struct netconn *conn)
 						//判断要拷贝到TCP_SERVER_RX_BUFSIZE中的数据是否大于TCP_SERVER_RX_BUFSIZE的剩余空间，如果大于
 						//的话就只拷贝TCP_SERVER_RX_BUFSIZE中剩余长度的数据，否则的话就拷贝所有的数据
 						if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len)) 
-							memcpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
+							MemCpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
 						else 
-							memcpy(tcp_server_recvbuf+data_len,q->payload,q->len);
+							MemCpy(tcp_server_recvbuf+data_len,q->payload,q->len);
 						data_len += q->len;  	
 						if(data_len > TCP_SERVER_RX_BUFSIZE) 
 							break; //超出TCP客户端接收数组,跳出	
@@ -156,7 +156,7 @@ void http_server_serve(struct netconn *conn)
 								while(SRP_QUE_HAD);
 									MAX_SELF_ADD(g_scriptRecv.rxPos, QUE_NUM);
 							}
-							memcpy(&g_scriptRecv.buf[g_scriptRecv.rxPos][g_scriptRecv.len[g_scriptRecv.rxPos]], tcp_server_recvbuf, data_len);
+							MemCpy(&g_scriptRecv.buf[g_scriptRecv.rxPos][g_scriptRecv.len[g_scriptRecv.rxPos]], tcp_server_recvbuf, data_len);
 							g_scriptRecv.len[g_scriptRecv.rxPos] += data_len;
 							lenlenlen += data_len;
 						}
@@ -333,9 +333,9 @@ static void tcp_server_thread(void *arg)
 						//判断要拷贝到TCP_SERVER_RX_BUFSIZE中的数据是否大于TCP_SERVER_RX_BUFSIZE的剩余空间，如果大于
 						//的话就只拷贝TCP_SERVER_RX_BUFSIZE中剩余长度的数据，否则的话就拷贝所有的数据
 						if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len)) 
-							memcpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
+							MemCpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
 						else 
-							memcpy(tcp_server_recvbuf+data_len,q->payload,q->len);
+							MemCpy(tcp_server_recvbuf+data_len,q->payload,q->len);
 						data_len += q->len;  	
 						if(data_len > TCP_SERVER_RX_BUFSIZE) 
 							break; //超出TCP客户端接收数组,跳出	
@@ -441,8 +441,8 @@ RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_
 	RET_STATUS ret = OPT_SUCCESS;
   OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
 	NEW08U(sendBuf, sendLen);
-	memcpy(sendBuf, pBuffer, NumByteToWrite);
-	memcpy(sendBuf + NumByteToWrite, exBuf, exLen);
+	MemCpy(sendBuf, pBuffer, NumByteToWrite);
+	MemCpy(sendBuf + NumByteToWrite, exBuf, exLen);
 	//下面顺序不要改动
 //	tcp_server_sendlen = NumByteToWrite;
 	/////////////////////////////

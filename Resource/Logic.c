@@ -168,22 +168,22 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 	
 			Addr = ((DEBUG_SCRIPT*)(arg->ptrWorker))->cmdPos + 2;//Addr = g_run.cmdPos[WorkNo];
 			
-#ifdef  _DEBUG_NPC_
-			Mem_Read(&ResNo,Addr + 4,1);
-			Mem_Read(&Action,Addr + 9,1);
-#else
+//#ifdef  _DEBUG_NPC_
+//			Mem_Read(&ResNo,Addr + 4,1);
+//			Mem_Read(&Action,Addr + 9,1);
+//#else
 	    ResNo = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 4));
 	    Action = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 9));
-#endif	
+//#endif	
 			if(ResNo == 0x08 &&((Action == 0x03)||(Action == 0x02))){
 				//g_run.cmdPos[WorkNo] = *paddr;
 				return OPT_SUCCESS;
 			}
-#ifdef  _DEBUG_NPC_
-			Mem_Read(&ExpLen,Addr,1);
-#else
+//#ifdef  _DEBUG_NPC_
+//			Mem_Read(&ExpLen,Addr,1);
+//#else
 	    ExpLen = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr));
-#endif	
+//#endif	
 			ExpLen = ExpLen - 12;
 			
 			//Mem_Read(Jump,Addr+11+ExpLen,2);

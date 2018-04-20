@@ -43,6 +43,7 @@ CDV_INT08U CascadeGetNativeNo(void);
 //RET_STATUS CascadeTranferCmd(CDV_INT08U** ppBuffer, CDV_INT08U* pLen, CDV_INT08U* pCmdBuf, CDV_INT16U NumByteOfCmd);
 //RET_STATUS TFCmdParse (CDV_INT08U* pBuf, CDV_INT08U len);
 //RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
+	RET_STATUS CascadeModbus_MapInit(void);
 //
 CDV_INT08U PortCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo) ;
 RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);

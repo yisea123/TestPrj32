@@ -51,7 +51,7 @@ MODBUS_Input_Register g_modbusInReg={0};
   */
 int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i, len ;
+	CDV_INT16U i, len ;
 	CDV_INT16U addr, num, numCh;
 	CDV_INT16U sta, sf;
 	CDV_INT08U *txBuf = NULL;
@@ -108,7 +108,7 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
   */
 int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i, len ;
+	CDV_INT16U i, len ;
 	CDV_INT16U addr, num, numCh;
 	CDV_INT16U sta, sf;
 	CDV_INT08U *txBuf = NULL;
@@ -167,7 +167,7 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´
   */
 int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i, len ;
+	CDV_INT16U i, len ;
 	CDV_INT16U addr, num;
 	CDV_INT08U *txBuf = NULL;
 	
@@ -214,7 +214,7 @@ int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»
   */
 int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i, len ;
+	CDV_INT16U i, len ;
 	CDV_INT16U addr, num;
 	CDV_INT08U *txBuf = NULL;
 	
@@ -377,7 +377,7 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î
   */
 int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
 	
-	CDV_INT08U i;
+	CDV_INT16U i;
 	CDV_INT16U addr, num, numCh;
 	CDV_INT16U sta, sf, end, esf;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
@@ -443,7 +443,7 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
   */
 int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
+	CDV_INT16U i;
 	CDV_INT16U addr, num , numCh , data;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
@@ -628,7 +628,7 @@ void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	(*cmdBuf)[5] = (num) & 0xff;
   (*cmdBuf)[6] = num << 1;
 	
-	memcpy((*cmdBuf) + 7, Endian_TF(regVal, num << 1, 2), (*cmdBuf)[6]);
+	MemCpy((*cmdBuf) + 7, Endian_TF(regVal, num << 1, 2), (*cmdBuf)[6]);
 }
 /** @brief  ·¢ËÍÃüÁî×éºÏ ¶Á¼Ä´æÆ÷
   * @param  dev     ¶Ô·½Éè±¸ºÅ
@@ -732,7 +732,7 @@ void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	(*cmdBuf)[4] = (num>>8) & 0xff;
 	(*cmdBuf)[5] = (num) & 0xff;
   (*cmdBuf)[6] = numCh;
-	memcpy((*cmdBuf) + 7, coilVal, (*cmdBuf)[6]);
+	MemCpy((*cmdBuf) + 7, coilVal, (*cmdBuf)[6]);
 	
 }
 /** @brief  ·¢ËÍÃüÁî×éºÏ ¶ÁÖ»¶ÁÏßÈ¦
@@ -1020,7 +1020,7 @@ int WriteCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_
 	}
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
-	memcpy((*cmdBuf), rxBuf , 6);
+	MemCpy((*cmdBuf), rxBuf , 6);
 	return 0;	
 				
 }
@@ -1050,7 +1050,7 @@ int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,
 	
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
-	memcpy((*cmdBuf), rxBuf , 6);
+	MemCpy((*cmdBuf), rxBuf , 6);
 #if USE_FLASH_BAK
 	FlashBak_VarBackUpEx((CDV_INT08U *)&num, 2 * (addr), 2);
 #elseif USE_PVD == 0u
@@ -1115,7 +1115,7 @@ int WriteMultiCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf
 	}
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
-	memcpy((*cmdBuf), rxBuf , 6);
+	MemCpy((*cmdBuf), rxBuf , 6);
   return 0;	
 }
 			
@@ -1151,7 +1151,7 @@ int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cm
 	
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
-	memcpy((*cmdBuf), rxBuf , rxLen-2);
+	MemCpy((*cmdBuf), rxBuf , rxLen-2);
 	ValToFlash((addr>>1), (num>>1));
  
   return 0;	

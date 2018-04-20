@@ -98,6 +98,7 @@ u8 PVD_Flash_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
   * @brief  
   * @param  
   * @retval
+  * @note WriteAddr NumByteToWrite需为4的整数倍
   */
 u8 PVD_Flash_Read(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)   
 {
@@ -189,8 +190,8 @@ CDV_INT08S PVD_Restore(void)
 		
 		//恢复动作
 		OWriteAll();
-		RestartWorkers();
-		return 1;
+		//RestartWorkers();//很危险
+		return 0;//1;
 	}
 	return -1;
 }

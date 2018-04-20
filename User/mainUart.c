@@ -465,7 +465,7 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 				
 				if(n < 65536) {
 				  port = n;
-					memcpy(ip + 4, &port, 2);
+					MemCpy(ip + 4, &port, 2);
 					i += 2;
 				  SPI_Flash_Write((CDV_INT08U *)&ip, NET_ADDR, 6);
 				  AddTxNoCrc("SUCCESS", 7, uartNo);
@@ -506,7 +506,7 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 				if(n >= 0 && n < 65536 && id >= 0 && id < 256) {
 					SPI_Flash_Write((CDV_INT08U *)&id, CHECK_VERION_ADDR, 1);
 				  port = n;
-					memcpy(ip + 4, &port, 2);
+					MemCpy(ip + 4, &port, 2);
 					i += 2;
 				  SPI_Flash_Write((CDV_INT08U *)&ip, NET_ADDR, 6);
 				  AddTxNoCrc("SUCCESS", 7, uartNo);
@@ -725,7 +725,7 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 //				return;
 				
 			NEW08U(txBuf , 10);
-			memcpy(txBuf , rxBuf, 4);
+			MemCpy(txBuf , rxBuf, 4);
 //			SPI_Flash_Read(txBuf , SCRIP_NAME(g_scriptInfo.no) , len);		
 //			crc = getCRC16(txBuf,len-2); 
 //			
@@ -754,7 +754,7 @@ case 0x0002://压缩包读
       if(!g_line.init)
 				return;
 			NEW08U(txBuf , arg->len + 4);
-			memcpy(txBuf , arg->buf, arg->len);
+			MemCpy(txBuf , arg->buf, arg->len);
 
 			SPI_Flash_Read((CDV_INT08U *)&g_scriptInfo.len, SCRIP_YYC-4, 4);
       g_scriptInfo.len += 2;
@@ -825,7 +825,7 @@ case 0x0002://压缩包读
 				return;
 				
 			NEW08U(txBuf , 7);
-			memcpy(txBuf , rxBuf , 5);
+			MemCpy(txBuf , rxBuf , 5);
 			txBuf[5] = (CDV_INT08U)(g_scriptInfo.len>>8);
 			txBuf[6] = (CDV_INT08U)(g_scriptInfo.len);
 			AddTx(txBuf , 7, arg->uart);
@@ -1019,7 +1019,7 @@ CDV_INT08U NeedRequestTx(CDV_INT08U uartNo) {
 //	
 //	g_cacheTx.buf = (CDV_INT08U*)malloc(sizeof(CDV_INT08U)*(g_cacheTx.len));
 	NEW08U(g_cacheTx.buf , g_cacheTx.len);
-	memcpy(g_cacheTx.buf , USART_TX_DO_ADDR , g_cacheTx.len);
+	MemCpy(g_cacheTx.buf , USART_TX_DO_ADDR , g_cacheTx.len);
 	g_cacheTx.mark = 1;
 	return 1;
 }
@@ -1058,7 +1058,7 @@ CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo
 //	g_olCache.buf = (CDV_INT08U*)malloc(sizeof(CDV_INT08U)*(g_olCache.len));
 	NEW08U(g_olCache.buf,g_olCache.len);
 	if(g_olCache.buf != NULL) { 
-	    memcpy(g_olCache.buf , rxBuf , g_olCache.len);
+	    MemCpy(g_olCache.buf , rxBuf , g_olCache.len);
 		g_olCache.uart = uartNo;
 	}else{
 	    g_olCache.len = 0;//应该换成下面的错误警告
@@ -1108,7 +1108,7 @@ RET_STATUS MAINUSART_Send(CDV_INT08U* txBuf, CDV_INT16U txLen){
 	
 	if(USART_CAN_DO){
 		USART_TX_ADD_WITH_LEN(txLen);//开辟空间	
-		memcpy(USART_TX_BUF_ADDR, txBuf , txLen);	
+		MemCpy(USART_TX_BUF_ADDR, txBuf , txLen);	
 		USART_TX_QUEUE_SELF_ADD;			
 	}
 	
@@ -1137,8 +1137,8 @@ RET_STATUS MAINUSART_SendEx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U* exB
 	
 	if(USART_CAN_DO){
 		USART_TX_ADD_WITH_LEN(txLen + exLen);//开辟空间	
-		memcpy(USART_TX_BUF_ADDR, txBuf , txLen);	
-		memcpy(USART_TX_BUF_ADDR + txLen, exBuf , exLen);	
+		MemCpy(USART_TX_BUF_ADDR, txBuf , txLen);	
+		MemCpy(USART_TX_BUF_ADDR + txLen, exBuf , exLen);	
 		USART_TX_QUEUE_SELF_ADD;			
 	}
 	
@@ -1324,9 +1324,9 @@ void AddTx(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
 		TX_Head[5] = txLen+2;
 		txRealLen=txLen+6;
 		NEW08U(TX_BUF,txRealLen);
-		memcpy(TX_BUF , TX_Head, 6);
+		MemCpy(TX_BUF , TX_Head, 6);
 		if(txLen>0)
-		memcpy(TX_BUF+6 , txBuf, txLen);	
+		MemCpy(TX_BUF+6 , txBuf, txLen);	
 		txLen = txRealLen;
 	}
 	
@@ -1551,6 +1551,7 @@ void ScriptRecvDeinit(void) {
   * @note   g_scriptRecv
   */
 void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
+	OS_ERR err;
 	CDV_INT08U start = 0 ;
 	//CDV_INT32U cnt = 1 ;
 	CDV_INT32U lastRxPos = 0;
@@ -1558,8 +1559,10 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 	if(0 == addr || 0 == len)
 		return;
 	ScriptRecvInit(addr , len);
+	OS_TaskSuspend((OS_TCB*)&CdvRefreshTaskTCB,&err);
 	
 	while(1) {//检测是否用户开启了FPGA程序下载到flash的拨码开关
+		//  ASSERT(g_scriptRecv.doPos < QUE_NUM);
 	  if(g_scriptRecv.tmpLen + g_scriptRecv.len[g_scriptRecv.doPos] >=  g_scriptRecv.totalLen) {//拨码开关拨到了停止下载FPGA程序的位置			
 			if (0 != g_scriptRecv.len[g_scriptRecv.doPos]) {
 				SPI_Flash_Write(g_scriptRecv.buf[g_scriptRecv.doPos], g_scriptRecv.tmpLen + g_scriptRecv.addr, g_scriptRecv.totalLen - g_scriptRecv.tmpLen);
@@ -1593,6 +1596,7 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 		}
 	}
 	
+	OSTaskResume((OS_TCB*)&CdvRefreshTaskTCB,&err);
 	ScriptRecvDeinit();
 	
 }

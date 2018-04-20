@@ -286,6 +286,10 @@ void USARTx_IRQHandler(USART_TypeDef* USARTx, u8 uartNo)
 	CDV_INT08U Res;
   
 	tm1Re = ReadClock1ms();
+	if (USART_GetFlagStatus(USARTx, USART_FLAG_ORE) != RESET)
+	{
+	  USART_ReceiveData(USARTx);
+	}
 	if(USART_GetITStatus(USARTx, USART_IT_RXNE) != RESET)   /*Ω” ’÷–∂œ()*/
 	{
 		USART_ClearITPendingBit(USARTx,USART_IT_RXNE);

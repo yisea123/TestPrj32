@@ -67,7 +67,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
 	u8 *buffer=(u8 *)ETH_GetCurrentTxBuffer(); 
 	for(q=p;q!=NULL;q=q->next) 
 	{
-		memcpy((u8_t*)&buffer[l], q->payload, q->len);
+		MemCpy((u8_t*)&buffer[l], q->payload, q->len);
 		l=l+q->len;
 	} 
 	res=ETH_Tx_Packet(l); 
@@ -93,7 +93,7 @@ static struct pbuf * low_level_input(struct netif *netif)
 	{
 		for(q=p;q!=NULL;q=q->next)
 		{
-			memcpy((u8_t*)q->payload,(u8_t*)&buffer[l], q->len);
+			MemCpy((u8_t*)q->payload,(u8_t*)&buffer[l], q->len);
 			l=l+q->len;
 		}    
 	}

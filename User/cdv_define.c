@@ -24,7 +24,7 @@
 
 CDV_STATUS g_cdvStat = CDV_FPGA_INIT/*,g_tmpCdvStat = CDV_NULL*/;                      /*CDV状态标记*/
 CDV_INT08U g_nowDoRes = 0;   /*标记现在进入的资源号*/
-SCRIPT_INFO g_scriptInfo;                               /*CDV脚本状态结构体*/
+SCRIPT_INFO g_scriptInfo = {0};                               /*CDV脚本状态结构体*/
 //DEBUG_DATA g_debugData;
 /*软件定时器*/
 CDV_INT32U tm1Re = 0,tm2Re = 0,tm3Re = 0;

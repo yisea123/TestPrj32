@@ -289,14 +289,14 @@ void start_task(void *p_arg){
 //	//Fpga_Down(1, FPGA_MOTOR);
 //	OS_CRITICAL_EXIT(); //进入临界区		
 	//创建定时器1
-//	OSTmrCreate((OS_TMR		*)&tmr1,		//定时器1
-//                (CPU_CHAR	*)"tmr1",		//定时器名字
-//                (OS_TICK	 )0,			//0*1=0ms
-//                (OS_TICK	 )1,          //n*10ms=20ms 10ms=1/OS_CFG_TMR_TASK_RATE_HZ 
-//                (OS_OPT		 )OS_OPT_TMR_PERIODIC, //周期模式
-//                (OS_TMR_CALLBACK_PTR)tmr1_callback,//定时器1回调函数
-//                (void	    *)0,			//参数为0
-//                (OS_ERR	    *)&err);		//返回的错误码						
+	OSTmrCreate((OS_TMR		*)&tmr1,		//定时器1
+                (CPU_CHAR	*)"tmr1",		//定时器名字
+                (OS_TICK	 )0,			//0*1=0ms
+                (OS_TICK	 )50,          //n*10ms=20ms 10ms=1/OS_CFG_TMR_TASK_RATE_HZ 
+                (OS_OPT		 )OS_OPT_TMR_PERIODIC, //周期模式
+                (OS_TMR_CALLBACK_PTR)tmr1_callback,//定时器1回调函数
+                (void	    *)0,			//参数为0
+                (OS_ERR	    *)&err);		//返回的错误码						
 	//创建定时器2
 //	OSTmrCreate((OS_TMR		*)&tmr2,		
 //                (CPU_CHAR	*)"tmr2",		
@@ -478,6 +478,7 @@ void start_task(void *p_arg){
 #endif
 	 // OS_TaskSuspend((OS_TCB*)&StartTaskTCB,&err); //挂起开始任务
 	  //OS_CRITICAL_EXIT(); //进入临界区		
+		OSTmrStart(&tmr1,&err);
 
 		OSTaskDel((OS_TCB*)0,&err); //删除 start_task 任务自身
 }
@@ -736,7 +737,7 @@ u16 i=0;
 #endif
 
 void cdv_refresh_task(void *p_arg){
-	u32 data1,data2;
+	
   OS_ERR err;
 	WORKER_STATUS stat;
 	CDV_INT08U i;
@@ -749,54 +750,54 @@ void cdv_refresh_task(void *p_arg){
 		if (500 < CalcTimeMS(stime,ftime ))
 		{
 			ftime = stime;
-		  LED1=~LED1;		//呼吸灯
-		
-			//delay_ms(500);
-			data1 = Read_Input_All();
-			data2 = Read_Output_ALL();
-			IN_DisPlay(data1);          //输入状态显示
-			OUT_DisPlay(data2);         //输出状态显示
-			Adc_Voltge ();
-		  // Flash_Check();
-			UpdateDacVal();
-			UpdateAdcVal();
-			
-			if(DIP_ON == READ_DIP_SW(2) && g_dipCtrlWorker != 1) //启动
-			{
-			//if(!Cascade_HaveSlaveTable()) //主机模式
-			//{
-			//	CascadeCombine(0x00);
-			//}
-			//	Test();
-				WorkerControl(0, WORKER_LOOP);//隐藏
-				WorkerControl(1, WORKER_ONCE);//监工
-				g_dipCtrlWorker = 1;
-			}
-			else if(DIP_OFF == READ_DIP_SW(2) && g_dipCtrlWorker != 0)//退出
-			{
-				AllWorkerCtrl(WORKER_STOP);
-				g_dipCtrlWorker = 0;
-			}
-			
-			
-			if(debug)//退出
-			{
-				WorkerControl(debug1, debug2);
-			}
+//		  LED1=~LED1;		//呼吸灯
+//		
+//			//delay_ms(500);
+//			data1 = Read_Input_All();
+//			data2 = Read_Output_ALL();
+//			IN_DisPlay(data1);          //输入状态显示
+//			OUT_DisPlay(data2);         //输出状态显示
+//			Adc_Voltge ();
+//		  // Flash_Check();
+//			UpdateDacVal();
+//			UpdateAdcVal();
+//			
+//			if(DIP_ON == READ_DIP_SW(2) && g_dipCtrlWorker != 1) //启动
+//			{
+//			//if(!Cascade_HaveSlaveTable()) //主机模式
+//			//{
+//			//	CascadeCombine(0x00);
+//			//}
+//			//	Test();
+//				WorkerControl(0, WORKER_LOOP);//隐藏
+//				WorkerControl(1, WORKER_ONCE);//监工
+//				g_dipCtrlWorker = 1;
+//			}
+//			else if(DIP_OFF == READ_DIP_SW(2) && g_dipCtrlWorker != 0)//退出
+//			{
+//				AllWorkerCtrl(WORKER_STOP);
+//				g_dipCtrlWorker = 0;
+//			}
+//			
+//			
+//			if(debug)//退出
+//			{
+//				WorkerControl(debug1, debug2);
+//			}
 		}
-#if USE_PVD == 1u
-		if(PVD_GetFlag()) {
-			ShutDown();
-		}
-#endif
+//#if USE_PVD == 1u
+//		if(PVD_GetFlag()) {
+//			ShutDown();
+//		}
+//#endif
 
-#if _NPC_VERSION_ > 1u
-#if USE_NPC_NET
-  Eth_Link_query();
-//#else
-//	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);
-#endif
-#endif
+//#if _NPC_VERSION_ > 1u
+//#if USE_NPC_NET
+//  Eth_Link_query();
+////#else
+////	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);
+//#endif
+//#endif
 	}
 }
 
@@ -878,23 +879,71 @@ void cdv_Moto_task(void *p_arg){
 
 //定时器1的回调函数
 //用于联机状态下的串口收
-void tmr1_callback(void *p_tmr, void *p_arg){
-  OS_ERR err;
-	if(++tm1Re < 2)
-		return;
-//	serial_state=USART3_Receive_Data2(general_serial_buf,&general_serial_count);//判断串口接收完成
-//	if(serial_state==1)//接收完成
-//	{
-//			general_serial_return(general_serial_buf, general_serial_count);
-//		  serial_flag=1;
-//      general_serial_count2=general_serial_count;
-//		  OSTaskResume((OS_TCB*)&UsartRecvTaskTCB,&err);
+void tmr1_callback(void *p_tmr, void *p_arg) {
+//  OS_ERR err;
+	u32 data1,data2;
+//	if(++tm1Re < 2)
+//		return;
+////	serial_state=USART3_Receive_Data2(general_serial_buf,&general_serial_count);//判断串口接收完成
+////	if(serial_state==1)//接收完成
+////	{
+////			general_serial_return(general_serial_buf, general_serial_count);
+////		  serial_flag=1;
+////      general_serial_count2=general_serial_count;
+////		  OSTaskResume((OS_TCB*)&UsartRecvTaskTCB,&err);
+////	}
+//	
+//	USART_RX_QUEUE_SELF_ADD;
+//	if(USART_RX_HAD) {
+//		OSTaskResume((OS_TCB*)&UsartRecvTaskTCB,&err);
 //	}
+	LED1=~LED1;		//呼吸灯
+
+	//delay_ms(500);
+	data1 = Read_Input_All();
+	data2 = Read_Output_ALL();
+	IN_DisPlay(data1);          //输入状态显示
+	OUT_DisPlay(data2);         //输出状态显示
+	Adc_Voltge ();
+	// Flash_Check();
+	UpdateDacVal();
+	UpdateAdcVal();
 	
-	USART_RX_QUEUE_SELF_ADD;
-	if(USART_RX_HAD) {
-		OSTaskResume((OS_TCB*)&UsartRecvTaskTCB,&err);
+	if(DIP_ON == READ_DIP_SW(2) && g_dipCtrlWorker != 1) //启动
+	{
+	//if(!Cascade_HaveSlaveTable()) //主机模式
+	//{
+	//	CascadeCombine(0x00);
+	//}
+	//	Test();
+		WorkerControl(0, WORKER_LOOP);//隐藏
+		WorkerControl(1, WORKER_ONCE);//监工
+		g_dipCtrlWorker = 1;
 	}
+	else if(DIP_OFF == READ_DIP_SW(2) && g_dipCtrlWorker != 0)//退出
+	{
+		AllWorkerCtrl(WORKER_STOP);
+		g_dipCtrlWorker = 0;
+	}
+	
+	
+	if(debug)//退出
+	{
+		WorkerControl(debug1, debug2);
+	}
+#if USE_PVD == 1u
+	if(PVD_GetFlag()) {
+		ShutDown();
+	}
+#endif
+		
+#if _NPC_VERSION_ > 1u
+#if USE_NPC_NET
+  Eth_Link_query();
+//#else
+//	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);
+#endif
+#endif
 }
 ////定时器1的回调函数
 ////用于联机状态下的串口收

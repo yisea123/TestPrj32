@@ -838,13 +838,13 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
 	CDV_INT32U addr = flashAddr;
 	while(addr - flashAddr < len-2) {
 		/*读取当前命令长度*/
-#ifdef  _DEBUG_NPC_
-		Mem_Read(&chNum, addr + 2, 1);
-		Mem_Read((CDV_INT08U*)&no, addr, 2);
-#else
+//#ifdef  _DEBUG_NPC_
+//		Mem_Read(&chNum, addr + 2, 1);
+//		Mem_Read((CDV_INT08U*)&no, addr, 2);
+//#else
 	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
 	//no = *(CDV_INT16U*)(SCRIPT_GETADDR(addr));//多余的
-#endif	
+//#endif	
 		
 		cmdNo++;
 		addr += chNum + 3 ;
@@ -866,11 +866,11 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
 CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
 	CDV_INT08U chNum;
 	CDV_INT32U addr = flashAddr; 
-#ifdef  _DEBUG_NPC_
-	Mem_Read(&chNum, addr + 2, 1);
-#else
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
 	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
-#endif	
+//#endif	
 	addr += chNum + 3 ;
 
 	return addr;
@@ -892,11 +892,11 @@ CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
 	CDV_INT32U addr = startPos;
 	
 	while(addr < currentPos) {
-#ifdef  _DEBUG_NPC_
-	Mem_Read(&chNum, addr + 2, 1);
-#else
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
 	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
-#endif	
+//#endif	
 		addr += chNum + 3 ;
 		cmdNo++;
 	}
@@ -930,11 +930,11 @@ CDV_INT32U Mem_GetCmdPos(CDV_INT16U no , CDV_INT16U cmdNum , CDV_INT32U flashAdd
 	}
 	
 	while(cmdNo < cmdNum && no != cmdNo) {
-#ifdef  _DEBUG_NPC_
-	Mem_Read(&chNum, addr + 2, 1);
-#else
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
 	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
-#endif	
+//#endif	
 		{
 		  addr += chNum + 3 ;
 		}
@@ -971,7 +971,7 @@ void Mem_Read(u8* pBuffer,u32 ReadAddr,u16 NumByteToRead)
 //		return;
 //	}
 	
-	memcpy(pBuffer, OfflineScript + ReadAddr, NumByteToRead);
+	MemCpy(pBuffer, OfflineScript + ReadAddr, NumByteToRead);
 	
 }  
 
@@ -1020,9 +1020,11 @@ RET_STATUS LineInit(void) {
 	CDV_INT16U len = 0;
 	
 	GetLineInfo(0);//初始化生产线
+	
 	if(!g_line.init) {
 		return OPT_FAILURE;
 	}
+	
 	CascadeModbus_MapInit();
 	Mem_ReadLine();
   return OPT_SUCCESS;

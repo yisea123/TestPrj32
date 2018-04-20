@@ -330,7 +330,7 @@ void CascadeMasterTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBuf
   SPEED_CASCADE;
 	slen = txByte + 2 ;
 	NEW08U(sbuf, slen);//最后是crc
-	memcpy(sbuf, pTxBuf, txByte);
+	MemCpy(sbuf, pTxBuf, txByte);
 	//crc
 	crc = getCRC16(pTxBuf, txByte);
 	sbuf[txByte] = crc & 0xff; 
@@ -377,7 +377,7 @@ void CascadeMasterTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBuf
 			sbuf = NULL;
 			slen = 8;
 			NEW08U(sbuf, slen);//最后是crc
-		  memcpy(sbuf, "GETRQ:", 6);
+		  MemCpy(sbuf, "GETRQ:", 6);
 			//crc
 			crc = getCRC16(sbuf, 6);
 			sbuf[6] = crc & 0xff; 
@@ -435,7 +435,7 @@ RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite)
 	ASSERT(NumByteToWrite);
 	
 	NEW08U(tmp, NumByteToWrite + 2);//最后是crc
-	memcpy(tmp, pBuffer, NumByteToWrite);
+	MemCpy(tmp, pBuffer, NumByteToWrite);
 	//crc
 	crc = getCRC16(pBuffer, NumByteToWrite);
 	tmp[NumByteToWrite] = crc & 0xff; 
@@ -474,8 +474,8 @@ RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite)
 		
 		
 		NEW08U(tmp, NumByteOfCmd + 6);//最后是crc
-		memcpy(tmp, "TFCMD:", 6);
-		memcpy(tmp + 6, pCmdBuf, NumByteOfCmd);
+		MemCpy(tmp, "TFCMD:", 6);
+		MemCpy(tmp + 6, pCmdBuf, NumByteOfCmd);
 		
 		CascadeMasterTR((CDV_INT08U*)tmp, NumByteOfCmd + 6/* + 2*/, ppBuffer, pLen, 0xFFFF);
 		
@@ -588,9 +588,9 @@ RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite)
 		slaveTableLen = 5 + len;
 		
 		slaveTable[0] = no;
-		memcpy(slaveTable + 1, version, 4);
+		MemCpy(slaveTable + 1, version, 4);
 		if(NULL != buf && 0 != len)
-			memcpy(slaveTable + 5, buf, len);
+			MemCpy(slaveTable + 5, buf, len);
 		
 		DELETE(buf);
 	}
@@ -604,7 +604,7 @@ RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite)
 		NEW08U(slaveTable, 5);
 		slaveTableLen = 5;
 		slaveTable[0] = no;
-		memcpy(slaveTable + 1, version, 4);
+		MemCpy(slaveTable + 1, version, 4);
 	}
 	
 /** @brief  资源表发送给上位机
@@ -650,7 +650,7 @@ CDV_INT08U PortCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo) 
 	
 	g_portCmdCache.len = rxLen;
 	NEW08U(g_portCmdCache.buf,g_portCmdCache.len);
-	memcpy(g_portCmdCache.buf , rxBuf , g_portCmdCache.len);
+	MemCpy(g_portCmdCache.buf , rxBuf , g_portCmdCache.len);
 	g_portCmdCache.uart = uartNo;
 	g_portCmdCache.mark = 1;
 	return 1;
@@ -989,7 +989,7 @@ RET_STATUS BufToInCoil(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil){
 	if(0x02 != fc || len < numCh + 3)
 		return ret;
 	
-	memcpy(inCoil, pInCoil, numCh);
+	MemCpy(inCoil, pInCoil, numCh);
 	
 	ret = OPT_SUCCESS;
 	return ret;
@@ -1001,7 +1001,7 @@ RET_STATUS BufToInCoil(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil){
             inCoil  寄存器保存地址
             addr    coil的起始地址0~
   * @retval 
-  * @note
+  * @note   不考虑线圈数量
   */
 RET_STATUS BufToInCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil, CDV_INT16U addr) {
 	CDV_INT08U fc = buf[1];
@@ -1025,7 +1025,7 @@ RET_STATUS BufToInCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil, CDV
 	//所处字节
 	for(i = 0; i < numCh; i++) {
 		inCoil[sta+i] = (inCoil[sta+i] & ~(0xFF<<sf)) | pInCoil[i]<<(sf);
-		if (sf && i + 1 < numCh) 
+		if (sf /*&& i + 1 < numCh*/) 
 			inCoil[sta+i+1] = (inCoil[sta+i+1] & ~(0xFF>>(8-sf))) | pInCoil[i]>>(8-sf);
 	}
 	
@@ -1034,6 +1034,79 @@ RET_STATUS BufToInCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil, CDV
 	ret = OPT_SUCCESS;
 	return ret;
 }
+
+/** @brief  读到变量 线圈
+  * @param  buf     命令
+            len     buf长度
+            inCoil  寄存器保存地址
+            addr    coil的起始地址0~
+  * @retval 
+  * @note   考虑线圈数量
+  */
+RET_STATUS BufToInCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* inCoil, CDV_INT16U addr, CDV_INT16U num) {
+	CDV_INT08U fc = buf[1];
+	CDV_INT08U numCh = buf[2];
+	CDV_INT08U i;
+	CDV_INT08U firstCh, secondCh;
+	CDV_INT08U* pInCoil = (CDV_INT08U*)(buf + 3);
+	CDV_INT16U remoteaddr = 0;
+	CDV_INT16U localaddr = addr;
+	RET_STATUS ret = OPT_FAILURE;
+	CDV_INT16U	sta, sf, endnum;
+	
+	ASSERT(buf && len && inCoil);
+	
+	if(0x02 != fc || len < numCh + 3)
+		return ret;
+	
+	/////////
+	sta = (localaddr >> 3);//读线圈的初始char
+	sf = localaddr & 0x07;
+  endnum = num - (numCh - 1) * 8;//最后一个字节的线圈数量
+	//所处字节
+	for(i = 0; i < numCh; i++) {
+		//移位复制
+		firstCh = (inCoil[sta+i] & ~(0xFF<<sf)) | pInCoil[i]<<(sf);
+		
+		if (sf /*&& i + 1 < numCh*/) {
+			secondCh = (inCoil[sta+i+1] & ~(0xFF>>(8-sf))) | pInCoil[i]>>(8-sf);
+		} else {
+			secondCh = inCoil[sta+i+1];
+		}
+		
+		
+		if(i + 1 == numCh && endnum) {//最后一个字节复制特殊
+			/*
+			情况一
+						h              l
+			first 0 0 0 0  0 0 0 0
+											 |sf |    
+							| endnum |     
+			情况二
+			second            first
+			h		           l  h              l
+			0 0 0 0  0 0 0 0  0 0 0 0  0 0 0 0
+						            				 |  sf |    
+						 	     |  endnum     |     
+			*/
+		  if(8 - sf >= endnum) {//大于等于endnum数量，说明复制firstCh足矣，保留sta + endnum的数量
+				inCoil[sta+i] = (inCoil[sta+i]  & (0xFF<<(sf + endnum)))   | (firstCh & (0xFF >> (8-sf - endnum)));
+			} else {
+				inCoil[sta+i] = firstCh;
+				inCoil[sta+i+1] = (inCoil[sta+i+1]  & (0xFF<<(sf + endnum-8)))   | (secondCh & (0xFF >> (16-sf - endnum)));
+			}
+		} else {
+		  inCoil[sta+i] = firstCh;
+		  inCoil[sta+i+1] = secondCh;
+		}
+	}
+	
+	//////////////////
+	
+	ret = OPT_SUCCESS;
+	return ret;
+}
+
 /** @brief  读到变量 线圈
   * @param  buf     命令
             len     buf长度
@@ -1053,7 +1126,7 @@ RET_STATUS BufToCoil(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil){
 	if(0x01 != fc || len < numCh + 3)
 		return ret;
 	
-	memcpy(coil, pCoil, numCh);
+	MemCpy(coil, pCoil, numCh);
 	
 	ret = OPT_SUCCESS;
 	return ret;
@@ -1063,7 +1136,7 @@ RET_STATUS BufToCoil(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil){
             len     buf长度
             coil   寄存器保存地址
   * @retval 
-  * @note
+  * @note   不考虑线圈数量
   */
 RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT16U addr){
 	CDV_INT08U fc = buf[1];
@@ -1087,7 +1160,7 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 	//所处字节
 	for(i = 0; i < numCh; i++) {
 		coil[sta+i] = (coil[sta+i] & ~(0xFF<<sf)) | pCoil[i]<<(sf);
-		if (i + 1 < numCh)
+		if (sf/*i + 1 < numCh*/)
 			coil[sta+i+1] = (coil[sta+i+1] & ~(0xFF>>(8-sf))) | pCoil[i]>>(8-sf);
 	}
 	
@@ -1096,6 +1169,70 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 	ret = OPT_SUCCESS;
 	return ret;
 }
+
+/** @brief  读到变量 线圈
+  * @param  buf     命令
+            len     buf长度
+            coil   寄存器保存地址
+  * @retval 
+  * @note   不考虑线圈数量
+  */
+RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT16U addr, CDV_INT16U num){
+	CDV_INT08U fc = buf[1];
+	CDV_INT08U numCh = buf[2];
+	CDV_INT08U i;
+	CDV_INT08U firstCh, secondCh;
+	CDV_INT08U* pCoil = (CDV_INT08U*)(buf + 3);
+	CDV_INT16U remoteaddr = 0;
+	CDV_INT16U localaddr = addr;
+	RET_STATUS ret = OPT_FAILURE;
+	CDV_INT16U	sta, sf, endnum;
+	
+	ASSERT(buf && len && coil);
+	
+	if(0x01 != fc || len < numCh + 3)
+		return ret;
+	
+	/////////
+	sta = (localaddr >> 3);//读线圈的初始char
+	sf = localaddr & 0x07;
+  endnum = num - (numCh - 1) * 8;//最后一个字节的线圈数量
+	
+	//所处字节
+//	for(i = 0; i < numCh; i++) {
+//		coil[sta+i] = (coil[sta+i] & ~(0xFF<<sf)) | pCoil[i]<<(sf);
+//		if (sf/*i + 1 < numCh*/)
+//			coil[sta+i+1] = (coil[sta+i+1] & ~(0xFF>>(8-sf))) | pCoil[i]>>(8-sf);
+//	}
+	for(i = 0; i < numCh; i++) {
+		//移位复制
+		firstCh = (coil[sta+i] & ~(0xFF<<sf)) | pCoil[i]<<(sf);
+		
+		if (sf /*&& i + 1 < numCh*/) {
+			secondCh = (coil[sta+i+1] & ~(0xFF>>(8-sf))) | pCoil[i]>>(8-sf);
+		} else {
+			secondCh = coil[sta+i+1];
+		}
+		
+		
+		if(i + 1 == numCh && endnum) {//最后一个字节复制特殊
+		  if(8 - sf >= endnum) {//大于等于endnum数量，说明复制firstCh足矣，保留sta + endnum的数量
+				coil[sta+i] = (coil[sta+i]  & (0xFF<<(sf + endnum)))   | (firstCh & (0xFF >> (8-sf - endnum)));
+			} else {
+				coil[sta+i] = firstCh;
+				coil[sta+i+1] = (coil[sta+i+1]  & (0xFF<<(sf + endnum-8)))   | (secondCh & (0xFF >> (16-sf - endnum)));
+			}
+		} else {
+		  coil[sta+i] = firstCh;
+		  coil[sta+i+1] = secondCh;
+		}
+	}
+	//////////////////
+	
+	ret = OPT_SUCCESS;
+	return ret;
+}
+
 /** @brief  读取从机的寄存器到本机
   * @param  pBuffer      查询到的值保存的地方
 	*         id           主机号
@@ -1226,7 +1363,7 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
-			ret = BufToCoil2(recvBuf, recvLen, pCoil, startaddr);
+			ret = BufToCoil3(recvBuf, recvLen, pCoil, startaddr, num);
 		}
 		DELETE(cmdBuf);
 		return ret;
@@ -1281,7 +1418,7 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
-			ret = BufToInCoil2(recvBuf, recvLen, pInCoil, startaddr);
+			ret = BufToInCoil3(recvBuf, recvLen, pInCoil, startaddr, num);
 		}
 		DELETE(cmdBuf);
 		return ret;
@@ -1325,8 +1462,8 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT16U p_val[6];
 		CDV_INT08U p_coil[2];
 		
-		memcpy(p_coil,gp_coil,2);
-		memcpy(p_val,gp_val,12);
+		MemCpy(p_coil,gp_coil,2);
+		MemCpy(p_val,gp_val,12);
 		
 		WriteRegisterCmd(2, 0x10, 6, (CDV_INT08U*)p_val, &cmdBuf, &cmdLen);
 		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART);
@@ -1635,7 +1772,7 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 
 		
 		NEW08U(tmp, NumByteOfCmd + 2);//最后是crc
-		memcpy(tmp, pCmdBuf, NumByteOfCmd);
+		MemCpy(tmp, pCmdBuf, NumByteOfCmd);
 		tmp[NumByteOfCmd] = crc & 0xff; 
 	  tmp[NumByteOfCmd + 1] = (crc >> 8) & 0xff;
 		NEW08U(*ppBuffer, 0xff);
@@ -1747,8 +1884,9 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 					coil = (ArithmeticEx((char*)buf + 10, len - 10, arg)) ? 1 : 0;
 					
 					WriteMultiCoilCmd(host, remoteaddr, 1, &coil, &cmdBuf, &cmdLen);
+
 					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART);
-										
+												
 					if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
 					  ret = OPT_SUCCESS;
 					} else {
@@ -1882,7 +2020,6 @@ RET_STATUS BufToCoil2(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 				break;
 			default:
 				break;
-			
 		}
 
 		return ret;

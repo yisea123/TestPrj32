@@ -26,8 +26,8 @@
 
 #include "cdv_include.h"
 
-extern CDV_INT08S g_dipCtrlWorker;
-extern CDV_INT08S g_noWrite;
+extern CDV_INT08S g_dipCtrlWorker;//掉电恢复用
+extern CDV_INT08S g_noWrite;//禁止spiflash写
 /*
  *CDV外设相关定义
  */
@@ -38,6 +38,7 @@ void PeriphDriverInit(void);
 void NewMemory(void **p , size_t size );
 void ReNewMemory(void **p , size_t size );
 void DelMemory(void **p);
+void* MemCpy(void* dst, const void* src, size_t n);
 void NewError(void );
 void WhileError(void );
 
@@ -45,7 +46,7 @@ void DelayUS(u32 cnt);
 void CDVParamInit(void);
 void ShutDown(void);
 
-//#define _DEBUG_NPC_
+#define _DEBUG_NPC_
 #ifdef  _DEBUG_NPC_
 
 /**

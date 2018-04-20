@@ -163,7 +163,7 @@ RET_STATUS SPI3_Send(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
 	Tx_len = 0;
 	Tx_Idx = 0;
 	NEW08U(TxBuffer, NumByteToWrite + 2);
-	memcpy(TxBuffer+1, pBuffer, NumByteToWrite);
+	MemCpy(TxBuffer+1, pBuffer, NumByteToWrite);
 	TxBuffer[0] = NumByteToWrite;
 	TxBuffer[NumByteToWrite + 1] = 0x00;
 	//下面顺序不要改动

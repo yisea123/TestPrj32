@@ -127,7 +127,12 @@ void NewMemory(void **p , size_t size ) {
 		return;
 	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	if(*p!=NULL) { 
+#if USE_MEMMNG == 1u
+      memmng_free(*p);
+#else
       free(*p);
+#endif
+      //free(*p);
       *p = NULL;
     }
 #if USE_MEMMNG == 1u
@@ -149,19 +154,22 @@ void NewMemory(void **p , size_t size ) {
   */
 void ReNewMemory(void **p , size_t size ) {
 	OS_ERR err;	
+	
 	if(0 == size)
 		return;
+	
 	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 #if USE_MEMMNG == 1u
-    *p = (memmng_realloc(*p ,size));
+  *p = (memmng_realloc(*p ,size));
 #else
-    *p = (realloc(*p ,size));
+  *p = (realloc(*p ,size));
 #endif
 	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
-    if(NULL == *p) 
-    {
-      NewError();
-    }
+	
+	if(NULL == *p) 
+	{
+		NewError();
+	}
 	
 }
 /** @brief  
@@ -172,16 +180,85 @@ void ReNewMemory(void **p , size_t size ) {
 void DelMemory(void **p) {
 	OS_ERR err;	
 	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	
 	if(*p!=NULL) { 
 #if USE_MEMMNG == 1u
-      memmng_free(*p);
+    memmng_free(*p);
 #else
-      free(*p);
+    free(*p);
 #endif
-      *p = NULL;
-    }
+    *p = NULL;
+  }
+	
 	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
 }
+		
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void* MemCpy(void* dst, const void* src, size_t n)  
+{  
+	char *tmp;  
+	char *s_src;  
+	size_t s_n;
+	
+	ASSERT(dst);
+	ASSERT(src);
+	ASSERT(((u32)dst+n <= (u32)src) || ((u32)src+n <= (u32)dst));
+	
+memcpy_again:	
+	s_n = n;
+  tmp = (char*)dst;  
+	s_src = (char*)src;  
+	while(s_n--) {  
+		*tmp++ = *s_src++;  
+	}  
+	
+//使用外扩sram有风险
+#if USE_MEMMNG == 1u
+	s_n = n;
+  tmp = (char*)dst;  
+	s_src = (char*)src;  
+	while(s_n--) {  
+		//ASSERT(*tmp++ == *s_src++);  
+		if(*tmp++ != *s_src++)
+			goto memcpy_again;
+	}  
+#endif
+	return dst;  
+}  
+		
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void* MemMove(void* dst, const void* src, size_t n)  
+{  
+	char* s_dst;  
+	char* s_src;  
+	size_t s_n = n;
+	ASSERT(dst);
+	ASSERT(src);
+	s_dst = (char*)dst;  
+	s_src = (char*)src;  
+	if(s_dst>s_src && (s_src+n>s_dst)) { 
+		s_dst = s_dst+n-1;  
+		s_src = s_src+n-1;  
+		while(n--) {  
+			*s_dst-- = *s_src--;  
+		}  
+	} else {  
+		while(n--) {  
+			*s_dst++ = *s_src++;  
+		}  
+	}  
+	return dst;  
+}  
+
+		
 /** @brief  
   * @param  
   * @retval 
@@ -303,6 +380,6 @@ void assert(uint8_t* file, uint8_t* function, uint32_t line)
 		DelayUS(5000000);
   }
 	
-	//__enable_irq();
+	__enable_irq();
 }
 

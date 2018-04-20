@@ -63,7 +63,7 @@ void CdvInit(void) {
 //		}
 //	}
 	
-		memcpy(g_pluse, g_i, COIL_CHN);
+		MemCpy(g_pluse, g_i, COIL_CHN);
 //SPI_Flash_Write((CDV_INT08U *)&g_modbusReg, REG_ADDR, sizeof(g_modbusReg));
  //   SPI_Flash_Write((CDV_INT08U *)&g_modbusInReg, INREG_ADDR, sizeof(g_modbusInReg));
 	/*modbus³õÊ¼»¯*/
@@ -964,7 +964,7 @@ void ResParaRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_
 		rxRealLen = rxLen + 3 + 3;
 		txLen = paraLen + rxRealLen;
 		NEW08U(txBuf,txLen);
-	  memcpy(txBuf , rxBuf - 3 - 3, rxRealLen);
+	  MemCpy(txBuf , rxBuf - 3 - 3, rxRealLen);
 		
 	}
 	else
@@ -975,7 +975,7 @@ void ResParaRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_
 	}
 	
 	if(paraLen > 0)
-		memcpy(txBuf + rxRealLen , para , paraLen);
+		MemCpy(txBuf + rxRealLen , para , paraLen);
 	
 	AddTx(txBuf , txLen , uartNo);
 	DELETE(txBuf);
@@ -1013,11 +1013,11 @@ void ResRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT0
 	NEW08U(txBuf,txLen);
 	
 	if(rxLen > 0)
-	  memcpy(txBuf , rxBuf , rxLen);
+	  MemCpy(txBuf , rxBuf , rxLen);
 	
 	
 	if(paraLen > 0)
-		memcpy(txBuf + rxLen , para , paraLen);
+		MemCpy(txBuf + rxLen , para , paraLen);
 	
 //	AddTx(txBuf , txLen , uartNo);
 //	DELETE(txBuf);
@@ -1126,10 +1126,10 @@ void ResVarSet(CDV_INT32U no, CDV_INT32S num, CMD_ARG *arg)	{
 	ValSet(no, num);
 	arg->speclen = arg->len + 7;
 	NEW08U(arg->specbuf, arg->speclen);
-	memcpy(arg->specbuf, arg->buf, arg->len);
-	memcpy(arg->specbuf + arg->len, &type, 1);
-	memcpy(arg->specbuf + arg->len + 1, &no, 2);
-	memcpy(arg->specbuf + arg->len + 3, &num, 4);
+	MemCpy(arg->specbuf, arg->buf, arg->len);
+	MemCpy(arg->specbuf + arg->len, &type, 1);
+	MemCpy(arg->specbuf + arg->len + 1, &no, 2);
+	MemCpy(arg->specbuf + arg->len + 3, &num, 4);
 	
 	return;
 }

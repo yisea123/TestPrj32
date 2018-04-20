@@ -119,6 +119,7 @@ RET_STATUS UniSerialSendCRC(const u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufL
 	CDV_INT32S val = 0;
 	u16 data;
 	u8* sendBuf = NULL;
+	u8 i = 0;
 	
 //	ASSERT(NULL != txBuf);
 //	ASSERT(0 != txLen);
@@ -130,12 +131,12 @@ RET_STATUS UniSerialSendCRC(const u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufL
 		return OPT_FAILURE;
 	
 	NEW08U(sendBuf, txLen + 2);
-	memcpy(sendBuf, txBuf, txLen);
+	
+	MemCpy(sendBuf, txBuf, txLen);
 	
 	data=getCRC16(sendBuf,txLen);
 	sendBuf[txLen]=data & 0x00ff;
   sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
-
 	USARTTR(sendBuf ,txLen + 2 ,rxBuf ,rxbufLen , rxLen , uart);
 	
 	DELETE(sendBuf);
@@ -390,6 +391,9 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 		case 0x05:                        /*write coil*/
 			WriteCoilCmd(devAddr, regPos, *p_val, &cmdBuf, &cmdLen);
 			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+		
+//		if(cmdBuf[2] == 0x02 && cmdBuf[3] == 0x0F)
+//			break;
 			break;
 		case 0x02:                        /*read incoil*/
 			ReadInCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);

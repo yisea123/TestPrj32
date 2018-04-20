@@ -1257,7 +1257,7 @@ void FpgaIReadAll(CDV_INT08U* pRxBuf)
 	}
 	FpgaTR(txBuf, FPGA_COMMAND_LEN, buf+FPGA_COMMAND_LEN, FPGA_COMMAND_LEN, 0);
 	FpgaTR(txBuf, FPGA_COMMAND_LEN, buf, FPGA_COMMAND_LEN, 1);
-	memcpy(pRxBuf,buf,sizeof(u8)*FPGA_COMMAND_LEN*2);
+	MemCpy(pRxBuf,buf,sizeof(u8)*FPGA_COMMAND_LEN*2);
 }
 /**
   * @brief  读取O
@@ -1323,7 +1323,7 @@ void FpgaOReadAll(CDV_INT08U* pRxBuf)
 	}
 	FpgaTR(txBuf, FPGA_COMMAND_LEN, buf+FPGA_COMMAND_LEN, FPGA_COMMAND_LEN, 0);
 	FpgaTR(txBuf, FPGA_COMMAND_LEN, buf, FPGA_COMMAND_LEN, 1);
-	memcpy(pRxBuf,buf,sizeof(u8)*FPGA_COMMAND_LEN*2);
+	MemCpy(pRxBuf,buf,sizeof(u8)*FPGA_COMMAND_LEN*2);
 }
 
 //所有fpga o的写

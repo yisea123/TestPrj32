@@ -25,8 +25,8 @@ void memmng_memcpy(void *des,void *src,u32 n)
 {
 	u8 *xdes = des;
 	u8 *xsrc = src;
-	ASSERT(MEM_MNG_START + MEM_MNG_SIZE - des >= n);
-	ASSERT(MEM_MNG_START + MEM_MNG_SIZE - src >= n);
+	ASSERT(MEM_MNG_START + MEM_MNG_SIZE - (u32)des >= n);
+	ASSERT(MEM_MNG_START + MEM_MNG_SIZE - (u32)src >= n);
 	while(n--) *xdes++ = *xsrc++;
 }
 
@@ -77,6 +77,9 @@ void memmng_free(void *p ) {
 	
 	u32 map_start = ((u32)p - (u32)mem_base)>>3;
 	int i;
+	
+	if((u32)p < (u32)mem_base)
+		return ;
 	
 	if(!mem_mapbase[MARK_START][map_start])//无起始标记，不必释放
 		return;
