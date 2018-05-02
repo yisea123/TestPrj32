@@ -108,7 +108,7 @@ void ValToFlash(CDV_INT32U no, CDV_INT16U num) {
 	
 #if USE_FLASH_BAK
 	FlashBak_VarBackUp(no, num);
-#elseif USE_PVD == 0u
+#else
 	SPI_Flash_Write((CDV_INT08U *)&DW_CDV_VAR(no), VAR_ADDR(no), (num<<2));
 #endif
 }

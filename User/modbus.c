@@ -468,8 +468,9 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//
 	}
 	
 	AddTx(rxBuf , 6/*rxLen*/, uartNo);
+#if USE_PVD == 0u
 	ValToFlash((addr>>1), (num>>1));
- 
+#endif
   return 0;	
 }
 
@@ -1152,8 +1153,9 @@ int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cm
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , rxLen-2);
+#if USE_PVD == 0u
 	ValToFlash((addr>>1), (num>>1));
- 
+#endif
   return 0;	
 }
 

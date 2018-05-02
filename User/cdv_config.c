@@ -99,7 +99,7 @@ void PeriphDriverInit(void)
 /** @brief  
   * @param  
   * @retval 
-  * @note   
+  * @note   在PVD的配合下使用
   */
 void ShutDown(void) {
 	OS_ERR err;
@@ -109,11 +109,13 @@ void ShutDown(void) {
 	INTX_DISABLE();
 	PVD_Save();
 	AllWorkerCtrl(WORKER_STOP);
+	// PVD_FlagClear();
 	g_noWrite = 1;
 	INTX_ENABLE();
-#endif
 	OS_TaskSuspend((OS_TCB*)&UsartRecvTaskTCB,&err);
-	while(1);
+	while(PVD_GetFlag());
+#endif
+	ResetCdv();
 }
 
 /** @brief  

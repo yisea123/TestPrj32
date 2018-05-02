@@ -31,7 +31,7 @@
 	#define WORKER_ADDR          INCOIL_ADDR+INCOIL_CHN
 	
 	
-	u32 g_pvd_flag = 0;
+	volatile u32 g_pvd_flag = 0;
 	
 /**
  * @brief 配置 PVD.
@@ -186,12 +186,14 @@ CDV_INT08S PVD_Restore(void)
 		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusCoil, COIL_ADDR, sizeof(g_modbusCoil));
 		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
 		err = PVD_Flash_Read((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo));
-		PVD_Erase();
-		
 		//恢复动作
-		OWriteAll();
+		//OWriteAll();
+		ValToFlash(0, CDV_VAR_NUM);
 		//RestartWorkers();//很危险
+		PVD_Erase();
 		return 0;//1;
+	} else {
+		FlashToVal(0, CDV_VAR_NUM);
 	}
 	return -1;
 }
@@ -213,7 +215,7 @@ u32 PVD_GetFlag(void)
   */
 void PVD_IRQHandler(void) {
   OSIntEnter();
-	/*检测是否产生了 PVD 警告信号*/
+	/*检测是否低于阈值，产生了 PVD 警告信号*/
 	if(PWR_GetFlagStatus (PWR_FLAG_PVDO)==SET)  
   {
     /* 亮红灯，实际应用中应进入紧急状态处理 */
@@ -222,6 +224,10 @@ void PVD_IRQHandler(void) {
 //		LED2 = LED_OFF;
 //		LED3 = LED_OFF;
 		g_pvd_flag = 1;
+  }
+	else //检测是否高于阈值
+  {
+		g_pvd_flag = 0;
   }
 	/* 清除中断信号*/
 	EXTI_ClearITPendingBit(EXTI_Line16);
