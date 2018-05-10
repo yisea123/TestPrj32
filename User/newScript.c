@@ -421,13 +421,13 @@ RET_STATUS LineCrcChk(void) {
   * @note   
   */
   
-#define FLASH_SEND_LEN 0x200
+#define FLASH_SEND_LEN 0x400
 void Flash_Send(const CDV_INT32U addr , const CDV_INT32U len, CDV_INT08U uartNo){
 	CDV_INT32U sendPt = 0;
 	CDV_INT08U* sendBuf = UserMemPtr(CCM_SEND_BUF);//[FLASH_SEND_LEN];
 	
 	while(sendPt < len){
-		if(sendPt + LOG_SEND_LEN > len) {
+		if(sendPt + FLASH_SEND_LEN > len) {
 			SPI_Flash_Read(sendBuf, addr + sendPt, len - sendPt);
 			AddTxNoCrc(sendBuf ,len - sendPt ,uartNo );
 		}

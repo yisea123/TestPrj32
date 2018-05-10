@@ -468,7 +468,7 @@ void start_task(void *p_arg){
 //				(OS_ERR* )&err);
 //			
 //		}
-		Log_Write("START END" , LOG_EVENT);
+//		Log_Write("START END" , LOG_EVENT);
 		g_cdvStat = CDV_ONLINE;
 		LED3 = LED_OFF;
 		LED2 = LED_OFF;

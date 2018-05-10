@@ -15,6 +15,8 @@
 //Copyright(C) 广州市星翼电子科技有限公司 2014-2024
 //All rights reserved									  
 ////////////////////////////////////////////////////////////////////////////////// 
+ #define ETH_VISION 2u
+ 
 #if _NPC_VERSION_ > 1u
 
 #define LAN8720_PHY_ADDRESS  	0x00				//LAN8720 PHY芯片地址.

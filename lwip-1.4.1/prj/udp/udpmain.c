@@ -81,7 +81,8 @@ static void udpecho_thread(void *arg)
         {
           addr = netbuf_fromaddr(inbuf);
           port = netbuf_fromport(inbuf);
-          netconn_connect(conn, addr, port);
+          //netconn_connect(conn, addr, port);
+					netconn_connect(conn, IP_ADDR_BROADCAST, port);
           inbuf->addr.addr = 0;
 					netbuf_data(inbuf, (void**)&buf, &buflen);
 					if (!strcmp(buf, "are you npc")) {

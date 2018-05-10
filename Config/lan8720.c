@@ -183,6 +183,7 @@ u8 ETH_MACDMA_Config(void)
 extern void lwip_pkt_handle(void);		//在lwip_comm.c里面定义
 //以太网DMA接收中断服务函数
 static int isethactive = 0;
+#if ETH_VISION == 1
 void ETH_IRQHandler(void)
 {
 	OSIntEnter();
@@ -196,6 +197,27 @@ void ETH_IRQHandler(void)
 	isethactive = 0;
 	OSIntExit();
 }  
+#elif ETH_VISION == 2
+void ETH_IRQHandler(void)
+{
+	OSIntEnter();
+	isethactive = 1;
+	//while(ETH_GetRxPktSize(DMARxDescToGet)!=0) 	//检测是否收到数据包
+	/* Frame received */
+	if ( ETH_GetDMAFlagStatus(ETH_DMA_FLAG_R) == SET) 
+	{ 
+		//通知接收frame
+	}
+	
+	ETH_DMAClearITPendingBit(ETH_DMA_IT_R); 	//清除DMA中断标志位
+	ETH_DMAClearITPendingBit(ETH_DMA_IT_NIS);	//清除DMA接收中断标志位
+	
+	lwip_pkt_handle();		//接收frame
+	
+	isethactive = 0;
+	OSIntExit();
+}  
+#endif
 //接收一个网卡数据包
 //返回值:网络数据包帧结构体
 FrameTypeDef ETH_Rx_Packet(void)
