@@ -89,7 +89,14 @@
 #define LWIP_COMPAT_MUTEX               1
 #define LWIP_SO_SNDTIMEO                1
 #define LWIP_SO_RCVTIMEO                1 	//通过定义LWIP_SO_RCVTIMEO使能netconn结构体中recv_timeout,使用recv_timeout可以避免阻塞线程
-
+#define LWIP_TCP_KEEPALIVE              1u  //打开保活功能
+#if LWIP_TCP_KEEPALIVE == 1u
+#define  TCP_KEEPIDLE_DEFAULT     5000UL       // 5秒内连接双方都无数据，则发起保活探测（该值默认为2小时）
+#define  TCP_KEEPINTVL_DEFAULT    1000UL         // 每1秒发送一次保活探测
+//保活机制启动后，一共发送5次保活探测包，如果这5个包对方均无回应，则表示连接异常，内核关闭连接，并发送err回调到用户程序
+#define  TCP_KEEPCNT_DEFAULT      5UL               
+#define  TCP_MAXIDLE  TCP_KEEPCNT_DEFAULT * TCP_KEEPINTVL_DEFAULT
+#endif
 //有关系统的选项
 #define TCPIP_THREAD_STACKSIZE          500	//内核任务堆栈大小
 #define DEFAULT_UDP_RECVMBOX_SIZE       1000
