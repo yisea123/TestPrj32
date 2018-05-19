@@ -356,6 +356,23 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 			//OnlineParse(buf, len, uart);
 		}
 		break;
+		case 0xF3:
+		{
+		  switch (buf[1]) {
+				case 0x01:
+					break;
+				case 0x02:
+					CentralizedControl_QueryDevData(buf, len, arg);
+					break;
+				case 0x03:
+					break;
+				case 0x04:
+					break;
+				default:
+					break;
+			}
+		}
+		break;
 		default:
 		{
 			if (arg->hostid == buf[0])

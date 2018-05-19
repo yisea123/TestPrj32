@@ -174,6 +174,9 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 //资源使用定义
 #define USE_NPC_NET  1u
 
+#if USE_NPC_NET == 1u
+#define USE_CENTRALIZEDCONTROL 1u
+#endif
 
 /*配置开关*/
 #if _NPC_VERSION_ >= 3u

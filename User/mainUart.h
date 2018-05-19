@@ -150,6 +150,7 @@ typedef struct{
 extern OLCMD_CACHE g_olCache;
 extern OLCMD_CACHE g_portCmdCache;
 
+unsigned short MODBUS_CRC16(unsigned char* pchMsg, unsigned short wDataLen, unsigned short crc);
 RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo);
 CDV_INT16U getCRC16(CDV_INT08U *ptr,CDV_INT16U len) ;
 CDV_INT16U oneCRC16(CDV_INT08U ch , CDV_INT16U crc) ;

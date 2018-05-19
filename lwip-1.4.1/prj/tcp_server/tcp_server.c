@@ -19,7 +19,7 @@
 //修改信息
 //无
 ////////////////////////////////////////////////////////////////////////////////// 	   
- 
+ #include "tcp.h"
 
 //u8 tcp_server_recvbuf[TCP_SERVER_RX_BUFSIZE];	//TCP客户端接收数据缓冲区
 u8* tcp_server_recvbuf = NULL;	//TCP客户端接收数据缓冲区
@@ -231,7 +231,8 @@ static void netconn_server_thread(void *arg)
 		u16 port;
 		SPI_Flash_Read((CDV_INT08U *)&port, NET_ADDR + 4, sizeof(port));
     err = netconn_bind(conn, NULL, port);
-    
+    conn->pcb.tcp->so_options |= SOF_KEEPALIVE;
+		
     if (err == ERR_OK)
     {
       /* Put the connection into LISTEN state */
@@ -400,7 +401,9 @@ u8 tcp_server_init(void)
 
 /** @brief  发送命令
   * @param  
-  * @retval 
+  * @retval OPT_TCP_ERROR tcp异常，需停止发送
+            OPT_SUCCESS 发送成功
+            OPT_FAILURE 发送失败，可以尝试再次发送
   * @note   写入发送缓存，具体发送在tcp_server_thread里
   *         缓存中的第一个字节为后面的命令长度
   */
@@ -419,8 +422,13 @@ RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
   if(gConn)
 	err = netconn_write(gConn , pBuffer, NumByteToWrite/*strlen((char*)tcp_server_sendbuf)*/, NETCONN_COPY); //发送tcp_server_sendbuf中的数据
   
-	if (err != ERR_OK)
-		ret = OPT_FAILURE;
+	if (err != ERR_OK) {
+		if (err != ERR_TIMEOUT) {
+			ret = OPT_TCP_ERROR;
+		}else {
+		  ret = OPT_FAILURE;
+		}
+	}
 	///////////////////////////////////
 	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
 	return ret;

@@ -46,6 +46,7 @@
 #include "cmdParse.h"
 #include "tcp_server.h"
 #include "udpmain.h"
+#include "CentralizedControl.h"
 /*resource*/
 #include "IO.h"
 #include "Var.h"

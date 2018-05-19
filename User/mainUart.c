@@ -1314,9 +1314,9 @@ void AddTx(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
 	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
 		return;
 
+	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
 	crc = getCRC16(txBuf,txLen);
 	
-	MODBUS_CRC16(txBuf,txLen, 0xFFFF);
 	
 	if(txBuf[0] != 0xF2){
 		TX_BUF = txBuf;
