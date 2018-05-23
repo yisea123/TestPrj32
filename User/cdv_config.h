@@ -33,7 +33,7 @@ extern CDV_INT08S g_noWrite;//禁止spiflash写
  */
 /*初始化总函数*/ 
 void PeriphDriverInit(void);
-
+CDV_INT32U GetOnlyID(void);
 //void TIM3_Init(CDV_INT32U TIM_scale, CDV_INT32U TIM_Period);
 void NewMemory(void **p , size_t size );
 void ReNewMemory(void **p , size_t size );

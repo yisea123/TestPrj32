@@ -142,7 +142,7 @@ CDV_INT32S Log_GetSize(CMD_ARG *arg){
 	}
 	
 	/*·¢ËÍ*/
-	ResRequest(arg->buf, arg->len, (CDV_INT08U*)&size, 4, arg);
+	ResRequest(arg->buf, arg->len, (CDV_INT08U*)&size, 4, arg, RC_CRC);
 	
 	return size;
 }
@@ -164,7 +164,7 @@ CDV_INT32S Log_GetSizeType(LOG_TYPE type, CMD_ARG *arg){
 	}
 	
 	/*·¢ËÍ*/
-	ResRequest(arg->buf, arg->len, (CDV_INT08U*)&size, 4, arg);
+	ResRequest(arg->buf, arg->len, (CDV_INT08U*)&size, 4, arg, RC_CRC);
 	
 	return size;
 }

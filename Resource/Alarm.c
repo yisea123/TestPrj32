@@ -176,7 +176,7 @@ void AlarmQuery(u8* rxBuf,u8 rxLen,CMD_ARG *arg)
 			break;
 		}
 	}
-	ResRequest(arg->buf, arg->len, Para_Buf, Para_len, arg);
+	ResRequest(arg->buf, arg->len, Para_Buf, Para_len, arg, RC_CRC);
 	
 			
 }

@@ -586,10 +586,11 @@ void parse_task(void *p_arg)
 #endif
 				
 				CmdParse(g_olCache.buf, g_olCache.len, &arg);
-				
+				ClearOnlineCmdCache();
 				/*处理资源回复请求*/
 				DoResRequest(&arg);
 				CmdArgDelete(&arg);
+				
 			}
 #if _NPC_VERSION_ > 1u
 			else//命令给从机
@@ -643,10 +644,11 @@ void parse_task(void *p_arg)
 //				}
 //				
 //				DELETE(recvBuf);
+        ClearOnlineCmdCache();
 			}
 #endif
 			
-			ClearOnlineCmdCache();
+			
 
 		} 
 #if _NPC_VERSION_ > 1u

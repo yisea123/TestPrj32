@@ -28,7 +28,15 @@
 #define OS_TRUE OS_STATE_OS_RUNNING
 #define OSLockNesting OSIntNestingCtr
 #endif  
+//test
+vu32 global_start = 0;
+vu32 global_clk = 0;
 
+vu32 global_cnt1 = 0;
+vu32 global_cnt2 = 0;
+
+
+//
 
 static u8  fac_us=0;//us延时倍乘数			   
 static u16 fac_ms=0;//ms延时倍乘数,在ucos下,代表每个节拍的ms数

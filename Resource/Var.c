@@ -502,7 +502,7 @@ RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 				
 	      CDV_INT08U tmpPar[VAL_PAR_NUM] = {0} , tmpLen = 0;
 			  ValParRead(no , /*rxBuf[3]<<8 | rxBuf[4]*/num , tmpPar , &tmpLen);
-				ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg);//ResParaRequest(rxBuf, rxLen , tmpPar, tmpLen,arg->uart);
+				ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg, RC_CRC);//ResParaRequest(rxBuf, rxLen , tmpPar, tmpLen,arg->uart);
 			}
 			break;
 		case 0x11:/*²»µÈÓÚ*/
@@ -526,7 +526,7 @@ RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 			{
 				CDV_INT08U tmpPar[VAL_PAR_NUM] = {0} , tmpLen = 0;
 				ValParRead(no , /*rxBuf[3]<<8 | rxBuf[4]*/num , tmpPar , &tmpLen);
-				ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg);//ResParaRequest(rxBuf, rxLen , tmpPar, tmpLen,arg->uart);
+				ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg, RC_CRC);//ResParaRequest(rxBuf, rxLen , tmpPar, tmpLen,arg->uart);
 			}
 			break;
 		default:

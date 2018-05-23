@@ -1475,12 +1475,12 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 		case 0x02:/*查询*/
 			bit = IRead(no);
 		  val = (BIT_1 == bit ? 1 : 0);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 		  break;
 		case 0x03:/*抖动查询*/
 			bit = ShakeIRead(no);
 			val = (BIT_1 == bit ? 1 : 0);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 			break;
 		case 0x04:/*读取到变量*/
 			if(0xFE == type) {
@@ -1497,7 +1497,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 		case 0x06:/*参数读取*/			
 			if(0xFF == type) {
 			  IParRead(no , num , tmpPar , &tmpLen);
-			  ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg);
+			  ResRequest(arg->buf, arg->len, tmpPar, tmpLen, arg, RC_CRC);
 			}
 			break;
 		case 0x07:/*跳变等待*/
@@ -1590,7 +1590,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 //			bit = IRead(no);
 //		  val = (BIT_1 == bit ? 1 : 0);
 		  val = IBitRead(no);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 		  break;
 		default:
 			break;
@@ -1652,7 +1652,7 @@ RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 		case 0x04:/*查询*/
 			bit = ORead(no);
 		  val = (BIT_1 == bit ? 1 : 0);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 		  break;
 		case 0x02:/*读取到变量*/
 			if(0xFE == type) {
@@ -1667,7 +1667,7 @@ RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 //			bit = ORead(no);
 //		  val = (BIT_1 == bit ? 1 : 0);
 		  val = OBitRead(no);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 		  break;
 		default:
 			break;

@@ -87,7 +87,7 @@ RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
 		  if (OPT_SUCCESS == (ret = CorrectComParam(&param, no))){
 			  USARTSet(param.bound, param.wordLength, param.stopBits, param.parity, no);
 				
-					ResRequest(arg->buf, arg->len, 0,0,arg);
+					ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
 			}
 			
 			break;
@@ -95,7 +95,7 @@ RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
 			no = GetComNoFromID(id);
 			SPI_Flash_Read((CDV_INT08U *)&param, USART_SET_ADDR(no - 1), sizeof(param));
 			if (OPT_SUCCESS == (ret = ReturnComParam(&param, no)))
-		    ResRequest(arg->buf, arg->len, (CDV_INT08U*)&param, sizeof(param), arg);
+		    ResRequest(arg->buf, arg->len, (CDV_INT08U*)&param, sizeof(param), arg, RC_CRC);
 			break;
 		default:
 			break;
@@ -421,11 +421,11 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 		if(isRead)
 		{
 			tmpVar = VarGet(ftmp2);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)&tmpVar, 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)&tmpVar, 4, arg, RC_CRC);
 		}
 		else
 		{
-			ResRequest(arg->buf, arg->len, 0, 0, arg);
+			ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 		}
 	}
 	

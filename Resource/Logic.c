@@ -479,7 +479,7 @@ CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 //	Times = ((ExpLen-9)/10+1);
 	Ret = Result(Rbuf+6,ExpLen,arg);
 	
-	ResRequest(arg->buf, arg->len, &Ret, 1, arg);//ResParaRequest(Rbuf,6,&Ret,1, arg->uart);
+	ResRequest(arg->buf, arg->len, &Ret, 1, arg, RC_CRC);//ResParaRequest(Rbuf,6,&Ret,1, arg->uart);
 	return Ret;
 
 }

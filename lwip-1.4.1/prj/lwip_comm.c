@@ -113,28 +113,28 @@ void lwip_comm_mem_free(void)
 void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 {
 	u32 sn0;
-	sn0=*(vu32*)(0x1FFF7A10);//获取STM32的唯一ID的前24位作为MAC地址后三字节
+	sn0=*ONLY_ID_ADDR;//获取STM32的唯一ID的前24位作为MAC地址后三字节
 	//默认远端IP为:192.168.1.100
 	lwipx->remoteip[0]=192;	
 	lwipx->remoteip[1]=168;
 	lwipx->remoteip[2]=1;
 	lwipx->remoteip[3]=11;
 	//MAC地址设置(高三字节固定为:2.0.0,低三字节用STM32唯一ID)
-	lwipx->mac[0]=2;//高三字节(IEEE称之为组织唯一ID,OUI)地址固定为:2.0.0
-	lwipx->mac[1]=0;
-	lwipx->mac[2]=0;
-	lwipx->mac[3]=(sn0>>16)&0XFF;//低三字节用STM32的唯一ID
-	lwipx->mac[4]=(sn0>>8)&0XFFF;;
-	lwipx->mac[5]=sn0&0XFF; 
+	lwipx->mac[0]='N';//高三字节(IEEE称之为组织唯一ID,OUI)地址固定为:2.0.0
+	lwipx->mac[1]='P';
+	lwipx->mac[2]='C';
+	lwipx->mac[3]=((sn0>>24)&0xFF)+(sn0&0xFF);//低三字节用STM32的唯一ID
+	lwipx->mac[4]=((sn0>>16)&0xFF)+(sn0&0xFF);
+	lwipx->mac[5]=((sn0>> 8)&0xFF)+(sn0&0xFF); 
 	//默认本地IP为:192.168.1.30
 	Org_Flash_Read(lwipx->ip, NET_ADDR, sizeof(lwipx->ip));
 	
-	if(lwipx->ip[0] == lwipx->ip[1] == lwipx->ip[2] == lwipx->ip[3] == 0xFF) {
+	if(lwipx->ip[0] == 0xff&&lwipx->ip[1] == 0xff&&lwipx->ip[2] == 0xff&&lwipx->ip[3]==0xff) {
 	
 		lwipx->ip[0]=192;	
 		lwipx->ip[1]=168;
 		lwipx->ip[2]=1;
-		lwipx->ip[3]=sn0&0XFF;	
+		lwipx->ip[3]=3;	
 		
 	  Org_Flash_Write(lwipx->ip, NET_ADDR, sizeof(lwipx->ip));
 	}

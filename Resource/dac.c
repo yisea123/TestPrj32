@@ -551,7 +551,7 @@ RET_STATUS DacCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen,CMD_ARG *arg)
 #endif
 		case 0xFF:/*²éÑ¯*/
 			var_val = DacRead(no);//Dac_Get_Voltge(no);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&var_val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&var_val), 4, arg, RC_CRC);
 		  break;
 		default:
 			    break;

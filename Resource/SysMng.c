@@ -46,10 +46,10 @@ RET_STATUS SysCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 		  ChangeToCdvStat(rxBuf[3]);
 			break;
 		case 0x01:/*×´Ì¬²éÑ¯*/
-		  ResRequest(arg->buf, arg->len, (CDV_INT08U*)&g_cdvStat, 1, arg);
+		  ResRequest(arg->buf, arg->len, (CDV_INT08U*)&g_cdvStat, 1, arg, RC_CRC);
 			break;
 		case 0x02:/*ÖØÆô*/
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)NULL, 0, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)NULL, 0, arg, RC_CRC);
 			delay_ms(500);
 		  ResetCdv();
 			break;

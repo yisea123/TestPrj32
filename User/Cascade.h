@@ -34,6 +34,8 @@
 #define O_NUM  CDV_O_NUM + CDV_EXO_NUM*CDV_FPGA_NUM
 #define I_NUM  CDV_I_NUM + CDV_EXI_NUM*CDV_FPGA_NUM
 	
+	extern CDV_INT08U version[];
+	
 //CDV_INT08U Cascade_HaveSlaveTable(void);
 //void CascadeCombine(CDV_INT08U no);
 //void CascadeLocal(CDV_INT08U no);

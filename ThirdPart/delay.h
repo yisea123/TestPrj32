@@ -24,6 +24,11 @@ void delay_us(u32 nus);
 void TaskSched(void);
 void TaskSched1(void);
 #define CDV_TIME_NUM 20
+extern vu32 global_start;
+extern vu32 global_clk;
+	
+extern vu32 global_cnt1;
+extern vu32 global_cnt2;
 
 extern u32 cdvTimeTick;
 #define GET_TICK cdvTimeTick

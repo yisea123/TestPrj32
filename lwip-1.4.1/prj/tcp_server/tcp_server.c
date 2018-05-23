@@ -54,6 +54,24 @@ void EthInfoSend(CDV_INT08U uartNo) {
 	CDV_INT08U i , no;
 	char tmp[50]={0};
 	
+	sprintf(tmp , "云字ip:%d.%d.%d.%d\r\n" 
+		,lwipdev.ip[0]
+		,lwipdev.ip[1]
+		,lwipdev.ip[2]
+		,lwipdev.ip[3]
+		);
+		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	
+	sprintf(tmp , "云字mac:%02x.%02x.%02x.%02x.%02x.%02x\r\n" 
+		,lwipdev.mac[0]
+		,lwipdev.mac[1]
+		,lwipdev.mac[2]
+		,lwipdev.mac[3]
+		,lwipdev.mac[4]
+		,lwipdev.mac[5]
+		);
+		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	
   if(gConn)
 	{
 		ip_addr_t addr;

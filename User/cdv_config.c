@@ -117,7 +117,16 @@ void ShutDown(void) {
 #endif
 	ResetCdv();
 }
-
+/** @brief  Î¨Ò»Ê¶±ðÂë
+  * @param  
+  * @retval 
+  * @note   
+  */
+CDV_INT32U GetOnlyID(void) {
+	u32 sn0;
+	sn0=*ONLY_ID_ADDR;
+	return sn0;
+}
 /** @brief  
   * @param  
   * @retval 
@@ -324,10 +333,10 @@ void CDVParamInit(void) {
 #elseif USE_PVD == 0u
 	  FlashToVal(0, CDV_VAR_NUM);
 #endif
+	}
 #if _NPC_VERSION_ > 1u
 		GetTable();
 #endif
-	}
 }
 /** @brief  
   * @param  

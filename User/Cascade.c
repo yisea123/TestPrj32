@@ -121,7 +121,7 @@ RET_STATUS NPC_NETVeriSet(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
  delay_ms(2);
  SPI_Flash_Write((CDV_INT08U *)slaveTable, CHECK_VERION_ADDR, len);
  delay_ms(2);	
- ResRequest(arg->buf, arg->len, 0,0,arg);
+ ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
  DELETE(slaveTable);
 	GetTable();
 	return ret;
@@ -154,7 +154,7 @@ RET_STATUS NPC_NETQuery(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 		return OPT_FAILURE;
 	NEW08U(slaveTable2,Rx_len);	
 	SPI_Flash_Read((CDV_INT08U *)slaveTable2, CHECK_VERION_ADDR, Rx_len);
-  ResRequest(arg->buf, arg->len-5, slaveTable2, Rx_len, arg);
+  ResRequest(arg->buf, arg->len-5, slaveTable2, Rx_len, arg, RC_CRC);
   // DELETE(slaveTable2);
   return ret;
 }
@@ -613,7 +613,7 @@ RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite)
   * @note   
   */
 	void CascadeTableSend(CDV_INT08U* buf, CDV_INT08U len,  CMD_ARG *arg) {
-		ResRequest(buf, len, slaveTable, slaveTableLen, arg);
+		ResRequest(buf, len, slaveTable, slaveTableLen, arg, RC_CRC);
 	}
 /** @brief  获取本机号
   * @param  
@@ -1510,7 +1510,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 /** @brief  映射初始化
   * @param  void
   * @retval RET_STATUS
-  * @note   
+  * @note   参考说明文档
   */
 	
 	RET_STATUS CascadeModbus_MapInit(void) {
@@ -1828,7 +1828,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 			  if(OPT_SUCCESS == ret) {
 					bit = IRead(localaddr);
 					val = (BIT_1 == bit ? 1 : 0);
-					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg,RC_CRC);
 				}
 				break;
 			default:
@@ -1902,7 +1902,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 				if(OPT_SUCCESS == ret) {
 					bit = ORead(localaddr);
 					val = (BIT_1 == bit ? 1 : 0);
-					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 				}
 				break;
 			default:
@@ -1969,7 +1969,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 				ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, localaddr, host, remoteaddr, 1, CASCADE_USART);
 				if(OPT_SUCCESS == ret) {
 					val = g_modbusReg.reg[localaddr];
-					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 				}
 				break;
 			default:
@@ -2015,7 +2015,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 				ret = CascadeModbus_ReadInReg2((CDV_INT08U*)g_modbusInReg.reg, localaddr, host, remoteaddr, 1, CASCADE_USART);
 				if(OPT_SUCCESS == ret) {
 					val = g_modbusInReg.reg[localaddr];
-					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 				}
 				break;
 			default:
@@ -2057,11 +2057,11 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		
 		if(!arg->ptrWorker && 0 == arg->reqlen){
 			if(OPT_SUCCESS == ret) {
-				ResRequest(arg->buf, arg->len, 0, 0, arg);
+				ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 			} else {
 				if(arg->buf)
 				arg->buf[1] += 0x80;
-				ResRequest(arg->buf, arg->len, 0, 0, arg);
+				ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 			}
 		}
 		gendTime = GetCdvTimeTick();

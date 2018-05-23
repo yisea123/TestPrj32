@@ -135,7 +135,7 @@ RET_STATUS ClockCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 			break;
 		case 0xFF:
 			valNo = ReadClock(no);
-		  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&valNo), 4, arg);
+		  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&valNo), 4, arg, RC_CRC);
 			break;
 			break;
 		default:

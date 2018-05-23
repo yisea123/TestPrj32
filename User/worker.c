@@ -705,7 +705,7 @@ RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg) {
 			switch(type) {
 				case 0xED:
 					ret = WorkerQueryStatus(no, (WORKER_STATUS*)&num);
-				  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg);
+				  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg, RC_CRC);
 					break;
 				case 0xFE:
 					ret = WorkerQueryStatus(no, (WORKER_STATUS*)&num);
@@ -726,7 +726,7 @@ RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg) {
 			break;
 		case 0xFF://×´Ì¬²éÑ¯
 			ret = WorkerQueryStatus(no, (WORKER_STATUS*)&num);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg,RC_CRC);
 			break;
 		default:
 			break;
@@ -813,7 +813,7 @@ RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 			switch(type) {
 				case 0xED:
 					ret = ManagerQueryStatus((WORKER_STATUS*)&num);
-				  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg);
+				  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&num), 4, arg, RC_CRC);
 					break;
 				case 0xFE:
 					ret = ManagerQueryStatus((WORKER_STATUS*)&num);
@@ -824,7 +824,7 @@ RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 			}
 			break;
 		case 0x02://ÖØÆô
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)NULL, 0, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)NULL, 0, arg, RC_CRC);
 			delay_ms(500);
 		  ResetCdv();
 			break;

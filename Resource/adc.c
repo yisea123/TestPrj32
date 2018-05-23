@@ -1184,7 +1184,7 @@ RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
 								  Para_Buf[1]=tmp>>16;
 								  Para_Buf[2]=tmp>>8;
 								  Para_Buf[3]=tmp;
-								  ResRequest(arg->buf, arg->len, Para_Buf,4,arg);
+								  ResRequest(arg->buf, arg->len, Para_Buf,4,arg, RC_CRC);
 							 }							 
 		     break;							
 		case 0xFF	://²éÑ¯ADµçÑ¹
@@ -1194,7 +1194,7 @@ RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
 						Para_Buf[2]=tmp>>16;
 						Para_Buf[1]=tmp>>8;
 						Para_Buf[0]=tmp;
-						ResRequest(arg->buf, arg->len, Para_Buf,4,arg);					 
+						ResRequest(arg->buf, arg->len, Para_Buf,4,arg, RC_CRC);					 
 		     break;							
 		default:
 			   break;

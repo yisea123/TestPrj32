@@ -997,7 +997,7 @@ void ResParaRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_
 	*                 │                  │             │          │                                                                                                                                             
   *                                                                               
   */
-void ResRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT08U paraLen, CMD_ARG *arg)	{
+void ResRequest2(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT08U paraLen, CMD_ARG *arg)	{
 	
 	CDV_INT08U txLen = 0;
 	CDV_INT08U *txBuf = NULL;
@@ -1026,6 +1026,56 @@ void ResRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT0
 	arg->reqlen = txLen;
 	
 //	resReqed = 1;
+}
+/** @brief  资源反馈(新版)。
+  * @param  rxBuf     原始字符串
+  *         rxLen     ↑长度
+	*         para      附加参数字符串
+	*         paraLen   ↑长度
+            ctrl      0无 1 crc
+  * @retval 无
+  * @note   最终发送的字符串如下
+	*                 ┌──rxLen byte──┬   paraLen   ┬   2byte  ┐
+	*                                                    │          │
+	*               rxBuf                para            │    CRC   │                                    
+	*                 │                  │             │          │                                                                                                                                             
+  *                                                                               
+  */
+void ResRequest(CDV_INT08U* rxBuf, CDV_INT16U rxLen , CDV_INT08U* para, CDV_INT16U paraLen, CMD_ARG *arg, REQUEST_CTRL ctrl)	{
+	
+	CDV_INT16U txLen = 0;
+	CDV_INT16U crc = 0xFFFF;
+	CDV_INT08U *txBuf = NULL;
+	
+	if(NULL != rxBuf)
+	{
+		txLen += rxLen;
+	}
+	if(NULL != para)
+	{
+		txLen += paraLen;
+	}
+	if(ctrl) // crc 暂定
+	{
+		txLen += 2;
+	}
+	
+	NEW08U(txBuf,txLen);
+	
+	if(rxLen > 0)
+	  MemCpy(txBuf , rxBuf , rxLen);
+	
+	
+	if(paraLen > 0)
+		MemCpy(txBuf + rxLen , para , paraLen);
+	
+	if(ctrl) {
+	  crc = MODBUS_CRC16(txBuf, rxLen + paraLen, crc);
+		MemCpy(txBuf + rxLen + paraLen, &crc, 2);
+	}
+	
+	arg->reqbuf = txBuf;
+	arg->reqlen = txLen;
 }
 //void ResRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT08U paraLen, CMD_ARG *arg)	{
 //	
@@ -1066,8 +1116,8 @@ RET_STATUS DoResRequest(CMD_ARG *arg)	{
 	if(NULL == arg->reqbuf || 0 == arg->reqlen) {
 		return OPT_FAILURE;
 	}
-
-	AddTx(arg->reqbuf , arg->reqlen , arg->uart);
+  AddTxNoCrc(arg->reqbuf , arg->reqlen , arg->uart);
+//	AddTx(arg->reqbuf , arg->reqlen , arg->uart);
 	DELETE(arg->reqbuf);
 	arg->reqlen = 0;
 //	resReqed = 0;

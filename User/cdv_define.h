@@ -117,14 +117,14 @@ typedef struct
 {
 	CDV_INT08U hostid;//主机号
 	CDV_INT08U uart;//占用串口
-	CDV_INT08U len;//命令长度
+	CDV_INT16U len;//命令长度
 	CDV_INT08U* buf;//命令
 	void* ptrWorker; //指向工人结构体，用于逻辑等工人控制
 	/*资源回复相关*/
-	CDV_INT08U reqlen;
+	CDV_INT16U reqlen;
 	CDV_INT08U* reqbuf;
 	/*特殊操作记录，例如设置变量*/
-	CDV_INT08U speclen;
+	CDV_INT16U speclen;
 	CDV_INT08U* specbuf;
 	ArithmeticStack stack;
 }CMD_ARG;
@@ -219,7 +219,10 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 
 #define SCRIP_MAX_RUN        16
 //#define SCRIP_MAX_DEBUG      11
-#define VERSION_ADDR         0x100
+// 下载次数 1个字节
+#define VERSION_ADDR         0x100 
+// OTA升级地址，3个字节，如果是OTA即需要升级
+#define OTA_ADDR             VERSION_ADDR + 1
 #define WORKER_NUM           (SCRIP_MAX_RUN - 2)
 //#define SCRIP_NUM_RUN        0x050000                 //脚本运行数量
 //#define SCRIP_NUM_DEBUG      0x050005                   //脚本调试数量
@@ -257,7 +260,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define CHECK_FLASH_ADDR		  PID_PAR_ADDR+1000	       //FLASH校验参数
 #define CHECK_VERION_ADDR		  CHECK_FLASH_ADDR+500	   //版本号设置
 #define CHECK_VERION_ADDR1		CHECK_VERION_ADDR+100	
-#define PVD_ADDR              CHECK_VERION_ADDR1+100   //PVD保存地址，长度未知
+//#define PVD_ADDR              CHECK_VERION_ADDR1+100   //PVD保存地址，长度未知
 
 #define LOG_INF_ADDR          0x600000                  //log信息存储地址
 #include "cdv_include.h"    /*放文件头会导致定义不能用在别的h文件中*/
@@ -278,6 +281,8 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define SEI() __set_PRIMASK(0)
 
 #define INIT_CLEAR(ARG) memset(&ARG, 0, sizeof(ARG))
+	
+#define ONLY_ID_ADDR (u32*)(0x1FFF7A10)
 /*
  *CDV 资源定义
  */

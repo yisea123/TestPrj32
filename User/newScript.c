@@ -439,3 +439,118 @@ void Flash_Send(const CDV_INT32U addr , const CDV_INT32U len, CDV_INT08U uartNo)
 	}
 	
 }
+
+
+/**
+  * @brief  获取流程脚本版本
+  *  
+  * @param  
+  *   
+  * @retval 
+  *
+  * @note   
+  */
+
+RET_STATUS GetLineVersion(CDV_INT08U** buf, CDV_INT32U *len) {
+	CDV_INT08U i;
+	//CDV_INT08U type , num;
+	CDV_INT32U size = 0;//脚本大小，供跳转
+	CDV_INT32U shift = 0;//偏移起始地址的字节数
+
+	//CDV_INT32U lineLen = 0;//生产线的长度
+	
+	if(OPT_FAILURE == LineCrcChk() || *buf != NULL)
+		return OPT_FAILURE;
+	
+	//开始从flash中提取信息
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR, 4);//读取所有生产线脚本大小
+	//lineLen = size;
+	shift += 4;
+	size = 0;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 1);//读取生产线个数
+	shift += 1;
+	//定位生产线
+	i=0;
+	size = 0;
+	do{
+		shift += size;//定位到下一条生产线
+		SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线大小
+		shift += 4;
+	}while(i++ < 0);
+	size = 0;
+//	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 1);//读取生产线名称长度
+//	shift += 1;
+//	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线资源脚本大小
+	shift += 4;
+	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线映射脚本大小
+	shift += 4;
+	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线报警脚本大小
+	shift += 4;
+	shift += size;	
+	
+	//TODO：模拟
+	NEWCH(* buf, *len = size);
+	SPI_Flash_Read(* buf, __LINE_ADDR + shift, size);//读取流程脚本版本
+		
+	return OPT_SUCCESS;
+}
+
+/**
+  * @brief  获取应用层版本
+  *  
+  * @param  
+  *   
+  * @retval 
+  *
+  * @note   
+  */
+
+RET_STATUS GetYYCVersion(CDV_INT08U** buf, CDV_INT32U *len) {
+	CDV_INT08U i;
+	//CDV_INT08U type , num;
+	CDV_INT32U size = 0;//脚本大小，供跳转
+	CDV_INT32U shift = 0;//偏移起始地址的字节数
+
+	//CDV_INT32U lineLen = 0;//生产线的长度
+	
+	if(OPT_FAILURE == LineCrcChk() || *buf != NULL)
+		return OPT_FAILURE;
+	
+	//开始从flash中提取信息
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR, 4);//读取所有生产线脚本大小
+	//lineLen = size;
+	shift += 4;
+	size = 0;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 1);//读取生产线个数
+	shift += 1;
+	//定位生产线
+	i=0;
+	size = 0;
+	do{
+		shift += size;//定位到下一条生产线
+		SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线大小
+		shift += 4;
+	}while(i++ < 0);
+	size = 0;
+//	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 1);//读取生产线名称长度
+//	shift += 1;
+//	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线资源脚本大小
+	shift += 4;
+	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线映射脚本大小
+	shift += 4;
+	shift += size;
+	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线报警脚本大小
+	shift += 4;
+	shift += size;	
+	
+	//TODO：模拟
+	NEWCH(* buf, *len = size);
+	SPI_Flash_Read(* buf, __LINE_ADDR + shift, size);//读取流程脚本版本
+		
+	return OPT_SUCCESS;
+}

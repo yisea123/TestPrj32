@@ -50,7 +50,11 @@
 #endif
 
 //extern CDV_INT08U resReqed;
-
+typedef enum  {
+	RC_NONE= 0,
+	RC_CRC,
+	
+}REQUEST_CTRL;
 
 //extern CDV_INT08U g_resUart;
 /*函数返回状态结构*/
@@ -77,7 +81,7 @@ RET_STATUS ActualMotorRun(CDV_INT08U no /*, CDV_INT08U opt*/ , CDV_INT32S num);
 //RET_STATUS MotorStop(CDV_INT08U no );
 void ResParaRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT08U paraLen, CDV_INT08U uartNo);
 //RET_STATUS Motor_Forward_Backward(CDV_INT08U no /*, CDV_INT08U opt*/ , CDV_INT32S num,u8 type);
-void ResRequest(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CDV_INT08U* para, CDV_INT08U paraLen, CMD_ARG *arg);
+void ResRequest(CDV_INT08U* rxBuf, CDV_INT16U rxLen , CDV_INT08U* para, CDV_INT16U paraLen, CMD_ARG *arg, REQUEST_CTRL ctrl);
 CDV_INT32S CalculateForAll(CDV_INT08U* buf,CDV_INT32S addr,CDV_INT32S lenth);
 RET_STATUS DoResRequest(CMD_ARG *arg);
 RET_STATUS DoSpecRequest(CMD_ARG *arg);

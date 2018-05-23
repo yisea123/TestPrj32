@@ -257,7 +257,7 @@ void CDVInfoSend(CDV_INT08U uartNo) {
 	);
 	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
 #if _NPC_VERSION_ > 1u
-	if(slaveTableLen)
+	//if(slaveTableLen)
 	{
 		sprintf(tmp , "本机id:%d\r\n" 
 		,CascadeGetNativeNo()
@@ -356,7 +356,8 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 
 RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 {
-	
+	vu32 local_start = 0;
+	vu32 local_clk = 0;
 	CDV_INT08U temp[2]={0,0};
 	CDV_INT16U crc;
 	RET_STATUS ret = OPT_SUCCESS;
@@ -365,10 +366,18 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 	crc = getCRC16(rxBuf,rxLen-2); 
 	temp[1] = crc & 0xff; 
 	temp[0] = (crc >> 8) & 0xff;
-	
+//	global_cnt1 ++;
 	if((rxBuf[rxLen-1] == temp[0])&&(rxBuf[rxLen-2] == temp[1]))
 	{//crc chk
-		
+//		global_start = GetCdvTimeTick();
+//		
+//			local_clk = CalcTimeMS(GetCdvTimeTick(), local_start);
+//			
+//			if(local_clk > 100) {
+//				local_clk  = 100;
+//			}
+//			local_start = GetCdvTimeTick();
+			
 //		Log_CmdWrite(rxBuf , rxLen, uartNo);
 		/***********************通用串口******************************/
 //		if(general_serial_count != 0 && 3 == uartNo)
@@ -389,7 +398,10 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 		{
 			//Log_Write("Get inf" , LOG_EVENT);
 			CDVInfoSend(uartNo);
+			
+#if USE_NPC_NET
 			EthInfoSend(uartNo);
+#endif
 		}
 //		else if(0 == strncmp((CDV_INT08C*)rxBuf,"CDV TIM",7)) {//流程计时
 //			timeEn = !timeEn;
@@ -608,11 +620,11 @@ RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg){
 			ret = ResParse(rxBuf + 2 , rxLen - 2 , arg);
 		  if(!arg->ptrWorker && 0 == arg->reqlen) {
 				if(OPT_SUCCESS == ret) {
-					ResRequest(arg->buf, arg->len, 0, 0, arg);
+					ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 				} else {
 					if(arg->buf)
 					arg->buf[1] += 0x80;
-					ResRequest(arg->buf, arg->len, 0, 0, arg);
+					ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 				}
 			}
 			break;
@@ -622,11 +634,11 @@ RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg){
 			break;
 		case 0xfe://自定义读
 			ASSERT(!arg->ptrWorker);
-			ResRequest((CDV_INT08U*)cdv_error[g_cdvStat] , strlen(cdv_error[g_cdvStat]), 0, 0, arg);
+			ResRequest((CDV_INT08U*)cdv_error[g_cdvStat] , strlen(cdv_error[g_cdvStat]), 0, 0, arg, RC_CRC);
 			break;
 		default:
 			ASSERT(!arg->ptrWorker);
-			ResRequest(arg->buf, arg->len, 0, 0, arg);
+			ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 			break;
 	}
 	
@@ -1161,14 +1173,30 @@ RET_STATUS MAINUSART_SendEx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U* exB
   */
 void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 	//OS_ERR err;
+	CDV_INT08U txRealLen;
+	CDV_INT08U *TX_BUF= NULL;
+	CDV_INT08U TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
+	
 	//CDV_INT08U len = txLen;
 	ASSERT(txBuf && txLen);
 	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
 		return;
 	
+	if(txBuf[0] != 0xF2){
+		TX_BUF = txBuf;
+	}else{//包头
+		TX_Head[5] = txLen;
+		txRealLen=txLen+6;
+		NEW08U(TX_BUF,txRealLen);
+		MemCpy(TX_BUF , TX_Head, 6);
+		if(txLen>0)
+		MemCpy(TX_BUF+6 , txBuf, txLen);	
+		txLen = txRealLen;
+	}
+	
 	if(TCP_COM == uartNo)//tcp
 	{
-		while (OPT_FAILURE == TCP_ServerSend(txBuf, txLen));//TCP_ServerSend(txBuf, txLen);
+		while (OPT_FAILURE == TCP_ServerSend(TX_BUF, txLen));//TCP_ServerSend(txBuf, txLen);
 	}
 //	else if(0xFF == uartNo)//spi cascade
 //	{
@@ -1176,11 +1204,16 @@ void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 //	}	
 	else if(MAIN_COM == uartNo)//main usart
 	{
-		while (OPT_FAILURE == MAINUSART_Send(txBuf, txLen));
+		while (OPT_FAILURE == MAINUSART_Send(TX_BUF, txLen));
 	}
 	else
 	{
 		USARTSend(txBuf, txLen, uartNo);
+	}
+	
+	if(txBuf[0] == 0xF2)
+	{
+		DELETE(TX_BUF);
 	}
 	
 //	while(!USART_CAN_DO) {//这句是因为连续add显示变量会死机而添加的

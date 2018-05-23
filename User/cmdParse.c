@@ -156,7 +156,7 @@ RET_STATUS YYCCtrlParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 			break;
 		
 	}
-	ResRequest(arg->buf, arg->len, &result, resultLen, arg);
+	ResRequest(arg->buf, arg->len, &result, resultLen, arg, RC_CRC);
 	
 	return ret;
 }
@@ -204,7 +204,7 @@ RET_STATUS YYCCtrlParse1(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				ctrl2 = ctrl2 + 4;
 			}
 		}
-		ResRequest(arg->buf, arg->len, 0,0,arg);
+		ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
 	}
 	else
 	{
@@ -250,7 +250,7 @@ RET_STATUS YYCCtrlParse1(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				break;
 			
 		}
-		ResRequest(arg->buf, arg->len, &result, resultLen, arg);
+		ResRequest(arg->buf, arg->len, &result, resultLen, arg,RC_CRC);
 	
 	}
 	
@@ -301,7 +301,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				  if(OPT_SUCCESS != ret)
 					{
 						arg->buf[1] += 0x80;
-					  ResRequest(arg->buf, arg->len, 0,0,arg);
+					  ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
 					}
 					break;
 				case 0x05:
@@ -334,7 +334,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 					break;
 				case 0x31:
 					//ResParaRequest(buf + 4, len - 4, 0, 0, arg->uart);
-				  ResRequest(arg->buf, arg->len, 0,0,arg);
+				  ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
 					AlarmCancel(buf[3]);
 					break;
 				case 0x40:
@@ -371,6 +371,11 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				default:
 					break;
 			}
+//			global_clk = CalcTimeMS(GetCdvTimeTick(), global_start);
+//			global_cnt2++;
+//			if(global_clk > 100) {
+//				break;
+//			}
 		}
 		break;
 		default:

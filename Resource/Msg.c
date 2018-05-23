@@ -127,7 +127,7 @@ RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 			break;
 		case 0xFF:/*²éÑ¯*/
 			val = READ_MSG(no);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg);
+			ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 		  break;
 		default:
 			break;
