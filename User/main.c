@@ -257,7 +257,10 @@ void start_task(void *p_arg){
 	FpgaRecvCtl();
 #endif
 	CDVParamInit();
-
+			
+#if USE_PVD == 1u
+	g_dipCtrlWorker = PVD_Restore();
+#endif
 
 #if ENABLE_FPGA_DOWN
 //	for(i = CDV_O_NUM ; i < CDV_O_NUM + CDV_EXO_NUM*2 ; i ++) {
@@ -472,10 +475,7 @@ void start_task(void *p_arg){
 		g_cdvStat = CDV_ONLINE;
 		LED3 = LED_OFF;
 		LED2 = LED_OFF;
-			
-#if USE_PVD == 1u
-	g_dipCtrlWorker = PVD_Restore();
-#endif
+
 	 // OS_TaskSuspend((OS_TCB*)&StartTaskTCB,&err); //挂起开始任务
 	  //OS_CRITICAL_EXIT(); //进入临界区		
 		OSTmrStart(&tmr1,&err);

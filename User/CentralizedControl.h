@@ -24,10 +24,10 @@
 
 #if USE_CENTRALIZEDCONTROL == 1u
 
-
-
-// 查设备数据
+RET_STATUS CentralizedControl_QuerySysInfo(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 RET_STATUS CentralizedControl_QueryDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
+RET_STATUS CentralizedControl_SysOperation(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
+void CentralizedControl_OTA(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 
 #endif // #if USE_CENTRALIZEDCONTROL == 1u
 

@@ -111,7 +111,8 @@ RET_STATUS CentralizedControl_QuerySysInfo(CDV_INT08U* buf, CDV_INT08U len, CMD_
 	crc = MODBUS_CRC16(sndBuf, offset, crc);
 	MemCpy(sndBuf + offset, &crc, 2);
 	offset += 2;
-	AddTxNoCrc(sndBuf , offset, arg->uart);
+	//AddTxNoCrc(sndBuf , offset, arg->uart);
+	ResRequest(sndBuf , offset, 0,0,arg, RC_NONE);
 	DELETE(sndBuf);
 	DELETE(YYCVersionBuf);
 	DELETE(lineVersionBuf);
@@ -177,6 +178,7 @@ RET_STATUS CentralizedControl_QueryDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_
   */
 RET_STATUS CentralizedControl_SysOperation(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 {
+	ResetCdv();
 	return OPT_SUCCESS;
 }
 

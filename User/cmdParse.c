@@ -360,13 +360,16 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 		{
 		  switch (buf[1]) {
 				case 0x01:
+					CentralizedControl_QuerySysInfo(buf, len, arg);
 					break;
 				case 0x02:
 					CentralizedControl_QueryDevData(buf, len, arg);
 					break;
 				case 0x03:
+					CentralizedControl_SysOperation(buf, len, arg);
 					break;
 				case 0x04:
+					CentralizedControl_OTA(buf, len, arg);
 					break;
 				default:
 					break;
