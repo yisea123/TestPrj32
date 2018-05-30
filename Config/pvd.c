@@ -38,8 +38,7 @@
  * @param None
  * @retval None
  */
-void PVD_Config(void)
-{
+void PVD_Config(void) {
  NVIC_InitTypeDef NVIC_InitStructure;
  EXTI_InitTypeDef EXTI_InitStructure;
 
@@ -71,6 +70,13 @@ void PVD_Config(void)
 
  /* 使能 PVD 输出 */
  PWR_PVDCmd(ENABLE);
+ if(FLASH_OB_GetBOR() != OB_BOR_LEVEL1)
+ {
+   FLASH_OB_Unlock();
+   FLASH_OB_BORConfig(OB_BOR_LEVEL1);
+   FLASH_OB_Launch();
+   FLASH_OB_Lock();
+ }
 }
 
 
@@ -120,7 +126,6 @@ u8 PVD_Flash_Read(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 
 void PVD_Save(void)   
 {
-	
 	u32 err;
 	if (FLASH_If_GetWriteProtectionStatus() == 0)   
 	{
@@ -133,7 +138,7 @@ void PVD_Save(void)
 	FLASH_If_Init();									//解锁 
 	FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
 	err = FLASH_If_Erase(PVD_BASE);
-	//DelayUS(100);
+	
 	if(!err) {
 		err = PVD_Flash_Write((CDV_INT08U *)&g_pvd_flag, PVD_FLAG, sizeof(g_pvd_flag));
 		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusReg, REG_ADDR, sizeof(g_modbusReg));
@@ -142,10 +147,9 @@ void PVD_Save(void)
 		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
 		err += PVD_Flash_Write((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo)*WORKER_MAX_NUM);
 	}
-	//DelayUS(100);
+	
 	FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
 	FLASH_Lock();//上锁
-	
 }
 
 void PVD_Erase(void)   
@@ -219,10 +223,8 @@ void PVD_IRQHandler(void) {
 	if(PWR_GetFlagStatus (PWR_FLAG_PVDO)==SET)  
   {
     /* 亮红灯，实际应用中应进入紧急状态处理 */
-		/*这里无法操作内部flash？ */
-//	  LED1 = LED_OFF;
-//		LED2 = LED_OFF;
-//		LED3 = LED_OFF;
+		//global_start = GetCdvTimeTick();
+	  //PVD_Save();
 		g_pvd_flag = 1;
   }
 	else //检测是否高于阈值

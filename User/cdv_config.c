@@ -318,6 +318,18 @@ void DelayUS(u32 cnt)
 	cnt=cnt*42;
 	for(j=0;j<cnt;j++);//大概4条指令
 }
+///** @brief  
+//  * @param  
+//  * @retval 
+//  * @note   1US168条指令
+//  *         102261
+//  */
+//void DelayMS(u32 cnt)
+//{
+//	u32 j;
+//	cnt=cnt*42000;
+//	for(j=0;j<cnt;j++);//大概4条指令
+//}
 /** @brief  
   * @param  
   * @retval 

@@ -173,13 +173,13 @@ void USART_Configuration(void){
 			if(OPT_SUCCESS == CorrectComParam(&comPar, i))
 				p_UartSet[i](comPar.bound, comPar.wordLength, comPar.stopBits, comPar.parity);
 			else
-				p_UartSet[i](115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+				p_UartSet[i](57600, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 		}
 	}
-//  USART1_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+ // USART1_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	USART2_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	USART3_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
-//	UART4_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+	UART4_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART5_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	USART6_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 
@@ -285,7 +285,7 @@ void USARTx_IRQHandler(USART_TypeDef* USARTx, u8 uartNo)
 {
 	CDV_INT08U Res;
   
-	tm1Re = ReadClock1ms();
+	tm1Re = GetCdvTimeTick();
 	if (USART_GetFlagStatus(USARTx, USART_FLAG_ORE) != RESET)
 	{
 	  USART_ReceiveData(USARTx);

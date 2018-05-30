@@ -198,12 +198,13 @@ void UART5_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *UART5·¢ËÍ
   */
 void DMA_usart5Send(CDV_INT32U mar,CDV_INT16U ndtr){
+	OS_ERR  err;
 #if EN_UART5_485
 	CPU_SR_ALLOC();
 #endif
 	UART5_TX_ENABLE;
 #if EN_UART5_485
-	OS_CRITICAL_ENTER();
+	OSSchedLock(&err);
 #endif
 	DMA_MemoryTargetConfig(DMA1_Stream7,mar,DMA_Memory_0);
 	
@@ -219,7 +220,7 @@ void DMA_usart5Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	
 	UART5_TX_DISABLE;
 #if EN_UART5_485
-	OS_CRITICAL_EXIT();
+	OSSchedUnlock(&err);
 #endif
 }
 /**

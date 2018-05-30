@@ -72,10 +72,10 @@ u8 RS485_RX_BUF[16];  	//接收缓冲,最大64个字节.
 u32 RS485_RX_CNT=0;
 void UART4_IRQHandler(void)
 {
-#if 1/*4 == MAIN_COM*/
+#if 4 == MAIN_COM
 	OS_ERR err;
 	OSIntEnter();                                           /*进入中断*/
-	MAIN_COM = 4;//171024 MMY
+	//MAIN_COM = 4;//171024 MMY
   USARTx_IRQHandler(UART4,4);
 	OSIntExit();    	    
 #else
@@ -177,12 +177,13 @@ void UART4_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *UART4发送
   */
 void DMA_usart4Send(CDV_INT32U mar,CDV_INT16U ndtr){
+	OS_ERR  err;
 #if EN_UART4_485
 	CPU_SR_ALLOC();
 #endif
 	UART4_TX_ENABLE;
 #if EN_UART4_485
-	OS_CRITICAL_ENTER();
+	OSSchedLock(&err);
 #endif
 	DMA_MemoryTargetConfig(DMA1_Stream4,mar,DMA_Memory_0);
 	
@@ -198,7 +199,7 @@ void DMA_usart4Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	
 	UART4_TX_DISABLE;
 #if EN_UART4_485
-	OS_CRITICAL_EXIT();
+	OSSchedUnlock(&err);
 #endif
 }
 

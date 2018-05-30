@@ -35,7 +35,7 @@ CDV_INT08U GetComNoFromID(CDV_INT08U id)
 	switch (id)
 	{
 		case 1:
-			no = 6;//no = 6;
+			no = 1;//no = 6;
 			break;
 		case 2:
 			no = 1;
@@ -310,13 +310,13 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	CDV_INT08U ftmp2     = buf[4];//绑定变量号
 	
 	CDV_INT08U fc        = buf[5];            /*功能码*/
-	CDV_INT08U regPos    = buf[6];            /*寄存器位置*/
-	CDV_INT08U datLen    = buf[7];            /*数据位长度*/
-	CDV_INT08U* p_dat    = buf + 8;           /*报文数据*/
+	CDV_INT16U regPos    = (buf[6]<<8) + buf[7];            /*寄存器位置*/
+	CDV_INT08U datLen    = buf[8];            /*数据位长度*/
+	CDV_INT08U* p_dat    = buf + 9;           /*报文数据*/
 	/*保留字段*/
-	CDV_INT08U btmp1     = buf[8 + (len - 11)];//(datLen?datLen<<ftmp1:2)];//datLen:0变量4B；1数值（len-11）B
-	CDV_INT08U prot      = buf[9 + (len - 11)];   /*协议*/
-	CDV_INT08U* p_pp     = buf + 10 + (len - 11); /*协议解析*/
+	CDV_INT08U btmp1     = buf[9 + (len - 12)];//(datLen?datLen<<ftmp1:2)];//datLen:0变量4B；1数值（len-11）B
+	CDV_INT08U prot      = buf[10 + (len - 12)];   /*协议*/
+	CDV_INT08U* p_pp     = buf + 11 + (len - 12); /*协议解析*/
 	
 	CDV_INT08U isRead = 0;
 	
@@ -338,9 +338,9 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	if(0x00 != prot)
 		return ret;
 	
-	if(10 < UniversalCnt[devAddr]) {
+	if(5 < UniversalCnt[devAddr]) {
 		UniversalCnt[devAddr]++;
-		delay_ms(20);
+		//delay_ms(20);
 		return OPT_SUCCESS;//通讯不通，跳过
 	}	
 	
@@ -366,8 +366,12 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	
 	
 	switch(fc) {
-		case 0x10:                        /*write reg*/
-			WriteRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen);
+		case 0x10:                        /*write multi reg*/
+			WriteMultiRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			break;
+		case 0x06:                        /*write reg*/
+			WriteRegisterCmd(devAddr, regPos, *(CDV_INT16U*)p_val, &cmdBuf, &cmdLen);
 			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
 			break;
 		case 0x03:                        /*read reg*/
@@ -440,7 +444,7 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 		UniversalCnt[devAddr]++;
 	}
 	
-	if(0x05 == fc || 0x10 == fc)
+	if(0x05 == fc || 0x10 == fc || 0x06 == fc)
 		return ret;
 	else
 		return OPT_SUCCESS;//ret;//171014串口失败不死等，防止不通的时候，流程不执行

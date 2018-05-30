@@ -76,10 +76,10 @@ void USART1_RxDeInit(void)
   */
 void USART1_IRQHandler(void)                	             /*串口1中断服务程序*/
 {
-#if 1/*1 == MAIN_COM*/
+#if 1 == MAIN_COM
 	OS_ERR err;
 	OSIntEnter();                                           /*进入中断*/
-	MAIN_COM = 1;//171024 MMY
+	//MAIN_COM = 1;//171024 MMY
 	USARTx_IRQHandler(USART1,1);
 	OSIntExit();    	    
 #else
@@ -88,12 +88,13 @@ void USART1_IRQHandler(void)                	             /*串口1中断服务程序*/
 	if(USART_GetITStatus(USART1, USART_IT_RXNE) != RESET)//接收到数据
 	{
 	  res =USART_ReceiveData(USART1);//;读取接收到的数据USART3->DR
-		
-		(g_pUsart1RxBuf)[g_Usart1RxLen]=res;
-		g_Usart1RxLen++;
-		
-		if(g_Usart1RxLen >= g_Usart1BufLen)
-			g_Usart1RxLen = 0;
+		if(g_Usart1RxLen < g_Usart1BufLen) {
+			(g_pUsart1RxBuf)[g_Usart1RxLen]=res;
+			g_Usart1RxLen++;
+			
+//			if(g_Usart1RxLen >= g_Usart1BufLen)
+//				g_Usart1RxLen = 0;
+		}
 		
 	}
   OSIntExit();
@@ -277,12 +278,13 @@ void USART1_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *USART1发送
   */
 void DMA_usart1Send(CDV_INT32U mar,CDV_INT16U ndtr){
+	OS_ERR  err;
 #if EN_USART1_485
 	CPU_SR_ALLOC();
 #endif
 	USART1_TX_ENABLE;
 #if EN_USART1_485
-	OS_CRITICAL_ENTER();
+	OSSchedLock(&err);
 #endif
 	DMA_MemoryTargetConfig(DMA2_Stream7,mar,DMA_Memory_0);
 	DMA_ClearFlag(DMA2_Stream7,DMA_FLAG_TCIF7);
@@ -296,7 +298,7 @@ void DMA_usart1Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	//delay_ms(10);
 	USART1_TX_DISABLE;
 #if EN_USART1_485
-	OS_CRITICAL_EXIT();
+	OSSchedUnlock(&err);
 #endif
 }
 
@@ -336,7 +338,7 @@ u8 USART1_Receive(u8 *len)
 		endTime = GetCdvTimeTick();
 		time = CalcTimeMS(endTime , startTime);
 		
-		if (time > 500) {
+		if (time > 50) {
 			*len = 0;
 			return 0;
 			

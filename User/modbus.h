@@ -401,7 +401,9 @@ CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo);
  /************************************************************
 	********************´®¿Ú·¢ËÍº¯Êý*****************************
 	************************************************************/
-void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
+void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
      CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
 void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);

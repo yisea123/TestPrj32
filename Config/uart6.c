@@ -153,18 +153,19 @@ void USART6_IRQHandler(void)
 	{
 	  res =USART_ReceiveData(USART6);//;读取接收到的数据USART3->DR
 		
-		
-		(g_pUart6RxBuf)[g_Uart6RxLen]=res;
-		g_Uart6RxLen++;
-		
-		if(g_Uart6RxLen == 1){
+		if(g_Uart6RxLen < g_Uart6BufLen) {
+			(g_pUart6RxBuf)[g_Uart6RxLen]=res;
+			g_Uart6RxLen++;
 			
-		gendTime = GetCdvTimeTick();
-		gtime = CalcCount(gendTime , gstartTime);
+			if(g_Uart6RxLen == 1){
+				
+			gendTime = GetCdvTimeTick();
+			gtime = CalcCount(gendTime , gstartTime);
+			}
+			
+//			if(g_Uart6RxLen >= g_Uart6BufLen)
+//				g_Uart6RxLen = 0;
 		}
-		
-		if(g_Uart6RxLen >= g_Uart6BufLen)
-			g_Uart6RxLen = 0;
 		
 	}
 #endif	
@@ -315,12 +316,13 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *USART6发送
   */
 void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
+	OS_ERR  err;
 #if EN_USART6_485
 	CPU_SR_ALLOC();
 #endif
 	USART6_TX_ENABLE;
 #if EN_USART6_485
-	OS_CRITICAL_ENTER();
+	OSSchedLock(&err);
 #endif
 	DMA_MemoryTargetConfig(DMA2_Stream6,mar,DMA_Memory_0);
 	
@@ -339,7 +341,7 @@ void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	//delay_ms(10);
 	USART6_TX_DISABLE;
 #if EN_USART6_485
-	OS_CRITICAL_EXIT();
+	OSSchedUnlock(&err);
 #endif
 }
 

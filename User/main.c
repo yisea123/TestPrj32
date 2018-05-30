@@ -127,6 +127,7 @@ int main(void){
 	
 	INTX_ENABLE();                                 //开中断	
 	
+	
 #if _NPC_VERSION_ > 1u
 #if USE_NPC_NET
 //	if(!lwip_comm_init()) 		//lwip初始化
@@ -237,6 +238,15 @@ void start_task(void *p_arg){
 								(CPU_CHAR* )"GENERAL_SERIAL_SEM", //信号量名字
 								(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);			
+	
+//	for (i = 0; i < 6; i++) {
+//		char buf[10];
+//		sprintf(buf, "COM_SEM%d", i);
+//	  OSSemCreate ((OS_SEM* )&COM_SEM[i], //指向信号量
+//									(CPU_CHAR* )buf, //信号量名字
+//									(OS_SEM_CTR )1, //信号量值为 1
+//									(OS_ERR* )&err);		
+//	}
 
 	OSSemCreate ((OS_SEM* )&TCP_TX_SEM, //指向信号量
 								(CPU_CHAR* )"TCP_TX_SEM", //信号量名字
@@ -502,7 +512,7 @@ void usart_recv_task(void *p_arg){
 			}
 			else
 			{
-				if(CalcCount(ReadClock1ms(), tmp1) > 2)//超过2ms，认为一条命令结束
+				if(CalcTimeMS(GetCdvTimeTick(), tmp1) > 2)//超过2ms，认为一条命令结束
 					if(++clk > 1)
 					  USART_RX_QUEUE_SELF_ADD;
 			}
@@ -746,7 +756,7 @@ void cdv_refresh_task(void *p_arg){
 	u32 ftime, stime;
   ftime = GetCdvTimeTick();
 	while(1)	{
-		//CascadeModbus_AllUpdate();
+		////CascadeModbus_AllUpdate();
 		CascadeModbus_Map();
 		stime = GetCdvTimeTick();
 		if (500 < CalcTimeMS(stime,ftime ))
@@ -821,10 +831,16 @@ void worker_manage_task(void *p_arg){
 		ExOReadAll();
 		ExOWriteAll();
 #endif
-		delay_ms(10);
+		//delay_ms(10);
 		
 		memmng_test();
-
+		
+#if USE_PVD == 1u
+		if(PVD_GetFlag()) {
+			ShutDown();
+		}
+#endif
+    TaskSched();
 	}
 }
 
@@ -933,11 +949,6 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 	{
 		WorkerControl(debug1, debug2);
 	}
-#if USE_PVD == 1u
-	if(PVD_GetFlag()) {
-		ShutDown();
-	}
-#endif
 		
 #if _NPC_VERSION_ > 1u
 #if USE_NPC_NET

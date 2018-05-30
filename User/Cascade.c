@@ -1465,7 +1465,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		MemCpy(p_coil,gp_coil,2);
 		MemCpy(p_val,gp_val,12);
 		
-		WriteRegisterCmd(2, 0x10, 6, (CDV_INT08U*)p_val, &cmdBuf, &cmdLen);
+		WriteMultiRegisterCmd(2, 0x10, 6, (CDV_INT08U*)p_val, &cmdBuf, &cmdLen);
 		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART);
 		delay_ms(10);
 		WriteMultiCoilCmd(3, 0, 10, (CDV_INT08U*)p_coil, &cmdBuf, &cmdLen);
@@ -1953,7 +1953,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 					
 					reg = ArithmeticEx((char*)buf + 10, len - 10, arg) ;
 					
-					WriteRegisterCmd(host, remoteaddr, 1, (CDV_INT08U*)&reg, &cmdBuf, &cmdLen);
+					WriteMultiRegisterCmd(host, remoteaddr, 1, (CDV_INT08U*)&reg, &cmdBuf, &cmdLen);
 					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 30, &recvLen, CASCADE_USART);
 				  
 					if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {

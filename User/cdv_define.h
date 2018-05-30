@@ -147,7 +147,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define YYC_IC 0xF2
 #define ENABLE_FPGA_DOWN 0
 
-#define MAIN_COM MainUsart//4
+#define MAIN_COM 4//MainUsart//
 #define TCP_COM 0xEE
 /*用作FPGA下载时的定义*/
 #define FPGA_QUE_NUM 4
@@ -363,6 +363,7 @@ extern CPU_STK WORKER_TASK_STK[WORKER_NUM][WORKER_STK_SIZE];//任务堆栈
 /*信号量*/
 extern OS_SEM TX_SEM, WORKER_SEM , MOTO_SEM , MEM_SEM , MSG_SEM; //定义一个信号量，用于访问共享资源, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
 extern OS_SEM GENERAL_SERIAL_SEM;
+//extern OS_SEM COM_SEM[6];
 extern OS_SEM TCP_TX_SEM;
 
 

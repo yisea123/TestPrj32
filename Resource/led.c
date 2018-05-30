@@ -42,6 +42,7 @@ void LED_Init(void)
 	
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_6|GPIO_Pin_7;                  //RUN|LED◊¥Ã¨÷∏ æµ∆≈‰÷√
 	GPIO_Init(GPIOG, &GPIO_InitStructure); 
+	
 #endif
 
 }		

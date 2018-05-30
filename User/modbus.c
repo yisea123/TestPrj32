@@ -609,7 +609,34 @@ CDV_INT08U* Endian_TF(CDV_INT08U* buf, const u16 num, const u16 size)
   * @retval 
   * @note   外部调用负责清理cmdBuf
   */
-void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
+void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+{
+	ASSERT(NULL != cmdBuf);
+	ASSERT(NULL == *cmdBuf);
+	
+	ASSERT(NULL != cmdLen);
+	
+	*cmdLen = 6;
+	NEW08U(*cmdBuf, *cmdLen);
+	(*cmdBuf)[0] = dev;
+	(*cmdBuf)[1] = 0x06;
+	(*cmdBuf)[2] = (addr>>8) & 0xff;
+	(*cmdBuf)[3] = (addr) & 0xff;
+	(*cmdBuf)[4] = (val>>8) & 0xff;
+	(*cmdBuf)[5] = (val) & 0xff;
+	
+}
+/** @brief  发送命令组合 写多寄存器
+  * @param  dev     对方设备号
+            addr    地址
+            num     数量
+            cmdBuf  组合命令缓存
+            cmdLen  组合命令长度
+  * @retval 
+  * @note   外部调用负责清理cmdBuf
+  */
+void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
      CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
 {
 	ASSERT(NULL != cmdBuf);

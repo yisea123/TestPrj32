@@ -181,12 +181,13 @@ void USART2_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity){
 
 
 void DMA_usart2Send(CDV_INT32U mar,CDV_INT16U ndtr){
+	OS_ERR  err;
 #if EN_USART2_485
 	CPU_SR_ALLOC();
 #endif
 	USART2_TX_ENABLE;
 #if EN_USART2_485
-	OS_CRITICAL_ENTER();
+	OSSchedLock(&err);
 #endif
 	DMA_MemoryTargetConfig(DMA1_Stream6, mar,DMA_Memory_0);	
 	
@@ -203,7 +204,7 @@ void DMA_usart2Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	
 	USART2_TX_DISABLE;
 #if EN_USART2_485
-	OS_CRITICAL_EXIT();
+	OSSchedUnlock(&err);
 #endif
 }
 
