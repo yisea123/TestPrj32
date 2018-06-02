@@ -181,6 +181,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 /*ÅäÖÃ¿ª¹Ø*/
 #if _NPC_VERSION_ >= 3u
 #define USE_PVD 1u
+#define USE_LOWPOWER 1u
 #define USE_MEMMNG 1u
 #endif
 

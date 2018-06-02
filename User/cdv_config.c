@@ -105,14 +105,18 @@ void ShutDown(void) {
 	OS_ERR err;
 //	__disable_irq();   // ¹Ø±Õ×ÜÖÐ¶Ï
 	
+		RCC_AHB1PeriphResetCmd(0X22E011FF, ENABLE);
+		RCC_APB1PeriphResetCmd(0xE6FEC9FF, ENABLE);
+		RCC_APB2PeriphResetCmd(0x00377F33, ENABLE);
 #if USE_PVD == 1u
 	INTX_DISABLE();
-	PVD_Save();
+	//PVD_Save();
 	AllWorkerCtrl(WORKER_STOP);
 	// PVD_FlagClear();
 	g_noWrite = 1;
 	INTX_ENABLE();
 	OS_TaskSuspend((OS_TCB*)&UsartRecvTaskTCB,&err);
+	//Sys_Enter_Standby();
 	while(PVD_GetFlag());
 #endif
 	ResetCdv();
@@ -281,7 +285,7 @@ void NewError(void ) {
 	u8 sw = 1;
 	g_cdvStat = CDV_NEW_ERROR;
 	LED3 = LED_ON;
-	Log_Write("NEW ERROR" , LOG_ERROR);
+	//Log_Write("NEW ERROR" , LOG_ERROR);
 	while(sw)
 		if(0 == i++) {
 			if(0 ==  j++)
@@ -299,7 +303,7 @@ void WhileError(void ) {
 	u8 sw = 1;
 	g_cdvStat = CDV_WHILE_ERROR;
 	LED3 = LED_ON;
-	Log_Write("WHILE ERROR" , LOG_ERROR);
+	//Log_Write("WHILE ERROR" , LOG_ERROR);
 	while(sw)
 		if(0 == i++) {
 			if(0 ==  j++)

@@ -63,7 +63,7 @@ void PVD_Config(void) {
  EXTI_Init(&EXTI_InitStructure);
 
  //配置 PVD 级别 5
- // (PVD 检测电压的阈值为 2.8V， VDD 电压低于 2.8V 时产生 PVD 中断，
+ // (PVD 检测电压的阈值为 2.7V， VDD 电压低于 2.7V 时产生 PVD 中断，
  //具体数据可查询数据手册获知)
  /*具体级别根据自己的实际应用要求配置*/
  PWR_PVDLevelConfig(PWR_PVDLevel_5);
@@ -89,7 +89,7 @@ u8 PVD_Flash_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 {
 	ASSERT(IS_FLASH_ADDRESS(WriteAddr) && !(WriteAddr%4) && !(NumByteToWrite%4));
 	
-	if (FLASH_If_Write(&WriteAddr, (uint32_t*) pBuffer, (uint16_t) NumByteToWrite/4)  == 0)
+	if (FLASH_If_Write16(&WriteAddr, (uint16_t*) pBuffer, (uint16_t) NumByteToWrite/2)  == 0)
 	{
 		
 		return 0;
@@ -127,9 +127,13 @@ u8 PVD_Flash_Read(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 void PVD_Save(void)   
 {
 	u32 err;
+	
 	if (FLASH_If_GetWriteProtectionStatus() == 0)   
 	{
-		err = 1;
+		err = FLASH_If_DisableWriteProtection();
+		if (2 == err)
+			WhileError();
+		//err = 1;
 	}
 	else
 	{
@@ -137,19 +141,20 @@ void PVD_Save(void)
 	}
 	FLASH_If_Init();									//解锁 
 	FLASH_DataCacheCmd(DISABLE);//FLASH擦除期间,必须禁止数据缓存
-	err = FLASH_If_Erase(PVD_BASE);
+	//err = FLASH_If_Erase(PVD_BASE);//由于上电会擦除，这里可以省去擦除
 	
 	if(!err) {
 		err = PVD_Flash_Write((CDV_INT08U *)&g_pvd_flag, PVD_FLAG, sizeof(g_pvd_flag));
 		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusReg, REG_ADDR, sizeof(g_modbusReg));
-		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusInReg, INREG_ADDR, sizeof(g_modbusInReg));
-		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusCoil, COIL_ADDR, sizeof(g_modbusCoil));
-		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
-		err += PVD_Flash_Write((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo)*WORKER_MAX_NUM);
+//		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusInReg, INREG_ADDR, sizeof(g_modbusInReg));
+//		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusCoil, COIL_ADDR, sizeof(g_modbusCoil));
+//		err += PVD_Flash_Write((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
+//		err += PVD_Flash_Write((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo)*WORKER_MAX_NUM);
 	}
 	
 	FLASH_DataCacheCmd(ENABLE);	//FLASH擦除结束,开启数据缓存
 	FLASH_Lock();//上锁
+  
 }
 
 void PVD_Erase(void)   
@@ -182,24 +187,25 @@ CDV_INT08S PVD_Restore(void)
 {
 	u32 err;
 	u32 flag;
+	CDV_INT08S ret = -1;
 	
 	err = PVD_Flash_Read((CDV_INT08U *)&flag, PVD_FLAG, sizeof(flag));
 	if(1 == flag) {
 		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusReg, REG_ADDR, sizeof(g_modbusReg));
-		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusInReg, INREG_ADDR, sizeof(g_modbusInReg));
-		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusCoil, COIL_ADDR, sizeof(g_modbusCoil));
-		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
-		err = PVD_Flash_Read((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo));
+//		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusInReg, INREG_ADDR, sizeof(g_modbusInReg));
+//		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusCoil, COIL_ADDR, sizeof(g_modbusCoil));
+//		err = PVD_Flash_Read((CDV_INT08U *)&g_modbusInCoil, INCOIL_ADDR, sizeof(g_modbusInCoil));
+//		err = PVD_Flash_Read((CDV_INT08U *)g_threadInfo, WORKER_ADDR, sizeof(g_threadInfo));
 		//恢复动作
 		//OWriteAll();
 		ValToFlash(0, CDV_VAR_NUM);
 		//RestartWorkers();//很危险
-		PVD_Erase();
-		return 0;//1;
+		ret = 0;
 	} else {
 		FlashToVal(0, CDV_VAR_NUM);
 	}
-	return -1;
+	//PVD_Erase();
+	return ret;
 }
 
 /**
@@ -219,20 +225,22 @@ u32 PVD_GetFlag(void)
   */
 void PVD_IRQHandler(void) {
   OSIntEnter();
+	/* 清除中断信号*/
+	EXTI_ClearITPendingBit(EXTI_Line16);
 	/*检测是否低于阈值，产生了 PVD 警告信号*/
 	if(PWR_GetFlagStatus (PWR_FLAG_PVDO)==SET)  
   {
     /* 亮红灯，实际应用中应进入紧急状态处理 */
 		//global_start = GetCdvTimeTick();
-	  //PVD_Save();
+	  g_noWrite = 1;
 		g_pvd_flag = 1;
+		PVD_Save();
   }
 	else //检测是否高于阈值
   {
 		g_pvd_flag = 0;
+		//ResetCdv();
   }
-	/* 清除中断信号*/
-	EXTI_ClearITPendingBit(EXTI_Line16);
 	OSIntExit();
 }
 #endif

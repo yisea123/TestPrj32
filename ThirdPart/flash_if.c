@@ -116,7 +116,44 @@ uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint32_t* Data ,uint32_t Da
 
   return (0);
 }
+/**
+  * @brief  This function writes a data buffer in flash (data are 16-bit aligned).
+  * @note   After writing data buffer, the flash content is checked.
+  * @param  FlashAddress: start address for writing data buffer
+  * @param  Data: pointer on data buffer
+  * @param  DataLength: length of data buffer (unit is 16-bit word)   
+  * @retval 0: Data successfully written to Flash memory
+  *         1: Error occurred while writing data in Flash memory
+  *         2: Written Data in flash memory is different from expected one
+  */
+uint32_t FLASH_If_Write16(__IO uint32_t* FlashAddress, uint16_t* Data ,uint32_t DataLength)
+{
+  uint32_t i = 0;
 
+  for (i = 0; (i < DataLength) && (*FlashAddress <= (USER_FLASH_END_ADDRESS-2)); i++)
+  {
+    /* Device voltage range supposed to be [2.1V to 3.6V], the operation will
+       be done by word */ 
+    if (FLASH_ProgramHalfWord(*FlashAddress, *(uint16_t*)(Data+i)) == FLASH_COMPLETE)
+    {
+     /* Check the written value */
+      if (*(uint16_t*)*FlashAddress != *(uint16_t*)(Data+i))
+      {
+        /* Flash content doesn't match SRAM content */
+        return(2);
+      }
+      /* Increment FLASH destination address */
+      *FlashAddress += 2;
+    }
+    else
+    {
+      /* Error occurred while writing data in Flash memory */
+      return (1);
+    }
+  }
+
+  return (0);
+}
 /**
   * @brief  Returns the write protection status of user flash area.
   * @param  None

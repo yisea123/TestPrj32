@@ -82,6 +82,7 @@
 #include "uart3.h"
 //#include "sram.h"
 #include "pvd.h"
+#include "lowPower.h"
 /*thirdpart*/
 #include "delay.h"
 #include "sysdef.h"

@@ -270,6 +270,8 @@ void start_task(void *p_arg){
 			
 #if USE_PVD == 1u
 	g_dipCtrlWorker = PVD_Restore();
+	PVD_Config();
+	PVD_Erase();
 #endif
 
 #if ENABLE_FPGA_DOWN

@@ -76,10 +76,10 @@ void DelayTick(u32 num) {
 	start = GetCdvTimeTick();
 	while(CalcCount(GetCdvTimeTick() , start) < num);
 }
-void TaskSched(void) {
+void TaskSched1(void) {
 	delay_ms(1);
 }
-void TaskSched1(void) {
+void TaskSched(void) {
 	OS_ERR err;
 	OSSchedRoundRobinYield(&err);
 }

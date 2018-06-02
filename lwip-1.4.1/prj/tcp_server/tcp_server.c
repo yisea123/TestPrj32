@@ -243,11 +243,9 @@ static void netconn_server_thread(void *arg)
   
   if (conn!= NULL)
   {
-//    /* Bind to port 80 (HTTP) with default IP address */
-//    err = netconn_bind(conn, NULL, 80);
 		/* Bind to port 80 (HTTP) with default IP address */
-		u16 port;
-		SPI_Flash_Read((CDV_INT08U *)&port, NET_ADDR + 4, sizeof(port));
+		u16 port = 60000;
+		//SPI_Flash_Read((CDV_INT08U *)&port, NET_ADDR + 4, sizeof(port));
     err = netconn_bind(conn, NULL, port);
     conn->pcb.tcp->so_options |= SOF_KEEPALIVE;
 		

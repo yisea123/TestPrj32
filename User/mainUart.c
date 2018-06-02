@@ -1348,7 +1348,7 @@ void AddTx(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
 		return;
 
 	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
-	crc = getCRC16(txBuf,txLen);
+	//crc = getCRC16(txBuf,txLen);
 	
 	
 	if(txBuf[0] != 0xF2){
@@ -1389,9 +1389,9 @@ void AddTx111(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
 	if(NULL == txBuf || 0 == txLen)
 		return;
 
-	crc = getCRC16(txBuf,txLen);
+	//getCRC16(txBuf,txLen);
 	//crc_ccitt(txBuf,txLen,0xffff);
-	MODBUS_CRC16(txBuf,txLen, 0xFFFF);
+	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
 	if(TCP_COM == uartNo)
 	{
 //		while (OPT_FAILURE == TCP_ServerSend(txBuf, txLen));
