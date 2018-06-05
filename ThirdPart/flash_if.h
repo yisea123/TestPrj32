@@ -54,7 +54,8 @@
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void FLASH_If_Init(void);
-uint32_t FLASH_If_Erase(uint32_t StartSector);
+uint32_t FLASH_If_Erase(uint32_t Sector);
+uint32_t FLASH_If_Erase2(uint32_t StartSector,uint32_t EndSector);
 uint32_t FLASH_If_Write(__IO uint32_t* FlashAddress, uint32_t* Data, uint32_t DataLength);
 uint32_t FLASH_If_Write16(__IO uint32_t* FlashAddress, uint16_t* Data ,uint32_t DataLength);
 uint16_t FLASH_If_GetWriteProtectionStatus(void);

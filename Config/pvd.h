@@ -29,6 +29,8 @@ void PVD_Erase(void);
 void PVD_FlagClear(void);
 u32 PVD_GetFlag(void);
 void PVD_Save(void);
+u8 PVD_Flash_Read(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite) ;
+u8 PVD_Flash_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite) ;
 #endif
 
 #endif

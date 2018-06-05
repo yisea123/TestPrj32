@@ -1178,7 +1178,7 @@ void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 	CDV_INT08U TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 	
 	//CDV_INT08U len = txLen;
-	ASSERT(txBuf && txLen);
+	//ASSERT(txBuf && txLen);
 	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
 		return;
 	

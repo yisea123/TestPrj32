@@ -185,7 +185,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define USE_MEMMNG 1u
 #endif
 
-#define USE_FLASH_BAK 0u
+#define USE_FLASH_BAK 1u
 /*LED定义*/
 //#if defined(CDV_V1)
 //#define LED1 PDout(9)	  // LED1 运行指示

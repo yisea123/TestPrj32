@@ -344,9 +344,7 @@ void CDVParamInit(void) {
 	LineInit();
 	if(!isInited) {
 		isInited = 1;
-#if USE_FLASH_BAK
-		FlashBak_VarRestore();
-#elseif USE_PVD == 0u
+#if USE_PVD == 0u
 	  FlashToVal(0, CDV_VAR_NUM);
 #endif
 	}

@@ -81,8 +81,8 @@ static void udpecho_thread(void *arg)
         {
           addr = netbuf_fromaddr(inbuf);
           port = netbuf_fromport(inbuf);
-          //netconn_connect(conn, addr, port);
-					netconn_connect(conn, IP_ADDR_BROADCAST, port);
+          netconn_connect(conn, addr, port);
+					//netconn_connect(conn, IP_ADDR_BROADCAST, port);
           inbuf->addr.addr = 0;
 					netbuf_data(inbuf, (void**)&buf, &buflen);
 					if (!strcmp(buf, "are you npc")) {
@@ -140,4 +140,86 @@ u8 udpecho_init(void)
   //sys_thread_new("udpecho_thread", udpecho_thread, NULL, DEFAULT_THREAD_STACKSIZE,UDPECHO_THREAD_PRIO );
 }
 
+//static unsigned short port;
+/*-----------------------------------------------------------------------------------*/
+void udpecho_find(void)
+{
+  err_t err, recv_err;
+	struct netconn *conn = NULL;
+  struct netbuf *rbuf = NULL;
+  struct ip_addr *addr = NULL;
+  unsigned short port;
+  char* buf = NULL, *outBuf = NULL;
+	char * buffer = NULL, buffer_pointer = 0;
+  u16_t buflen = 0;
+	struct netbuf *sbuf = netbuf_new();
+  conn = netconn_new(NETCONN_UDP);
+	
+	NEWCH(buffer, 200);
+	
+	
+  if (conn!= NULL)
+  {
+		
+    err = netconn_bind(conn, IP_ADDR_ANY, 100);
+		conn->recv_timeout = 1000;  	//禁止阻塞线程 等待1000ms
+		
+    if (err == ERR_OK)
+		{
+			//netconn_connect(conn, IP_ADDR_BROADCAST, UDP_SERVER_PORT);//udp接收时不能connect
+			NEWCH(outBuf, 48);//最多45
+			sprintf(outBuf , "are you npc");
+			netbuf_ref(sbuf, outBuf, strlen(outBuf));
+			//netconn_send(conn,sbuf);
+			netconn_sendto(conn, sbuf,  IP_ADDR_BROADCAST, UDP_SERVER_PORT);
+			//netconn_disconnect(conn);
+			
+			DELETE(outBuf);
+      while (1) 
+      {
+        recv_err = netconn_recv(conn, &rbuf);
+				//recv_err = netconn_recvfrom(conn, &inbuf);
+      
+        if (recv_err == ERR_OK) 
+        {
+					do{
+						addr = netbuf_fromaddr(rbuf);
+						port = netbuf_fromport(rbuf);
+						//netconn_connect(conn, addr, port);
+						
+						rbuf->addr.addr = 0;
+						netbuf_data(rbuf, (void**)&buf, &buflen);
+						
+						if(buf && buflen) {
+							MemCpy(buffer, buf, buflen);
+							buffer_pointer += buflen;
+						}
+					}while(-1 !=netbuf_next(rbuf));
+					
+					netbuf_delete(rbuf);
+        }
+				else if(recv_err == ERR_TIMEOUT)
+				{
+					break;
+				}
+				else/* if(recv_err == ERR_CLSD) */ //关闭连接
+				{
+					break;
+				}
+      }
+			//netbuf_delete(rbuf);
+    }
+    else
+    {
+    }
+    netconn_delete(conn);
+  }
+  else
+  {
+  }
+	
+	AddTxNoCrc(buffer, buffer_pointer,MAIN_COM);
+	DELETE(buffer);
+  netbuf_delete(sbuf);
+}
 #endif /* LWIP_NETCONN */

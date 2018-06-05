@@ -30,11 +30,10 @@
 
 #if USE_FLASH_BAK
 //»Ö¸´
-void FlashBak_VarRestore(void);
+void FlashBak_Restore(void);
 
 //±¸·Ý
-CDV_INT32S FlashBak_VarBackUp(CDV_INT32U no, CDV_INT32S num);
-CDV_INT32S FlashBak_VarBackUpEx(CDV_INT08U* buf, CDV_INT32U addr, CDV_INT32S num);
+CDV_INT32S FlashBak_BackUp(void);
 #endif
 
 #endif

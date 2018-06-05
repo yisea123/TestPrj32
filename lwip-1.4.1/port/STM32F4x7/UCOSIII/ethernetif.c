@@ -2,6 +2,7 @@
 #include "lan8720.h"  
 #include "lwip_comm.h" 
 #include "netif/etharp.h"  
+#include "lwip/timers.h"
 #include "string.h"  
 
 //////////////////////////////////////////////////////////////////////////////////	 
@@ -148,7 +149,7 @@ err_t ethernetif_init(struct netif *netif)
 
 
 #elif ETH_VISION == 2u
-
+static void arp_timer(void *arg);
 /////////////////////////////////////////////////////////////////////////////////////////////
 
  //static struct netif *s_pxNetIf = NULL;
@@ -439,12 +440,17 @@ err_t ethernetif_init(struct netif *netif)
   /* initialize the hardware */
   low_level_init(netif);
 
-//  etharp_init();
-//  sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
+  etharp_init();
+  sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
 
   return ERR_OK;
 }
 
+static void arp_timer(void *arg)
+{
+  etharp_tmr();
+  sys_timeout(ARP_TMR_INTERVAL, arp_timer, NULL);
+}
 
 #endif
 

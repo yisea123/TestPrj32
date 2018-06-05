@@ -836,6 +836,14 @@ void worker_manage_task(void *p_arg){
 		//delay_ms(10);
 		
 		memmng_test();
+			
+	if(debug)//ÍË³ö
+	{
+		//WorkerControl(debug1, debug2);
+		udpecho_find();
+		
+		debug = 0;
+	}
 		
 #if USE_PVD == 1u
 		if(PVD_GetFlag()) {
@@ -946,11 +954,7 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 		g_dipCtrlWorker = 0;
 	}
 	
-	
-	if(debug)//ÍË³ö
-	{
-		WorkerControl(debug1, debug2);
-	}
+
 		
 #if _NPC_VERSION_ > 1u
 #if USE_NPC_NET
