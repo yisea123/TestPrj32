@@ -90,10 +90,12 @@ void PeriphDriverInit(void)
 	memmng_init();
 #endif
 //	fsmc_sram_test();
-#if USE_PVD == 1u
-	//g_dipCtrlWorker = PVD_Restore();
-	PVD_Config();
-#endif
+//#if USE_PVD == 1u
+//	//g_dipCtrlWorker = PVD_Restore();
+//	PVD_Config();
+//#endif
+
+
 #endif
 }
 /** @brief  
@@ -344,7 +346,7 @@ void CDVParamInit(void) {
 	LineInit();
 	if(!isInited) {
 		isInited = 1;
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	  FlashToVal(0, CDV_VAR_NUM);
 #endif
 	}

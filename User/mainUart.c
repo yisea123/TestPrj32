@@ -526,8 +526,9 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 				}
 			}
 		  AddTxNoCrc("FAILURE", 7, uartNo);
-		}
-		else {///回复开发层
+		} else if (0 == strncmp((CDV_INT08C*)rxBuf, "NPC FIND", 8)) {
+			udpecho_find(uartNo);
+		} else {///回复开发层
 		  //OnlineRequest(rxBuf[1], 0xFF, 0xFF, uartNo);
 	  }
 		

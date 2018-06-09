@@ -83,6 +83,7 @@
 //#include "sram.h"
 #include "pvd.h"
 #include "lowPower.h"
+#include "extiPowerOff.h"
 /*thirdpart*/
 #include "delay.h"
 #include "sysdef.h"

@@ -142,7 +142,7 @@ u8 udpecho_init(void)
 
 //static unsigned short port;
 /*-----------------------------------------------------------------------------------*/
-void udpecho_find(void)
+void udpecho_find( CDV_INT08U uartNo)
 {
   err_t err, recv_err;
 	struct netconn *conn = NULL;
@@ -161,7 +161,7 @@ void udpecho_find(void)
   if (conn!= NULL)
   {
 		
-    err = netconn_bind(conn, IP_ADDR_ANY, 100);
+    err = netconn_bind(conn, IP_ADDR_ANY, 101);
 		conn->recv_timeout = 1000;  	//½ûÖ¹×èÈûÏß³Ì µÈ´ý1000ms
 		
     if (err == ERR_OK)
@@ -218,7 +218,7 @@ void udpecho_find(void)
   {
   }
 	
-	AddTxNoCrc(buffer, buffer_pointer,MAIN_COM);
+	AddTxNoCrc(buffer, buffer_pointer,uartNo);
 	DELETE(buffer);
   netbuf_delete(sbuf);
 }

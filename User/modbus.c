@@ -355,7 +355,7 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î
 	
   AddTx(rxBuf , rxLen, uartNo);
 
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
 #endif
 	return 0;
@@ -466,7 +466,7 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//
 	}
 	
 	AddTx(rxBuf , 6/*rxLen*/, uartNo);
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	ValToFlash((addr>>1), (num>>1));
 #endif
   return 0;	
@@ -1077,7 +1077,7 @@ int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , 6);
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
 #endif
 	return 0;
@@ -1176,7 +1176,7 @@ int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cm
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , rxLen-2);
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	ValToFlash((addr>>1), (num>>1));
 #endif
   return 0;	

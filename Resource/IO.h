@@ -68,7 +68,11 @@ typedef struct
  #define CDV_DIP_NUM 3
 #elif _NPC_VERSION_ == 3u
  #define CDV_I_NUM 20
+#if USE_EXTI_POWER_OFF == 0u
  #define CDV_O_NUM 22
+#else
+ #define CDV_O_NUM 21
+#endif
  #define CDV_DIP_NUM 3
 #endif
 

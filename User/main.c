@@ -273,7 +273,10 @@ void start_task(void *p_arg){
 	PVD_Config();
 	PVD_Erase();
 #endif
-
+#if USE_EXTI_POWER_OFF == 1u
+  FlashBak_Restore();
+  EXTIPowerOff_Configuration();
+#endif
 #if ENABLE_FPGA_DOWN
 //	for(i = CDV_O_NUM ; i < CDV_O_NUM + CDV_EXO_NUM*2 ; i ++) {
 //		OWrite(i , BIT_0);
@@ -839,9 +842,18 @@ void worker_manage_task(void *p_arg){
 			
 	if(debug)//ÍË³ö
 	{
+//		CDV_INT32S flag = 100;
+//		CDV_INT32U addr = 0x080E0000 + 0x20000 -4;
 		//WorkerControl(debug1, debug2);
-		udpecho_find();
-		
+		udpecho_find(MAIN_COM);
+//	//	INTX_DISABLE();
+//	FlashBak_Erase(1);
+//		
+//		FlashBak_Unlock();
+//	FlashBak_Write((CDV_INT08U *)&flag, addr, sizeof(flag));
+//	
+//	FlashBak_Lock();
+////	INTX_ENABLE();
 		debug = 0;
 	}
 		
@@ -850,6 +862,18 @@ void worker_manage_task(void *p_arg){
 			ShutDown();
 		}
 #endif
+		
+//#if USE_EXTI_POWER_OFF == 1u
+//		if(-1 == EXTIPowerOff_GetFlag()) {
+//			INTX_DISABLE();
+//		  FlashBak_BackUp();
+//			INTX_ENABLE();
+//		} else if(1 == EXTIPowerOff_GetFlag()) {
+//			ResetCdv();
+//		}
+//		
+//#endif
+		
     TaskSched();
 	}
 }

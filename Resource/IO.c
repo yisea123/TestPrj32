@@ -462,10 +462,15 @@ void NPC2_3_GpioConfig(void){
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);	
 	//
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5
-															| GPIO_Pin_8 
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 
 															| GPIO_Pin_9;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);	
+	//
+
+#if USE_EXTI_POWER_OFF == 0u
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+	GPIO_Init(GPIOB, &GPIO_InitStructure);	
+#endif
 	//
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 
 															| GPIO_Pin_13;
@@ -909,8 +914,10 @@ void NPC2_3_IOInit(void) {
 	g_cdvO[19].pin  = PIN_13;
 	g_cdvO[20].port = PORT_I;
 	g_cdvO[20].pin  = PIN_10;
+#if USE_EXTI_POWER_OFF == 0u
 	g_cdvO[21].port = PORT_B;
 	g_cdvO[21].pin  = PIN_5;
+#endif
 }
 
 void NPC2_3_SWInit(void) {

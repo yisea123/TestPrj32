@@ -145,7 +145,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define TOAPP_ID 0xAD
 #define KFC_IC 0xF1
 #define YYC_IC 0xF2
-#define ENABLE_FPGA_DOWN 0
+#define ENABLE_FPGA_DOWN 0 // FPGA扩展
 
 #define MAIN_COM 4//MainUsart//
 #define TCP_COM 0xEE
@@ -159,33 +159,54 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define CDV_V2_2
 #define VIRTUAL_LOGIC 1u //使用需逻辑资源
 
-#define _NPC_VERSION_ 3u//cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
+#define _NPC_VERSION_ 3u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
 
 
 #if _NPC_VERSION_ == 3u
-#undef ENABLE_FPGA_DOWN
+
+	#undef ENABLE_FPGA_DOWN
+	
 #endif
 
 
 #if _NPC_VERSION_ < 3u
-  #define ENABLE_PID 1u
+
+  #define ENABLE_PID 1u  // 比例阀pid调节
+	
 #endif
 
 //资源使用定义
 #define USE_NPC_NET  1u
 
 #if USE_NPC_NET == 1u
-#define USE_CENTRALIZEDCONTROL 1u
+
+	#define USE_CENTRALIZEDCONTROL 1u
+	
 #endif
 
 /*配置开关*/
 #if _NPC_VERSION_ >= 3u
-#define USE_PVD 1u
-#define USE_LOWPOWER 1u
-#define USE_MEMMNG 1u
+
+	#define USE_PVD 0u // PVD 掉电保存
+
+	#if USE_PVD == 0u
+	
+		#define USE_EXTI_POWER_OFF 1u // 掉电中断保存
+		
+		#if USE_EXTI_POWER_OFF == 1u
+		
+			#define USE_FLASH_BAK 1u // flash 备份
+			
+		#endif
+		
+	#endif
+
+	#define USE_LOWPOWER 0u // 低功耗
+	
+	#define USE_MEMMNG 1u  // 外部sram管理
+	
 #endif
 
-#define USE_FLASH_BAK 1u
 /*LED定义*/
 //#if defined(CDV_V1)
 //#define LED1 PDout(9)	  // LED1 运行指示

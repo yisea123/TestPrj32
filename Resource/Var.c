@@ -87,7 +87,7 @@ CDV_INT32S VarGet(CDV_INT32U no) {
 void ValFlashSet(CDV_INT32U no, CDV_INT32S num) {
 	ASSERT(no < CDV_VAR_NUM);
 	DW_CDV_VAR(no) = num;
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, VAR_ADDR(no), 4);
 #endif
 }
@@ -104,7 +104,7 @@ void ValFlashSet(CDV_INT32U no, CDV_INT32S num) {
 void ValToFlash(CDV_INT32U no, CDV_INT16U num) {
 	ASSERT(no + num <= CDV_VAR_NUM);
 	
-#if USE_PVD == 0u
+#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	SPI_Flash_Write((CDV_INT08U *)&DW_CDV_VAR(no), VAR_ADDR(no), (num<<2));
 #endif
 }

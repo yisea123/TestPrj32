@@ -37,6 +37,7 @@
 	#elif _NPC_VERSION_ == 3u
 		#define USART1_TX_ENABLE		GPIO_SetBits(GPIOC,GPIO_Pin_9)	//485模式控制.0,接收;1,发送.
 		#define USART1_TX_DISABLE		GPIO_ResetBits(GPIOC,GPIO_Pin_9)	//485模式控制.0,接收;1,发送.
+		#define IS_USART1_TXING     (Bit_SET == GPIO_ReadOutputDataBit(GPIOC,GPIO_Pin_9))
 	#endif
 #else
 	#define USART1_TX_ENABLE
@@ -96,6 +97,12 @@ void USART1_IRQHandler(void)                	             /*串口1中断服务程序*/
 //				g_Usart1RxLen = 0;
 		}
 		
+	}
+	else if(USART_GetITStatus(USART1, USART_IT_TC) != RESET) { // 发送缓存空
+        /* 关闭发送完成中断  */ 
+        USART_ITConfig(USART1,USART_IT_TC,DISABLE);  
+        /* 发送完成  */
+        //UART1_Use_DMA_Tx_Flag = 0;  
 	}
   OSIntExit();
 #endif
@@ -269,8 +276,17 @@ void USART1_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	#endif
   USART1_TX_DISABLE;
   DMA_Config(DMA2_Stream7,DMA_Channel_4,(CDV_INT32U)&USART1->DR,(CDV_INT32U)0,0);//DMA2,STEAM7,CH4,外设为串口1,存储器为SendBuff,长度为:SEND_BUF_SIZE.
+	
+  DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE); // 使能DMA中断
+
 	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送    
 	
+  /* 配置DMA中断优先级 */
+	NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream7_IRQn;           
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;          
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1; 
+	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
 
 #endif
 }
@@ -293,9 +309,7 @@ void DMA_usart1Send(CDV_INT32U mar,CDV_INT16U ndtr){
   
 	while(DMA_GetFlagStatus(DMA2_Stream7,DMA_FLAG_TCIF7)==RESET) {};	
 	while(USART_GetFlagStatus(USART1,USART_FLAG_TC)==RESET) {};
-//	DMA_ClearFlag(DMA2_Stream7,DMA_FLAG_TCIF7);
-//	USART_ClearFlag(USART1, USART_FLAG_TC);
-	//delay_ms(10);
+
 	USART1_TX_DISABLE;
 #if EN_USART1_485
 	OSSchedUnlock(&err);
@@ -388,5 +402,16 @@ void USART1_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 	OSSemPost (&GENERAL_SERIAL_SEM,OS_OPT_POST_1,&err); 
 }
 
-
+void DMA2_Stream7_IRQHandler(void)
+{
+    if(DMA_GetITStatus(DMA2_Stream7,DMA_IT_TCIF7) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA2_Stream7,DMA_IT_TCIF7);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA2_Stream7,DISABLE);
+        /* 打开发送完成中断,确保最后一个字节发送成功 */
+        USART_ITConfig(USART1,USART_IT_TC,ENABLE);  
+    }  
+}
 
