@@ -277,16 +277,16 @@ void USART1_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   USART1_TX_DISABLE;
   DMA_Config(DMA2_Stream7,DMA_Channel_4,(CDV_INT32U)&USART1->DR,(CDV_INT32U)0,0);//DMA2,STEAM7,CH4,外设为串口1,存储器为SendBuff,长度为:SEND_BUF_SIZE.
 	
-  DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE); // 使能DMA中断
-
 	USART_DMACmd(USART1,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送    
 	
-  /* 配置DMA中断优先级 */
-	NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream7_IRQn;           
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;          
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1; 
-	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+//  /* 配置DMA中断及优先级 */
+//  DMA_ITConfig(DMA2_Stream7, DMA_IT_TC, ENABLE); // 使能DMA中断
+
+//	NVIC_InitStructure.NVIC_IRQChannel                   = DMA2_Stream7_IRQn;           
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;          
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1; 
+//	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+//	NVIC_Init(&NVIC_InitStructure);
 
 #endif
 }

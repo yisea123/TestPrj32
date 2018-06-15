@@ -36,7 +36,7 @@
 	CDV_INT08U slaveTableLen = 0;
 	#define MAX_SLAVE_TABLE 50
 	
-  OLCMD_CACHE g_portCmdCache = {NULL , 0  , 0 , 0};
+  OLCMD_CACHE g_portCmdCache = {NULL , 0  , 0 , 0 , NULL};
 	
 	#define CASCADE_BUF_LEN 255
 	u8 g_cascadeBuf[CASCADE_BUF_LEN];//UserMemPtr(CCM_CASCADE_MODBUS);

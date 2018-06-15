@@ -220,6 +220,10 @@ void start_task(void *p_arg){
 								(CPU_CHAR* )"MSG_SEM", //信号量名字
 								(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
+  OSSemCreate ((OS_SEM* )&LIST_SEM, //指向信号量
+								(CPU_CHAR* )"LIST_SEM", //信号量名字
+								(OS_SEM_CTR )1, //信号量值为 1
+								(OS_ERR* )&err);
 //	OSSemCreate ((OS_SEM* )&WIFI_SEM, //指向信号量
 //								(CPU_CHAR* )"WIFI_SEM", //信号量名字
 //								(OS_SEM_CTR )1, //信号量值为 1
@@ -554,7 +558,7 @@ void usart_recv_task(void *p_arg){
 		//有命令，进行初解析
 		if(USART_RX_HAD) 
 		{
-				if(OPT_SUCCESS == RecvParse(g_uartRx.QUEUE.rxBuf[g_uartRx.doPos],g_uartRx.QUEUE.rxLen[g_uartRx.doPos], MAIN_COM))
+				if(OPT_SUCCESS == RecvParse(g_uartRx.QUEUE.rxBuf[g_uartRx.doPos],g_uartRx.QUEUE.rxLen[g_uartRx.doPos], MAIN_COM, NULL))
 				{
 				  USART_RX_QUEUE_DO_NEXT;                                    /*转移到接收队列的下一条*/
 				}
@@ -594,6 +598,7 @@ void parse_task(void *p_arg)
 				CMD_ARG arg;
 				CmdArgInit(&arg);
 				arg.uart = g_olCache.uart;
+				arg.arg = g_olCache.arg;
 				arg.len = g_olCache.len;
 				arg.buf =	g_olCache.buf;
 #if _NPC_VERSION_ > 1u
@@ -613,6 +618,7 @@ void parse_task(void *p_arg)
 				CMD_ARG arg;
 				CmdArgInit(&arg);
 				arg.uart = g_olCache.uart;
+				arg.arg = g_olCache.arg;
 				arg.len = g_olCache.len;
 				arg.buf =	g_olCache.buf;
 				arg.hostid = CascadeGetNativeNo();
@@ -839,9 +845,10 @@ void worker_manage_task(void *p_arg){
 		//delay_ms(10);
 		
 		memmng_test();
-			
-	if(debug)//退出
-	{
+		LIST_Test();
+		
+	  if(debug)//退出
+	  {
 //		CDV_INT32S flag = 100;
 //		CDV_INT32U addr = 0x080E0000 + 0x20000 -4;
 		//WorkerControl(debug1, debug2);
@@ -854,8 +861,8 @@ void worker_manage_task(void *p_arg){
 //	
 //	FlashBak_Lock();
 ////	INTX_ENABLE();
-		debug = 0;
-	}
+		  debug = 0;
+	  }
 		
 #if USE_PVD == 1u
 		if(PVD_GetFlag()) {

@@ -20,6 +20,8 @@
 #define MEMP_NUM_TCP_SEG        110//50//15		//MEMP_NUM_TCP_SEG:最多同时在队列中的TCP段数量
 #define MEMP_NUM_SYS_TIMEOUT    8		//MEMP_NUM_SYS_TIMEOUT:能够同时激活的timeout个数
 
+#define MEMP_NUM_NETCONN        MEMP_NUM_TCP_PCB
+
 //pbuf选项
 #define PBUF_POOL_SIZE          20//7		//PBUF_POOL_SIZE:pbuf内存池个数
 #define PBUF_POOL_BUFSIZE       1520//512	//PBUF_POOL_BUFSIZE:每个pbuf内存池大小
@@ -50,7 +52,6 @@
 #define UDP_TTL                 255 //UDP数据包生存时间
 #define LWIP_STATS 0
 #define LWIP_PROVIDE_ERRNO 1
-
 
 //帧校验和选项，STM32F4x7允许通过硬件识别和计算IP,UDP和ICMP的帧校验和
 #define CHECKSUM_BY_HARDWARE //定义CHECKSUM_BY_HARDWARE,使用硬件帧校验

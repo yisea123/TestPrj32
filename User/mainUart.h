@@ -146,12 +146,13 @@ typedef struct{
 	CDV_INT08U len;          /*数组处理位置*/	
 	CDV_INT08U uart;         /*标记从哪号串口发来的*/
 	CDV_INT08U mark;         /*回复标记*/
+	void *arg;               /*特殊标记*/
 } OLCMD_CACHE;
 extern OLCMD_CACHE g_olCache;
 extern OLCMD_CACHE g_portCmdCache;
 
 unsigned short MODBUS_CRC16(unsigned char* pchMsg, unsigned short wDataLen, unsigned short crc);
-RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo);
+RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg);
 CDV_INT16U getCRC16(CDV_INT08U *ptr,CDV_INT16U len) ;
 CDV_INT16U oneCRC16(CDV_INT08U ch , CDV_INT16U crc) ;
 RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
@@ -161,15 +162,16 @@ void OnlineRequest(CDV_INT08U no,CDV_INT08U res,CDV_INT08U resNo, CDV_INT08U uar
 void ModbusRequest(CDV_INT08U no,CDV_INT08U err, CDV_INT08U uartNo);
 CDV_INT08U RequestCmp(void);
 CDV_INT08U NeedRequestTx(CDV_INT08U uartNo);
+void AddTxNoCrcPlus(CDV_INT08U* txBuf, CDV_INT16U txLen, CMD_ARG *arg);
 void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo);
 void AddTx(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo);
 void ScriptRecvInit(CDV_INT32U addr , CDV_INT32U len);
 void ScriptRecvDeinit(void);
 void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len);
-void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CDV_INT08U uartNo);
+void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg);
 void UsartTxQueueDoNext(void);
 void UsartTxAddWithLen(CDV_INT16U len);
-CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo);
+CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg);
 CDV_INT08U ClearOnlineCmdCache(void);
 unsigned short crc_ccitt(unsigned char *q, int len, unsigned short crc);
 //////extends

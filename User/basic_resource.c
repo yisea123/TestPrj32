@@ -1116,7 +1116,7 @@ RET_STATUS DoResRequest(CMD_ARG *arg)	{
 	if(NULL == arg->reqbuf || 0 == arg->reqlen) {
 		return OPT_FAILURE;
 	}
-  AddTxNoCrc(arg->reqbuf , arg->reqlen , arg->uart);
+  AddTxNoCrcPlus(arg->reqbuf , arg->reqlen , arg);
 //	AddTx(arg->reqbuf , arg->reqlen , arg->uart);
 	DELETE(arg->reqbuf);
 	arg->reqlen = 0;

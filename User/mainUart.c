@@ -186,7 +186,7 @@ void FpgaRecvCtl(void) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 USART_CACHE g_cacheTx = {NULL , 0  , 0 , 0};
-OLCMD_CACHE g_olCache = {NULL , 0  , 0 , 0};
+OLCMD_CACHE g_olCache = {NULL , 0  , 0 , 0 , NULL};
 SCRIPT_RECV_QUE g_scriptRecv = {0};
 CDV_INT08U g_needRequest = 0; 
 
@@ -354,7 +354,7 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 //不能使用addtx等，因如果workermanage先申请了锁，会导致死锁
   */
 
-RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
+RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg)
 {
 	vu32 local_start = 0;
 	vu32 local_clk = 0;
@@ -386,7 +386,7 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo)
 //		}	
 //		/*************************************************************/
 //		else 
-		if(0 == OnlineCmdCache(rxBuf , rxLen-2, uartNo)) {
+		if(0 == OnlineCmdCache(rxBuf , rxLen-2, uartNo, arg)) {
 			//ChangeCdvStat(rxBuf , rxLen, uartNo);
 			ret = OPT_FAILURE;
   	}
@@ -719,7 +719,7 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 			AddTx(rxBuf , len-2, arg->uart);//回复上位机，已收录到
 			
 			ScriptRecvCtl(g_scriptInfo.addr , g_scriptInfo.len);
-			ScriptCrcChk(g_scriptInfo.addr , g_scriptInfo.len, arg->uart);
+			ScriptCrcChk(g_scriptInfo.addr , g_scriptInfo.len, arg);
 			
 			//更新版本号
 			SPI_Flash_Read((CDV_INT08U*)&version, VERSION_ADDR, 1);//读取版本号
@@ -974,6 +974,46 @@ void ModbusRequest(CDV_INT08U no,CDV_INT08U errNo, CDV_INT08U uartNo) {
 	AddTx(txBuf , len , uartNo);
 	DELETE(txBuf);
 }
+
+/**
+  * @brief  modbus功能码出错回复
+  *         
+  *  
+  * @param  no     功能码
+  *         err     错误码
+  *           
+  *   
+  * @retval 返回值说明
+  *
+  * @note   
+  */
+void ModbusRequestPlus(CDV_INT08U no,CDV_INT08U errNo, CMD_ARG *arg) {
+	CDV_INT08U len , *txBuf =NULL;
+	CDV_INT16U crc;
+	switch(no) {
+		case 65:
+			len = 6;//tx总长度=8
+			NEW08U(txBuf , len + 2);
+		  txBuf[0] = CDV_ID;
+			txBuf[1] = 0x41+0x80;
+			txBuf[2] = 00;
+		  txBuf[3] = 00;
+		  txBuf[5] = errNo;
+			break;
+		default:
+			len = 3;//tx总长度=5
+		  NEW08U(txBuf , len + 2);
+		  txBuf[0] = CDV_ID;
+			txBuf[1] = no+0x80;
+			txBuf[2] = errNo;
+			break;
+	}
+	//AddTx(txBuf , len , uartNo);
+	crc = MODBUS_CRC16(txBuf , len, 0xFFFF);
+	MemCpy(txBuf + len, &crc, 2);
+	AddTxNoCrcPlus(txBuf , len+2 , arg);
+	DELETE(txBuf);
+}
 /**
   * @brief  比较do的发送字符串和接收字符串是否一样
   *         
@@ -1048,7 +1088,7 @@ CDV_INT08U NeedRequestTx(CDV_INT08U uartNo) {
   *
   * @note   
   */
-CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo) {
+CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg) {
 	OS_ERR err;
 	
 	ASSERT(rxBuf && rxLen);
@@ -1071,15 +1111,16 @@ CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo
 //	g_olCache.buf = (CDV_INT08U*)malloc(sizeof(CDV_INT08U)*(g_olCache.len));
 	NEW08U(g_olCache.buf,g_olCache.len);
 	if(g_olCache.buf != NULL) { 
-	    MemCpy(g_olCache.buf , rxBuf , g_olCache.len);
+	  MemCpy(g_olCache.buf , rxBuf , g_olCache.len);
 		g_olCache.uart = uartNo;
+		g_olCache.arg = arg;
 	}else{
-	    g_olCache.len = 0;//应该换成下面的错误警告
+	  g_olCache.len = 0;//应该换成下面的错误警告
 		return 0;
 	}
 	
 	g_olCache.mark = 1;
-	OSTaskResume((OS_TCB*)&TaskParseTCB,&err);		
+	// OSTaskResume((OS_TCB*)&TaskParseTCB,&err);		// 在recv中有启动
 	return 1;
 }
 /**
@@ -1097,6 +1138,7 @@ CDV_INT08U ClearOnlineCmdCache(void) {
 	DELETE(g_olCache.buf);
 	g_olCache.len = 0;
 	g_olCache.uart = 0;
+	g_olCache.arg = NULL;
 	g_olCache.mark = 0;		
 	return 1;
 }
@@ -1160,6 +1202,59 @@ RET_STATUS MAINUSART_SendEx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U* exB
 	
 	return OPT_SUCCESS;
 }
+
+/**
+  * @brief  不需要回复的串口命令发送准备函数
+  *         
+  *  
+  * @param  txBuf     发送字符串首地址指针
+  *         txLen     发送字符串长度,不包括crc
+  *           
+  *   
+  * @retval 返回值说明
+  *
+  * @note   
+  */
+void AddTxNoCrcPlus(CDV_INT08U* txBuf, CDV_INT16U txLen, CMD_ARG *arg) {
+	CDV_INT08U txRealLen;
+	CDV_INT08U *TX_BUF= NULL;
+	CDV_INT08U TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
+	CDV_INT08U uartNo = arg->uart;
+	
+	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
+		return;
+	
+	if(txBuf[0] != 0xF2){
+		TX_BUF = txBuf;
+	}else{//包头
+		TX_Head[5] = txLen;
+		txRealLen=txLen+6;
+		NEW08U(TX_BUF,txRealLen);
+		MemCpy(TX_BUF , TX_Head, 6);
+		if(txLen>0)
+		MemCpy(TX_BUF+6 , txBuf, txLen);	
+		txLen = txRealLen;
+	}
+	
+	if(TCP_COM == uartNo)//tcp
+	{
+		while (OPT_FAILURE == TCP_ServerSendPlus(TX_BUF, txLen, arg));//TCP_ServerSend(txBuf, txLen);
+	}
+	else if(MAIN_COM == uartNo)//main usart
+	{
+		while (OPT_FAILURE == MAINUSART_Send(TX_BUF, txLen));
+	}
+	else
+	{
+		USARTSend(txBuf, txLen, uartNo);
+	}
+	
+	if(txBuf[0] == 0xF2)
+	{
+		DELETE(TX_BUF);
+	}
+}
+
 /**
   * @brief  不需要回复的串口命令发送准备函数
   *         
@@ -1568,7 +1663,7 @@ void ScriptRecvDeinit(void) {
 	g_cdvStat = CDV_ONLINE;
 	
 	for (i = 0; i < QUE_NUM; i++) {
-		g_scriptRecv.buf[i] = NULL;
+		//g_scriptRecv.buf[i] = NULL;//因为时固定地址，无需重置啊
     g_scriptRecv.len[i] = 0;
 	}
 	
@@ -1595,6 +1690,8 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 	ScriptRecvInit(addr , len);
 	OS_TaskSuspend((OS_TCB*)&CdvRefreshTaskTCB,&err);
 	
+	//startTime = GetCdvTimeTick();
+	
 	while(1) {//检测是否用户开启了FPGA程序下载到flash的拨码开关
 		//  ASSERT(g_scriptRecv.doPos < QUE_NUM);
 	  if(g_scriptRecv.tmpLen + g_scriptRecv.len[g_scriptRecv.doPos] >=  g_scriptRecv.totalLen) {//拨码开关拨到了停止下载FPGA程序的位置			
@@ -1620,12 +1717,18 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 		    time = CalcTimeMS(endTime , startTime);
 //				if (cnt == 0x500000 )
 //					break;
-				if (time >  1000)
+				if (time >  5000)
 					break;
 			}
 		} else if( 0 == start){
 			if(0 !=g_scriptRecv.len[g_scriptRecv.rxPos]) {
 				start = 1;
+				//startTime = GetCdvTimeTick();
+			}else{
+//				endTime = GetCdvTimeTick();
+//		    time = CalcTimeMS(endTime , startTime);
+//				if (time >  10000)
+//					break;
 			}
 		}
 	}
@@ -1644,10 +1747,11 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
   *
   * @note   
   */
-void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CDV_INT08U uartNo) {
+void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg) {
 	CDV_INT08U ch;
 	CDV_INT16U crc = 0xFFFF , tmpCrc;
 	CDV_INT32U i ;
+	CDV_INT08U uartNo = arg->uart;
 	
 	if(0 == addr || len <= 2)
 		return ;
@@ -1663,10 +1767,10 @@ void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CDV_INT08U uartNo) {
 	tmpCrc |= ch<<8;
 	
 	if(crc == tmpCrc) {
-		ModbusRequest(65,00,uartNo);
+		ModbusRequestPlus(65,00,arg);
 		CDVParamInit();
 	} else {
-		ModbusRequest(65,02,uartNo);
+		ModbusRequestPlus(65,02,arg);
 	}
 }
 

@@ -27,10 +27,23 @@ u8* tcp_server_recvbuf = NULL;	//TCP客户端接收数据缓冲区
 u8 tcp_server_flag;								//TCP服务器数据发送标志位
 struct netconn *gConn = NULL;
 
+#if ENABLE_MULTI_TCP
+  #define NETCONN_TAG 0xEE
+	CDV_LIST *g_connected = NULL;
+	//TCP连接任务
+	#define TCPCONNECT_PRIO		5
+	//任务堆栈大小
+	#define TCPCONNECT_STK_SIZE	300
+	//任务控制块
+	OS_TCB	TcpConnectTaskTCB;
+	//任务堆栈
+	CPU_STK TCPCONNECT_TASK_STK[TCPCONNECT_STK_SIZE];
+#endif
+
 //TCP服务器任务
 #define TCPSERVER_PRIO		5
 //任务堆栈大小
-#define TCPSERVER_STK_SIZE	300
+#define TCPSERVER_STK_SIZE	256
 //任务控制块
 OS_TCB	TcpServerTaskTCB;
 //任务堆栈
@@ -72,6 +85,23 @@ void EthInfoSend(CDV_INT08U uartNo) {
 		);
 		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
 	
+#if ENABLE_MULTI_TCP
+	if(g_connected) {
+		CDV_LIST *connect = g_connected->head->next;
+		ip_addr_t addr;
+		u16_t port;
+		
+		while (connect->tail != connect) { 
+			netconn_getaddr(connect->data, &addr, &port, 0);			
+			sprintf(tmp , "%d.%d.%d.%d:%d\r\n" 
+			,(addr.addr)&0xff,(addr.addr>>8)&0xff,(addr.addr>>16)&0xff,(addr.addr>>24)&0xff,port
+			);
+			AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+			connect = connect->next;
+		}
+		
+	}
+#else
   if(gConn)
 	{
 		ip_addr_t addr;
@@ -81,13 +111,15 @@ void EthInfoSend(CDV_INT08U uartNo) {
 		sprintf(tmp , "%d.%d.%d.%d:%d\r\n" 
 		,(addr.addr)&0xff,(addr.addr>>8)&0xff,(addr.addr>>16)&0xff,(addr.addr>>24)&0xff,port
 		);
+		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
 	}
+#endif
 	else
 	{
 		sprintf(tmp , "no client");
+		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
 	}
 	
-	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
 }
 //OS_TCB	ServerSendTaskTCB;
 ////任务堆栈
@@ -99,7 +131,13 @@ void EthInfoSend(CDV_INT08U uartNo) {
   * @retval None
   */
   int lenlenlen;
-void http_server_serve(struct netconn *conn) 
+void http_server_serve(
+#if ENABLE_MULTI_TCP
+  CDV_LIST* connected_list
+#else
+	struct netconn *conn
+#endif
+		) 
 {
 	//CPU_SR_ALLOC();
 	struct pbuf *q;
@@ -110,16 +148,17 @@ void http_server_serve(struct netconn *conn)
   char* buf;
   u16_t buflen;
   struct fs_file * file;
-	conn->recv_timeout = 1000;  	//禁止阻塞线程 等待1000ms
-	conn->send_timeout = 10;  	//禁止阻塞线程 等待10ms
 	
-	gConn = conn;
+#if ENABLE_MULTI_TCP
+	CDV_LIST* connect = connected_list->head->next;
+	struct netconn *conn = NULL;
+#endif
+	
 	tcp_server_recvbuf = UserMemPtr(CCM_TCP_SERVER);
 	
   /* Read the data from the port, blocking if nothing yet there. 
    We assume the request (the part we care about) is in one netbuf */
-	while(isLinkUp)
-	{
+	while (isLinkUp) {
 //		//处理发送
 //		if((tcp_server_flag & LWIP_SEND_DATA) == LWIP_SEND_DATA) //有数据要发送
 //		{
@@ -134,100 +173,184 @@ void http_server_serve(struct netconn *conn)
 			closeTcp = 0;
 			break;
 		}
+#if ENABLE_MULTI_TCP
+		if (g_cdvStat == CDV_RECV) {
+			conn = g_olCache.arg;
+		} else if(connect){
+		  conn = connect->data;
+		} else {
+			conn = NULL;
+		}
+#endif
+		gConn = conn;
 		
-		//处理接收
-		recv_err = netconn_recv(conn, &inbuf);
-		
-		if (recv_err == ERR_OK)
-		{
-			if (netconn_err(conn) == ERR_OK) 
+		if(conn) {
+			//处理接收
+			recv_err = netconn_recv(conn, &inbuf);
+			
+			if (recv_err == ERR_OK)
 			{
-				
-				netbuf_data(inbuf, (void**)&buf, &buflen);
-				
-				//////////////
-				//OS_CRITICAL_ENTER(); //关中断
-					memset(tcp_server_recvbuf,0,TCP_SERVER_RX_BUFSIZE);  //数据接收缓冲区清零
-					for(q=inbuf->p;q!=NULL;q=q->next)  //遍历完整个pbuf链表
-					{
-						//判断要拷贝到TCP_SERVER_RX_BUFSIZE中的数据是否大于TCP_SERVER_RX_BUFSIZE的剩余空间，如果大于
-						//的话就只拷贝TCP_SERVER_RX_BUFSIZE中剩余长度的数据，否则的话就拷贝所有的数据
-						if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len)) 
-							MemCpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
-						else 
-							MemCpy(tcp_server_recvbuf+data_len,q->payload,q->len);
-						data_len += q->len;  	
-						if(data_len > TCP_SERVER_RX_BUFSIZE) 
-							break; //超出TCP客户端接收数组,跳出	
+				if (netconn_err(conn) == ERR_OK) 
+				{
+					
+					netbuf_data(inbuf, (void**)&buf, &buflen);
+					
+					//////////////
+					//OS_CRITICAL_ENTER(); //关中断
+						memset(tcp_server_recvbuf,0,TCP_SERVER_RX_BUFSIZE);  //数据接收缓冲区清零
+						for(q=inbuf->p;q!=NULL;q=q->next)  //遍历完整个pbuf链表
+						{
+							//判断要拷贝到TCP_SERVER_RX_BUFSIZE中的数据是否大于TCP_SERVER_RX_BUFSIZE的剩余空间，如果大于
+							//的话就只拷贝TCP_SERVER_RX_BUFSIZE中剩余长度的数据，否则的话就拷贝所有的数据
+							if(q->len > (TCP_SERVER_RX_BUFSIZE-data_len)) 
+								MemCpy(tcp_server_recvbuf+data_len,q->payload,(TCP_SERVER_RX_BUFSIZE-data_len));//拷贝数据
+							else 
+								MemCpy(tcp_server_recvbuf+data_len,q->payload,q->len);
+							
+							data_len += q->len;  	
+							
+							if(data_len > TCP_SERVER_RX_BUFSIZE) 
+								break; //超出TCP客户端接收数组,跳出	
+						}
+						//OS_CRITICAL_EXIT();  //开中断
+					//////////////
+					
+	//				if (QUE_LEN <=buflen)
+	//					continue;
+					
+					switch(g_cdvStat){
+						case CDV_RECV:
+							if (TCP_COM == g_olCache.uart) {
+								if (QUE_LEN <= g_scriptRecv.len[g_scriptRecv.rxPos] + data_len)
+								{
+									while(SRP_QUE_HAD);
+										MAX_SELF_ADD(g_scriptRecv.rxPos, QUE_NUM);
+								}
+								MemCpy(&g_scriptRecv.buf[g_scriptRecv.rxPos][g_scriptRecv.len[g_scriptRecv.rxPos]], tcp_server_recvbuf, data_len);
+								g_scriptRecv.len[g_scriptRecv.rxPos] += data_len;
+								lenlenlen += data_len;
+							}
+							break;
+						default:
+							{
+	//							CDV_INT16U crc;
+	//							crc = getCRC16((u8*)tcp_server_recvbuf,data_len-2); 
+	//							
+	//							if((tcp_server_recvbuf[data_len-1] == ((crc >> 8) & 0xff))&&(tcp_server_recvbuf[data_len-2] == (crc & 0xff))){//crc chk
+	//								if(0 == OnlineCmdCache((u8*)tcp_server_recvbuf , data_len-2, 0xEE)) {
+	//									;
+	//								}
+	//							}
+								RecvParse(tcp_server_recvbuf,data_len, TCP_COM, conn);
+							}
+							break;
 					}
-					//OS_CRITICAL_EXIT();  //开中断
-				//////////////
-				
-//				if (QUE_LEN <=buflen)
-//					continue;
-				
+					data_len = 0;
+				}
+			}
+			else if(recv_err == ERR_TIMEOUT)
+			{
+	//			static int enable = 0;
+	//			if(enable && OPT_FAILURE == TCP_ServerSend("alive", 5))
+	//			{
+	//				break;
+	//			}
+			}
+			else/* if(recv_err == ERR_CLSD) */ //关闭连接
+			{
 				switch(g_cdvStat){
 					case CDV_RECV:
-						if (TCP_COM == g_olCache.uart) {
-							if (QUE_LEN <= g_scriptRecv.len[g_scriptRecv.rxPos] + data_len)
-							{
-								while(SRP_QUE_HAD);
-									MAX_SELF_ADD(g_scriptRecv.rxPos, QUE_NUM);
-							}
-							MemCpy(&g_scriptRecv.buf[g_scriptRecv.rxPos][g_scriptRecv.len[g_scriptRecv.rxPos]], tcp_server_recvbuf, data_len);
-							g_scriptRecv.len[g_scriptRecv.rxPos] += data_len;
-							lenlenlen += data_len;
-						}
-						break;
-					default:
-						{
-//							CDV_INT16U crc;
-//							crc = getCRC16((u8*)tcp_server_recvbuf,data_len-2); 
-//							
-//							if((tcp_server_recvbuf[data_len-1] == ((crc >> 8) & 0xff))&&(tcp_server_recvbuf[data_len-2] == (crc & 0xff))){//crc chk
-//								if(0 == OnlineCmdCache((u8*)tcp_server_recvbuf , data_len-2, 0xEE)) {
-//									;
-//								}
-//							}
-							RecvParse(tcp_server_recvbuf,data_len, TCP_COM);
-						}
+						if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
+							g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
+						
 						break;
 				}
-				data_len = 0;
-			}
-		}
-		else if(recv_err == ERR_TIMEOUT)
-		{
-			static int enable = 0;
-			if(enable && OPT_FAILURE == TCP_ServerSend("alive", 5))
-			{
+	#if ENABLE_MULTI_TCP
+				/* Close the connection (server closes in HTTP) */
+				netconn_close(conn);
+				
+				/* delete connection */
+				netconn_delete(conn);
+				
+				if (connect->head != connect && connect->tail != connect) 
+				  connect = LIST_Remove(connect);
+	#else
+				netbuf_delete(inbuf);
 				break;
+	#endif
 			}
+			
+			/* Delete the buffer (netconn_recv gives us ownership,
+			so we have to make sure to deallocate the buffer) */
+			netbuf_delete(inbuf);
+			
 		}
-		else/* if(recv_err == ERR_CLSD) */ //关闭连接
-		{
-			switch(g_cdvStat){
-				case CDV_RECV:
-					if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
-						g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
-					
-					break;
-			}
-			break;
+#if ENABLE_MULTI_TCP
+	  if (connect->tail == connect->next || connect->tail == connect) {
+			connect = connect->head->next;
+		} else {
+			connect = connect->next;
 		}
-		
-		  /* Delete the buffer (netconn_recv gives us ownership,
-   so we have to make sure to deallocate the buffer) */
-  netbuf_delete(inbuf);
-		
-	}
-  netbuf_delete(inbuf);
+#endif
+	} // while(isLinkUp)
+	
+	
 		
 	//while((tcp_server_flag & LWIP_SEND_DATA) == LWIP_SEND_DATA);
 	gConn = NULL;
   tcp_server_recvbuf = NULL;
+#if ENABLE_MULTI_TCP
+	connect = connect->head->next;
+	
+	while (connect->tail != connect) { 
+		conn = connect->data;
+    netconn_close(conn);
+    netconn_delete(conn);
+		connect = LIST_Remove(connect);
+	}
+#else
+	/* Close the connection (server closes in HTTP) */
+  netconn_close(conn);
+  
+  /* delete connection */
+  netconn_delete(conn);
+	
+#endif
 }
 
+#if ENABLE_MULTI_TCP
+static void netconn_connected_thread(void *arg) {
+	while(1)
+	  http_server_serve((CDV_LIST *)arg);
+}
+
+//创建TCP连接线程
+//返回值:0 TCP服务器创建成功
+//		其他 TCP服务器创建失败
+u8 tcp_connected_init(void *arg)
+{
+	OS_ERR err;
+	CPU_SR_ALLOC();
+	
+	OS_CRITICAL_ENTER();//进入临界区
+	//创建TCP客户端任务
+	OSTaskCreate((OS_TCB 	* )&TcpConnectTaskTCB,		
+				 (CPU_CHAR	* )"tcp_connect task", 		
+                 (OS_TASK_PTR )netconn_connected_thread, 			
+                 (void		* )arg,					
+                 (OS_PRIO	  )TCPCONNECT_PRIO,     
+                 (CPU_STK   * )&TCPCONNECT_TASK_STK[0],	
+                 (CPU_STK_SIZE)TCPCONNECT_STK_SIZE/10,	
+                 (CPU_STK_SIZE)TCPCONNECT_STK_SIZE,		
+                 (OS_MSG_QTY  )0,					
+                 (OS_TICK	  )0,					
+                 (void   	* )0,					
+                 (OS_OPT      )OS_OPT_TASK_STK_CHK|OS_OPT_TASK_STK_CLR,
+                 (OS_ERR 	* )&err);
+	OS_CRITICAL_EXIT();	//退出临界区
+	return err;				 
+}
+#endif
 /**
   * @brief  http server thread 
   * @param arg: pointer on argument(not used here) 
@@ -237,7 +360,10 @@ static void netconn_server_thread(void *arg)
 { 
   struct netconn *conn, *newconn;
   err_t err, accept_err;
-  
+#if ENABLE_MULTI_TCP
+  static char connected = 0;
+	CDV_LIST *connected_list = NULL;
+#endif
   /* Create a new TCP connection handle */
   conn = netconn_new(NETCONN_TCP);
   
@@ -253,7 +379,10 @@ static void netconn_server_thread(void *arg)
     {
       /* Put the connection into LISTEN state */
       netconn_listen(conn);
-  
+#if ENABLE_MULTI_TCP
+	    connected_list = LIST_Cteate();
+			g_connected = connected_list;
+#endif
       while(1) 
       {
         /* accept any icoming connection */
@@ -261,21 +390,30 @@ static void netconn_server_thread(void *arg)
 				
         if(accept_err == ERR_OK)
         {
+					newconn->recv_timeout = 10;  	//禁止阻塞线程 等待10ms
+					newconn->send_timeout = 10;  	//禁止阻塞线程 等待10ms
           /* serve connection */
+#if ENABLE_MULTI_TCP
+					LIST_AddTail(connected_list, newconn,/* sizeof(newconn),*/ NETCONN_TAG);
+          if(!connected) {
+						tcp_connected_init(connected_list);
+						connected = 1;
+					}
+#else
           http_server_serve(newconn);
-
-					/* Close the connection (server closes in HTTP) */
-          netconn_close(newconn);
-  
-          /* delete connection */
-          netconn_delete(newconn);
+#endif
+//					/* Close the connection (server closes in HTTP) */
+//          netconn_close(newconn);
+//  
+//          /* delete connection */
+//          netconn_delete(newconn);
         }
       }
     }
     else
     {
       /* delete connection */
-      netconn_delete(newconn);
+      netconn_delete(conn);
       //printf("can not bind netconn");
     }
   }
@@ -363,7 +501,7 @@ static void tcp_server_thread(void *arg)
 					crc = getCRC16(tcp_server_recvbuf,data_len-2); 
 					
 					if((tcp_server_recvbuf[data_len-1] == ((crc >> 8) & 0xff))&&(tcp_server_recvbuf[data_len-2] == (crc & 0xff))){//crc chk
-						if(0 == OnlineCmdCache(tcp_server_recvbuf , data_len-2, TCP_COM)) {
+						if(0 == OnlineCmdCache(tcp_server_recvbuf , data_len-2, TCP_COM, conn)) {
 							;
 						}
 					}
@@ -447,6 +585,36 @@ RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
 	}
 	///////////////////////////////////
 	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
+	return ret;
+}
+
+/** @brief  发送命令
+  * @param  
+  * @retval OPT_TCP_ERROR tcp异常，需停止发送
+            OPT_SUCCESS 发送成功
+            OPT_FAILURE 发送失败，可以尝试再次发送
+  * @note   写入发送缓存，具体发送在tcp_server_thread里
+  *         缓存中的第一个字节为后面的命令长度
+  */
+RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CMD_ARG *arg) {
+	err_t err;
+	OS_ERR os_err;
+  //判断上一次命令是否发送完成
+	RET_STATUS ret = OPT_SUCCESS;
+  OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
+	
+  if(arg->arg)
+	  err = netconn_write(arg->arg , pBuffer, NumByteToWrite/*strlen((char*)tcp_server_sendbuf)*/, NETCONN_COPY); //发送tcp_server_sendbuf中的数据
+  
+	if (err != ERR_OK) {
+		if (err != ERR_TIMEOUT) {
+			ret = OPT_TCP_ERROR;
+		} else {
+		  ret = OPT_FAILURE;
+		}
+	}
+	
+	OSSemPost(&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
 	return ret;
 }
 

@@ -200,7 +200,7 @@ void memmng_test(void)
 	static u8 perused;
 	static char onon2 = 0;
 	//memmng_init();
-	while(onon2) {
+	if(onon2) {
 		//ptr = memmng_malloc(LEN);
 		//memmng_free(ptr);
 		allocd = memmng_allocd();

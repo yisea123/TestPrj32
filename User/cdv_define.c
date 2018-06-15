@@ -47,7 +47,7 @@ const char *workerName[] = {"work1","work2","work3","work4","work5","work6","wor
 CPU_STK WORKER_TASK_STK[WORKER_NUM][WORKER_STK_SIZE];//任务堆栈
 //CDV_INT08U g_whichUart; //指示串口线程中当前命令是从哪个串口发过来的
 /**/
-OS_SEM TX_SEM, WORKER_SEM, MOTO_SEM,MEM_SEM , MSG_SEM;//, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
+OS_SEM TX_SEM, WORKER_SEM, MOTO_SEM,MEM_SEM , MSG_SEM, LIST_SEM;//, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
 OS_SEM GENERAL_SERIAL_SEM;
 //OS_SEM COM_SEM[6];
 OS_SEM TCP_TX_SEM;
@@ -71,6 +71,7 @@ void CmdArgInit(CMD_ARG *arg)
 	arg->hostid = CascadeGetNativeNo();
 #endif
 	arg->uart = 0;//占用串口
+	arg->arg = NULL;
 	arg->len = 0;//命令长度
 	arg->buf = NULL;//命令
 	arg->ptrWorker = NULL; //指向工人结构体，用于逻辑等工人控制

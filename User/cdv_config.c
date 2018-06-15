@@ -38,7 +38,7 @@ void PeriphDriverInit(void)
 	CdvInit();  
 	
 	SPI_Configuration();
-	EXTI_Configuration();
+	//EXTI_Configuration();
 	//USART_Configuration();
 	TIM3_Init(84, 10000);//10ms
 	LED_Init();                                   //资源初始化

@@ -1,5 +1,9 @@
 #ifndef __TCP_SERVER_DEMO_H
 #define __TCP_SERVER_DEMO_H
+
+
+
+
 #include "sys.h"
 #include "includes.h"
 #include "cdv_include.h" 
@@ -20,6 +24,8 @@
 ////////////////////////////////////////////////////////////////////////////////// 	   
 
 #if _NPC_VERSION_ > 1u
+
+#define ENABLE_MULTI_TCP    1u
  
 #define TCP_SERVER_RX_BUFSIZE	2000	//定义tcp server最大接收数据长度
 #define TCP_SERVER_PORT			8088	//定义tcp server的端口
@@ -28,7 +34,12 @@
 //extern u8* tcp_server_recvbuf;	//TCP服务器接收数据缓冲区
 //extern u8 tcp_server_flag;			//TCP服务器数据发送标志位
 
+#if ENABLE_MULTI_TCP
+extern CDV_LIST *g_connected;
+#endif
+
 u8 tcp_server_init(void);			//TCP服务器初始化(创建TCP服务器线程)
+RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CMD_ARG *arg);
 RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
 #endif
 #endif

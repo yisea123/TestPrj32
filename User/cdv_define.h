@@ -117,6 +117,7 @@ typedef struct
 {
 	CDV_INT08U hostid;//主机号
 	CDV_INT08U uart;//占用串口
+	void *arg;     // 配合其他属性的附加内容
 	CDV_INT16U len;//命令长度
 	CDV_INT08U* buf;//命令
 	void* ptrWorker; //指向工人结构体，用于逻辑等工人控制
@@ -383,7 +384,7 @@ extern const char* workerName[];
 extern CPU_STK WORKER_TASK_STK[WORKER_NUM][WORKER_STK_SIZE];//任务堆栈
 //extern CDV_INT08U g_whichUart;
 /*信号量*/
-extern OS_SEM TX_SEM, WORKER_SEM , MOTO_SEM , MEM_SEM , MSG_SEM; //定义一个信号量，用于访问共享资源, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
+extern OS_SEM TX_SEM, WORKER_SEM , MOTO_SEM , MEM_SEM , MSG_SEM , LIST_SEM; //定义一个信号量，用于访问共享资源, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
 extern OS_SEM GENERAL_SERIAL_SEM;
 //extern OS_SEM COM_SEM[6];
 extern OS_SEM TCP_TX_SEM;
