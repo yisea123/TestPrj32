@@ -177,8 +177,8 @@ void UART4_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *UART4·¢ËÍ
   */
 void DMA_usart4Send(CDV_INT32U mar,CDV_INT16U ndtr){
-	OS_ERR  err;
 #if EN_UART4_485
+	OS_ERR  err;
 	CPU_SR_ALLOC();
 #endif
 	UART4_TX_ENABLE;

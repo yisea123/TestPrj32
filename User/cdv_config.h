@@ -57,9 +57,14 @@ void ShutDown(void);
   #define ASSERT(expr) ((expr) ? (void)0 : assert((uint8_t *)__FILE__, (uint8_t *)__FUNCTION__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
   void assert(uint8_t* file, uint8_t* function, uint32_t line);
+	
+	#define NPC_PRINT(str) com_print(str)
+	void com_print(const char* str);
 #else
   #define ASSERT(expr) ((void)0)
+	#define NPC_PRINT(str) ((void)0)
 #endif /* USE_FULL_ASSERT */
 	
+		
 #endif
 

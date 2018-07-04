@@ -516,6 +516,8 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, voi
 				n = atoi(++chr);
 				
 				if(n >= 0 && n < 65536 && id >= 0 && id < 256) {
+					CDV_INT08U tmp = 5;//表长，如果不设置，可能默认是0xFF
+					SPI_Flash_Write((CDV_INT08U *)&tmp, CHECK_VERION_ADDR1, 1);
 					SPI_Flash_Write((CDV_INT08U *)&id, CHECK_VERION_ADDR, 1);
 				  port = n;
 					MemCpy(ip + 4, &port, 2);

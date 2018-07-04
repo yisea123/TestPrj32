@@ -20,6 +20,7 @@
 #define MEMP_NUM_TCP_SEG        110//50//15		//MEMP_NUM_TCP_SEG:最多同时在队列中的TCP段数量
 #define MEMP_NUM_SYS_TIMEOUT    8		//MEMP_NUM_SYS_TIMEOUT:能够同时激活的timeout个数
 
+#define MEMP_NUM_NETBUF         50
 #define MEMP_NUM_NETCONN        MEMP_NUM_TCP_PCB
 
 //pbuf选项

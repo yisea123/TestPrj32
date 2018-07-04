@@ -421,7 +421,11 @@ static void ETH_MACDMA_Config1(void)
 		timeout++;
 	};
 	
-	ASSERT(timeout < (1 << 8));
+	if(timeout >= (1 << 8))
+		ResetCdv();
+	
+//	if(timeout >= (1 << 8))
+//		ResetCdv();
 
   /* ETHERNET Configuration --------------------------------------------------*/
   /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */
@@ -467,6 +471,9 @@ static void ETH_MACDMA_Config1(void)
   /* Configure Ethernet */
   EthStatus = ETH_Init(&ETH_InitStructure, LAN8720_PHY_ADDRESS);
   
+	ASSERT(EthStatus);
+//	if (!EthStatus)
+//		ResetCdv();
   /* Enable the Ethernet Rx Interrupt */
   ETH_DMAITConfig(ETH_DMA_IT_NIS | ETH_DMA_IT_R, ENABLE);
 }
@@ -480,6 +487,7 @@ void ETH_BSP_Config(void)
 {
 	if(ETH_Mem_Malloc()) {
 	  ASSERT(0);
+		//ResetCdv();
 	}
   /* Configure the GPIO ports for ethernet pins */
   ETH_GPIO_Config();

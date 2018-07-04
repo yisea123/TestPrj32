@@ -278,6 +278,47 @@ extern MODBUS_Input_Register g_modbusInReg;
 /*modbus线圈结构体*/
 typedef union
 {
+//	struct
+//  {
+//		struct
+//		{
+//			CDV_CHAR O0:1;                        
+//			CDV_CHAR O1:1;                       
+//			CDV_CHAR O2:1;                       
+//			CDV_CHAR O3:1;                       
+//			CDV_CHAR O4:1;                       
+//			CDV_CHAR O5:1;                       
+//			CDV_CHAR O6:1;                       
+//			CDV_CHAR O7:1;                       
+//			CDV_CHAR O8:1;                      
+//			CDV_CHAR O9:1;
+//			CDV_CHAR O10:1;
+//			CDV_CHAR O11:1;
+//			CDV_CHAR O12:1;
+//			CDV_CHAR O13:1;
+//			CDV_CHAR O14:1;
+//			CDV_CHAR O15:1;
+//			
+//			CDV_CHAR O16:1;                        
+//			CDV_CHAR O17:1;                       
+//			CDV_CHAR O18:1;                       
+//			CDV_CHAR O19:1;                       
+//			CDV_CHAR O20:1;                       
+//			CDV_CHAR O21:1;                       
+//			CDV_CHAR O22:1;                       
+//			CDV_CHAR O23:1;                       
+//			CDV_CHAR O24:1;                      
+//			CDV_CHAR O25:1;
+//			CDV_CHAR O26:1;
+//			CDV_CHAR O27:1;
+//			CDV_CHAR O28:1;
+//			CDV_CHAR O29:1;
+//			CDV_CHAR O30:1;
+//			CDV_CHAR O31:1;
+//			
+//		} O[10];                                     /*!< bit:     0~9f  speed          */
+//		
+//  } TYPE1;  
   struct
   {
 		struct
@@ -332,7 +373,7 @@ extern MODBUS_Coil g_modbusCoil;
 #define RESET_COIL_ADDR(A) do{\
 	(MODBUS_COIL_CH((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
 }while(0);
-#define READ_COIL_ADDR(A) (MODBUS_COIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))
+#define READ_COIL_ADDR(A) (((MODBUS_COIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))) ? 1 : 0)
 /*modbus输入线圈结构体*/
 typedef union
 {
@@ -389,7 +430,7 @@ extern MODBUS_Input_Coil g_modbusInCoil;
 #define RESET_INCOIL_ADDR(A) do{\
 	(MODBUS_INCOIL_CH((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
 }while(0);
-#define READ_INCOIL_ADDR(A) (MODBUS_INCOIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))
+#define READ_INCOIL_ADDR(A) (((MODBUS_INCOIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))) ? 1 : 0)
 
 
 

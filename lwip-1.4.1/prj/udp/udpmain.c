@@ -154,8 +154,8 @@ void udpecho_find( CDV_INT08U uartNo)
   u16_t buflen = 0;
 	struct netbuf *sbuf = netbuf_new();
   conn = netconn_new(NETCONN_UDP);
-	
-	NEWCH(buffer, 200);
+	#define FIND_BUFFER_LEN 200
+	NEWCH(buffer, FIND_BUFFER_LEN);
 	
 	
   if (conn!= NULL)
@@ -190,8 +190,8 @@ void udpecho_find( CDV_INT08U uartNo)
 						rbuf->addr.addr = 0;
 						netbuf_data(rbuf, (void**)&buf, &buflen);
 						
-						if(buf && buflen) {
-							MemCpy(buffer, buf, buflen);
+						if(buf && buflen && buffer_pointer + buflen < FIND_BUFFER_LEN) {
+							MemCpy(buffer + buffer_pointer, buf, buflen);
 							buffer_pointer += buflen;
 						}
 					}while(-1 !=netbuf_next(rbuf));

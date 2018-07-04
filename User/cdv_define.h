@@ -208,6 +208,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 	
 #endif
 
+#define USE_OVERLAP 1u // 使用异步
 /*LED定义*/
 //#if defined(CDV_V1)
 //#define LED1 PDout(9)	  // LED1 运行指示
@@ -386,7 +387,7 @@ extern CPU_STK WORKER_TASK_STK[WORKER_NUM][WORKER_STK_SIZE];//任务堆栈
 /*信号量*/
 extern OS_SEM TX_SEM, WORKER_SEM , MOTO_SEM , MEM_SEM , MSG_SEM , LIST_SEM; //定义一个信号量，用于访问共享资源, PROMPT_SEM  , CACHE_SEM , WIFI_SEM, VAL_SEM, SPI_SEM 
 extern OS_SEM GENERAL_SERIAL_SEM;
-//extern OS_SEM COM_SEM[6];
+extern OS_SEM COM_SEM[6];
 extern OS_SEM TCP_TX_SEM;
 
 

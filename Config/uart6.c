@@ -29,6 +29,7 @@
 
 #if _NPC_VERSION_ == 3u
   #define EN_USART6_DMA 1u
+	#define EN_USART6_TCIF 1u
 #endif
 
 //485模式控制
@@ -40,7 +41,7 @@
 	#elif _NPC_VERSION_ == 3u
 		#define USART6_TX_ENABLE		GPIO_SetBits(GPIOB,GPIO_Pin_7)	//485模式控制.0,接收;1,发送.
 		#define USART6_TX_DISABLE		GPIO_ResetBits(GPIOB,GPIO_Pin_7)	//485模式控制.0,接收;1,发送.
-
+    #define USART6_TX_DISABLED     (0 == GPIO_ReadOutputDataBit(GPIOB,GPIO_Pin_7))
 
 	#endif
 #else
@@ -129,7 +130,6 @@ void USART6_IRQHandler(void)
 			//清除标志位  
 			DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);  
 
-
 			//获得接收帧帧长  
 			g_Uart6RxLen = g_Uart6BufLen - DMA_GetCurrDataCounter(DMA2_Stream1);  
 		  OSQPost(&Recv_Msg, &g_Uart6RxLen, 1, OS_OPT_POST_FIFO, &err);
@@ -148,6 +148,20 @@ void USART6_IRQHandler(void)
 //			//打开DMA  
 //			DMA_Cmd(DMA2_Stream1,ENABLE);  
 	}
+#if EN_USART6_TCIF
+	if(USART_GetITStatus(USART6, USART_IT_TC) != RESET)  
+	{ 
+		USART_ITConfig(USART6,USART_IT_TC,DISABLE);  
+		USART6_TX_DISABLE;
+	}
+#endif
+//	if(USART_GetITStatus(USART1, USART_IT_TXE) == RESET)  
+//    {  
+//        /* 关闭发送完成中断  */ 
+//        USART_ITConfig(USART1,USART_IT_TC,DISABLE);  
+//        /* 发送完成  */
+//       // UART1_Use_DMA_Tx_Flag = 0;  
+//    }    
 #else		
 	if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET)//接收到数据
 	{
@@ -172,6 +186,22 @@ void USART6_IRQHandler(void)
   OSIntExit();
 #endif
 } 
+
+void DMA2_Stream6_IRQHandler(void) {
+	 if(DMA_GetITStatus(DMA2_Stream6,DMA_IT_TCIF6) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA2_Stream6,DMA_FLAG_TCIF6);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA2_Stream6,DISABLE);
+        /* 打开发送完成中断,确保最后一个字节发送成功 */
+        USART_ITConfig(USART6,USART_IT_TC,ENABLE);  
+			
+    }  
+	
+}
+
+
 /**
   *USART6设置
   */
@@ -196,14 +226,14 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOC,&GPIO_InitStructure);
 	
-	#if EN_USART6_485
+#if EN_USART6_485
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOC,&GPIO_InitStructure);
-	#endif
+#endif
 	
    //USART6 初始化设置
 	USART_InitStructure.USART_BaudRate = bound;//波特率设置
@@ -222,7 +252,7 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	
 	USART_ClearFlag(USART6, USART_FLAG_TC);
 	//使能串口读
-	#if EN_USART6_RX	
+#if EN_USART6_RX	
 	USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);//开启相关中断
 
 	//Usart1 NVIC 配置
@@ -232,7 +262,7 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
 
-	#endif
+#endif
   USART6_TX_DISABLE;
   DMA_Config(DMA2_Stream6,DMA_Channel_5,(u32)&USART6->DR,(u32)0,0);
 	USART_DMACmd(USART6,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送  
@@ -262,14 +292,14 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOG,&GPIO_InitStructure);
 	
-	#if EN_USART6_485
+#if EN_USART6_485
   GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
 	GPIO_Init(GPIOB,&GPIO_InitStructure);
-	#endif
+#endif
 	
    //USART6 初始化设置
 	USART_InitStructure.USART_BaudRate = 460800;//921600;//bound;//波特率设置
@@ -288,7 +318,7 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	
 	USART_ClearFlag(USART6, USART_FLAG_TC);
 	//使能串口读
-	#if EN_USART6_RX	
+#if EN_USART6_RX	
 	//USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);//开启相关中断
 
 	//Usart1 NVIC 配置
@@ -297,16 +327,27 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
+#endif
 
-	#endif
   USART6_TX_DISABLE;
   DMA_Config(DMA2_Stream6,DMA_Channel_5,(u32)&USART6->DR,(u32)0,0);
+	
+#if EN_USART6_TCIF
+	NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream6_IRQn;//串口1中断通道
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
+	DMA_ITConfig(DMA2_Stream6, DMA_IT_TC, ENABLE);  // 打开dam tc中断，用于判断dma传输结束
+#endif
+
 	USART_DMACmd(USART6,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送 
-	#if EN_USART6_DMA
+	
+#if EN_USART6_DMA
 	USART_ITConfig(USART6, USART_IT_IDLE, ENABLE);
 	DMA_ConfigDir(DMA2_Stream1,DMA_Channel_5,(u32)&USART6->DR,(u32)0,0,DMA_DIR_PeripheralToMemory);
 	USART_DMACmd(USART6,USART_DMAReq_Rx,ENABLE);
-	#endif 
+#endif 
 	
 	
 #endif
@@ -320,10 +361,19 @@ void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
 #if EN_USART6_485
 	CPU_SR_ALLOC();
 #endif
+
+#if EN_USART6_TCIF
+	if(!USART6_TX_DISABLED)
+		return;
+#endif
+	
 	USART6_TX_ENABLE;
-#if EN_USART6_485
+	
+#if EN_USART6_485 && !EN_USART6_TCIF
 	OSSchedLock(&err);
 #endif
+	
+	
 	DMA_MemoryTargetConfig(DMA2_Stream6,mar,DMA_Memory_0);
 	
 	DMA_ClearFlag(DMA2_Stream6,DMA_FLAG_TCIF6);
@@ -331,8 +381,11 @@ void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	
 	DMA_Enable(DMA2_Stream6,ndtr);    //开始一次DMA传输！	  
   
-	
+#if EN_USART6_TCIF
+	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET) {};
+#else
 	while(DMA_GetFlagStatus(DMA2_Stream6,DMA_FLAG_TCIF6)==RESET) {};	
+		
 	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET) {};
 //	DMA_ClearFlag(DMA2_Stream6,DMA_FLAG_TCIF6);
 //	USART_ClearFlag(USART6, USART_FLAG_TC);
@@ -340,7 +393,9 @@ void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
   gstartTime = GetCdvTimeTick();
 	//delay_ms(10);
 	USART6_TX_DISABLE;
-#if EN_USART6_485
+#endif
+		
+#if EN_USART6_485 && !EN_USART6_TCIF
 	OSSchedUnlock(&err);
 #endif
 }

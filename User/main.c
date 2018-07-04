@@ -130,16 +130,17 @@ int main(void){
 	
 #if _NPC_VERSION_ > 1u
 #if USE_NPC_NET
+	NPC_PRINT("net init start\r\n");
 //	if(!lwip_comm_init()) 		//lwip初始化
 //	{
 //		tcp_server_init();
 //	}
 /* configure Ethernet (GPIOs, clocks, MAC, DMA) */ 
   ETH_BSP_Config();
-
+  NPC_PRINT("—— bsp end\r\n");
   /* Initilaize the LwIP stack */
   LwIP_Init();
-
+  NPC_PRINT("—— lwip end\r\n");
   /* Initialize webserver demo */
   tcp_server_init();
 //	while(tcp_server_init()) 									//初始化tcp_server(创建tcp_server线程)
@@ -149,6 +150,7 @@ int main(void){
   httpd_init();
 	
 	udpecho_init();
+	NPC_PRINT("net init end\r\n");
 #endif
 #endif
 	
@@ -178,6 +180,9 @@ void start_task(void *p_arg){
 	//CDV_INT32U size;
 	OS_ERR err;
 	CPU_SR_ALLOC();//OS_CRITICAL_ENTER()
+	
+	NPC_PRINT("start task start\r\n");
+	
 	p_arg = p_arg;
 	CPU_Init();
 	
@@ -243,14 +248,14 @@ void start_task(void *p_arg){
 								(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);			
 	
-//	for (i = 0; i < 6; i++) {
-//		char buf[10];
-//		sprintf(buf, "COM_SEM%d", i);
-//	  OSSemCreate ((OS_SEM* )&COM_SEM[i], //指向信号量
-//									(CPU_CHAR* )buf, //信号量名字
-//									(OS_SEM_CTR )1, //信号量值为 1
-//									(OS_ERR* )&err);		
-//	}
+	for (i = 0; i < 6; i++) {
+		char buf[10];
+		sprintf(buf, "COM_SEM%d", i);
+	  OSSemCreate ((OS_SEM* )&COM_SEM[i], //指向信号量
+									(CPU_CHAR* )buf, //信号量名字
+									(OS_SEM_CTR )1, //信号量值为 1
+									(OS_ERR* )&err);		
+	}
 
 	OSSemCreate ((OS_SEM* )&TCP_TX_SEM, //指向信号量
 								(CPU_CHAR* )"TCP_TX_SEM", //信号量名字
@@ -266,11 +271,13 @@ void start_task(void *p_arg){
 //	SPI_Flash_Read((CDV_INT08U *)&SRP_NUM_RUN,SCRIP_NUM_RUN,2);
 //	SPI_Flash_Read((CDV_INT08U *)&SRP_NUM_DEBUG,SCRIP_NUM_DEBUG,2);
 	//Log_Write("START DOWNLOAD FPGA" , LOG_EVENT);
+	NPC_PRINT("—— sem end\r\n");
 	
 #if _NPC_VERSION_ == 2u
 	FpgaRecvCtl();
 #endif
 	CDVParamInit();
+	NPC_PRINT("—— CDVParamInit end\r\n");
 			
 #if USE_PVD == 1u
 	g_dipCtrlWorker = PVD_Restore();
@@ -281,6 +288,8 @@ void start_task(void *p_arg){
   FlashBak_Restore();
   EXTIPowerOff_Configuration();
 #endif
+
+	NPC_PRINT("—— Restore end\r\n");
 #if ENABLE_FPGA_DOWN
 //	for(i = CDV_O_NUM ; i < CDV_O_NUM + CDV_EXO_NUM*2 ; i ++) {
 //		OWrite(i , BIT_0);
@@ -499,6 +508,8 @@ void start_task(void *p_arg){
 	  //OS_CRITICAL_EXIT(); //进入临界区		
 		OSTmrStart(&tmr1,&err);
 
+    NPC_PRINT("start task end\r\n");
+		
 		OSTaskDel((OS_TCB*)0,&err); //删除 start_task 任务自身
 }
 
@@ -849,10 +860,16 @@ void worker_manage_task(void *p_arg){
 		
 	  if(debug)//退出
 	  {
+			CDV_INT08U buf[] = {0xbc, 0x9a, 0x78, 0x56, 0x34, 0x12};
+			
+      CoilToCoil(buf, 6, (CDV_INT08U*)g_modbusCoil.coilCh, 3, 20);
+			CoilToCoil(buf, 3, (CDV_INT08U*)g_modbusCoil.coilCh, 6, 20);
+			CoilToCoil(buf, 5, (CDV_INT08U*)g_modbusCoil.coilCh, 3, 2);
+			CoilToCoil(buf, 2, (CDV_INT08U*)g_modbusCoil.coilCh, 7, 2);
 //		CDV_INT32S flag = 100;
 //		CDV_INT32U addr = 0x080E0000 + 0x20000 -4;
 		//WorkerControl(debug1, debug2);
-		udpecho_find(MAIN_COM);
+//		udpecho_find(MAIN_COM);
 //	//	INTX_DISABLE();
 //	FlashBak_Erase(1);
 //		

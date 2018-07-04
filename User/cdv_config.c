@@ -395,7 +395,7 @@ void assert(uint8_t* file, uint8_t* function, uint32_t line)
 	
 	g_cdvStat = CDV_ASSERT;
 	
-	sprintf(tmp , "assert occur! file:%s\r\nfunction:%s\r\nline:%d\r\n" 
+	sprintf(tmp , "npc assert occur! file:%s\r\nfunction:%s\r\nline:%d\r\n" 
 	,file 
 	,function
 	,line
@@ -408,5 +408,15 @@ void assert(uint8_t* file, uint8_t* function, uint32_t line)
   }
 	
 	__enable_irq();
+}
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   主串口如果与触摸屏设备连，则不能开启调试
+  */
+void com_print(const char* str)
+{
+		USARTSend((CDV_INT08U*)str, strlen(str), MAIN_COM);
 }
 

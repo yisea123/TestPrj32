@@ -29,7 +29,7 @@
 	#define CASCADE_ReadWriteByte(a)				SPIx_ReadWriteByte(SPI2,(a))
 
   //级联资源表——版本号
-  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 2/*迭代小版本*/};
+  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 3/*迭代小版本*/};
 	//从机资源表
 	CDV_INT08U *slaveTable = NULL;
 	CDV_INT08U *slaveTable2 = NULL;
@@ -39,8 +39,13 @@
   OLCMD_CACHE g_portCmdCache = {NULL , 0  , 0 , 0 , NULL};
 	
 	#define CASCADE_BUF_LEN 255
-	u8 g_cascadeBuf[CASCADE_BUF_LEN];//UserMemPtr(CCM_CASCADE_MODBUS);
+	//u8 g_cascadeBuf[CASCADE_BUF_LEN];//UserMemPtr(CCM_CASCADE_MODBUS);
+	u8 *g_cascadeBuf = NULL;
 	
+	#if USE_OVERLAP
+	MODBUS_Coil *g_coilCascade = NULL;
+	MODBUS_Register *g_regCascade = NULL;
+	#endif
 	
 	///////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
@@ -1233,6 +1238,116 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 	return ret;
 }
 
+/** @brief  线圈复制
+  * @param  buf     源
+            bufaddr 源起始地址
+            coil    目标
+            coiladdr目标起始地址
+            tonum   复制线圈数
+  * @retval RET_STATUS
+  * @note   
+  */
+RET_STATUS CoilToCoil(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum){
+	//CDV_INT08U fc = buf[1];、
+	CDV_INT08U buf_sta_ch = bufaddr >> 3;
+	CDV_INT08U buf_sf = bufaddr & 0x07;
+	CDV_INT08U coil_sta_ch = (coiladdr >> 3);//读线圈的初始char
+	CDV_INT08U coil_sf = coiladdr & 0x07;
+	CDV_INT16U num = tonum;
+	CDV_INT08U numCh = (num + 7) / 8;//标准长度，sf = 0
+	CDV_INT08U i;
+	CDV_INT08U firstCh, secondCh;
+	CDV_INT08U* pCoil = (CDV_INT08U*)(buf + buf_sta_ch);
+	RET_STATUS ret = OPT_FAILURE;
+	CDV_INT16U buf_end_num;
+	
+	ASSERT(buf  && coil);
+
+	if(buf_sf) {//存在sf，特殊处理第一个字节中的数据
+		if(8-buf_sf>num)//判断数量是不是很少
+			i = (0xFF>>(8-(buf_sf+num)));
+		else
+			i = 0xFF;
+		
+		if(buf_sf >= coil_sf) {
+		  coil[coil_sta_ch] = (coil[coil_sta_ch] & ~(((0xFF<<buf_sf)&i)>>(buf_sf-coil_sf))) | (pCoil[0]&i)>>buf_sf<<coil_sf;
+		}
+		else {
+			coil[coil_sta_ch] = (coil[coil_sta_ch] & ~(((0xFF<<buf_sf)&i)<<(coil_sf-buf_sf))) | (pCoil[0]&i)>>buf_sf<<coil_sf;
+			
+			if(coil_sf + num > 8) {
+			  coil[coil_sta_ch + 1] = (coil[coil_sta_ch + 1] & ~(((0xFF<<buf_sf)&i)>>(8 - coil_sf + buf_sf))/*0xFF<<(coil_sf - buf_sf)*/) | (pCoil[0]&i)>>(8 - coil_sf + buf_sf);
+			}
+		}
+		
+		buf_sta_ch += 1;
+		pCoil = (CDV_INT08U*)(buf + buf_sta_ch);
+		num -= 8 - buf_sf;
+		numCh = (num + 7) / 8;
+		coil_sta_ch = ((coiladdr+(8 - buf_sf)) >> 3);//读线圈的初始char
+	  coil_sf = (coiladdr+(8 - buf_sf)) & 0x07;
+	}
+	/////////
+  buf_end_num = num - (numCh - 1) * 8;//最后一个字节的线圈数量
+	
+
+	for(i = 0; i < numCh; i++) {
+		//移位复制
+		firstCh = (coil[coil_sta_ch+i] & ~(0xFF<<coil_sf)) | pCoil[i]<<(coil_sf);
+		
+		if (coil_sf /*&& i + 1 < numCh*/) {
+			secondCh = (coil[coil_sta_ch+i+1] & ~(0xFF>>(8-coil_sf))) | pCoil[i]>>(8-coil_sf);
+		} else {
+			secondCh = coil[coil_sta_ch+i+1];
+		}
+		
+		
+		if(i + 1 == numCh && buf_end_num) {//最后一个字节复制特殊
+		  if(8 - coil_sf >= buf_end_num) {//大于等于endnum数量，说明复制firstCh足矣，保留sta + endnum的数量
+				coil[coil_sta_ch+i] = (coil[coil_sta_ch+i]  & (0xFF<<(coil_sf + buf_end_num)))   | (firstCh & (0xFF >> (8-coil_sf - buf_end_num)));
+			} else {
+				coil[coil_sta_ch+i] = firstCh;
+				coil[coil_sta_ch+i+1] = (coil[coil_sta_ch+i+1]  & (0xFF<<(coil_sf + buf_end_num-8)))   | (secondCh & (0xFF >> (16-coil_sf - buf_end_num)));
+			}
+		} else {
+		  coil[coil_sta_ch+i] = firstCh;
+		  coil[coil_sta_ch+i+1] = secondCh;
+		}
+	}
+	//////////////////
+	
+	ret = OPT_SUCCESS;
+	return ret;
+}
+
+/** @brief  线圈比较
+  * @param  参考CoilToCoil
+  * @retval 0 相同，1 不相同
+  * @note   
+  */
+int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum){
+	CDV_INT08U coil_sta_ch = (coiladdr >> 3);//读线圈的初始char
+	CDV_INT08U coil_sf = coiladdr & 0x07;
+	CDV_INT08U coil_numCh = (tonum - 8 + coil_sf + 7) / 8 + (coil_sf ? 1 :0);//标准长度，sf = 0
+	int ret = 1;
+	CDV_INT08U* tmp_buf = NULL;
+	
+	ASSERT(buf  && coil);
+	
+	NEWCH(tmp_buf, coil_numCh);
+	
+	MemCpy(tmp_buf, coil + coil_sta_ch, coil_numCh);
+
+	CoilToCoil(buf, bufaddr, tmp_buf, coil_sf, tonum);
+	
+	if(0 == strncmp((CDV_INT08C*)tmp_buf, (CDV_INT08C*)(coil + coil_sta_ch), coil_numCh)) {
+		ret = 0;
+	}
+	
+	DELETE(tmp_buf);
+	return ret;
+}
+
 /** @brief  读取从机的寄存器到本机
   * @param  pBuffer      查询到的值保存的地方
 	*         id           主机号
@@ -1250,7 +1365,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1277,7 +1392,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1304,7 +1419,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pInReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1331,7 +1446,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pInReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1358,7 +1473,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1385,7 +1500,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1413,7 +1528,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pInCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1440,7 +1555,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pInCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
-		ASSERT(pBuffer);
+		ASSERT(recvBuf&&pBuffer);
 		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
 		
@@ -1461,7 +1576,7 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U p_val[6];
 		CDV_INT08U p_coil[2];
-		
+		ASSERT(recvBuf);
 		MemCpy(p_coil,gp_coil,2);
 		MemCpy(p_val,gp_val,12);
 		
@@ -1585,8 +1700,48 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 			}
 			
 		}
+		
+		NEWCH(g_cascadeBuf, CASCADE_BUF_LEN);
+
+#if USE_OVERLAP
+	  NEWCH(g_coilCascade, sizeof(MODBUS_Coil));
+	  NEWCH(g_regCascade, sizeof(MODBUS_Register));
+#endif
 		/////////////////////////////
 		return OPT_SUCCESS;
+	}
+	
+	
+/**
+  * @brief  O异步刷新
+  *  
+  * @param  coilVal 线圈的值，必须已经如modbus那样整理好
+  *   
+  * @retval 返回值说明OPT_SUCCESS，OPT_FAILURE
+  *
+  * @note   					
+  */
+
+	RET_STATUS CascadeOverlapOWrite(CDV_INT08U host, CDV_INT16U remoteaddr, CDV_INT32U num, CDV_INT08U* coilVal) { 
+		RET_STATUS ret =OPT_SUCCESS;
+		CDV_INT08U* cmdBuf = NULL;
+		CDV_INT08U  cmdLen = 0;
+		CDV_INT08U recvBuf[20] = {0};
+		CDV_INT08U  recvLen = 0;
+		
+		WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen);
+    
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART);
+		
+		if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
+			ret = OPT_SUCCESS;
+		} else {
+			ret = OPT_FAILURE;
+		}
+	  
+		DELETE(cmdBuf);
+		
+		return ret;
 	}
 	
 /** @brief  读取从机的寄存器到本机
@@ -1599,11 +1754,11 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
   * @note   CascadeModbus只能用在一个线程中
   */
 
-	RET_STATUS CascadeModbus_Map(CDV_INT08U* pBuffer, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
+	RET_STATUS CascadeModbus_Map(void) {
 		CDV_INT08U i;
 		struct CASCADE_MAP* map = CascadeMap;
-		
-		if(!g_line.init) 
+		//ASSERT(map);
+		if(!g_line.init || !map) 
 			return OPT_FAILURE;
 		
 		for( i = 0; i < CascadeMapLen; i++) {
@@ -1612,7 +1767,18 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 					CascadeModbus_ReadInCoil2((CDV_INT08U*)g_modbusInCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				case 1://O
+#if USE_OVERLAP
+				  CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+				  if(CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
+						CDV_INT08U *tmp_coil_val = NULL;
+						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
+						CoilToCoil(g_modbusCoil.coilCh, map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
+						CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
+						DELETE(tmp_coil_val);
+					}
+#else
 					CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+#endif
 					break;
 				case 2://DA
 					CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
@@ -1805,11 +1971,11 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
   */
 
 	RET_STATUS TFICmd(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg) { 
-		OS_ERR err;
+		//OS_ERR err;
 		CDV_INT08U opt, type;
 		CDV_INT16U localaddr, remoteaddr;
 		CDV_INT32U no , num , val;
-		IO_VAL bit;
+		//IO_VAL bit;
 		RET_STATUS ret =OPT_SUCCESS;
 		CDV_INT08U host = buf[0];
 		no  = *(CDV_INT32U*)(buf + 4);
@@ -1824,10 +1990,15 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		////
 		switch(opt) {
 			case 0xFF:/*查询*/
+#if USE_OVERLAP
+			  ret = OPT_SUCCESS;
+#else
 				ret = CascadeModbus_ReadInCoil2((CDV_INT08U*)g_modbusInCoil.coilCh, localaddr, host, 0, 1, CASCADE_USART);
+#endif
 			  if(OPT_SUCCESS == ret) {
-					bit = IRead(localaddr);
-					val = (BIT_1 == bit ? 1 : 0);
+//					bit = IRead(localaddr);
+//					val = (BIT_1 == bit ? 1 : 0);
+					val = READ_INCOIL_ADDR(localaddr);
 					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg,RC_CRC);
 				}
 				break;
@@ -1851,11 +2022,11 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
   */
 
 	RET_STATUS TFOCmd(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg) { 
-    OS_ERR err;
+   // OS_ERR err;
 		CDV_INT08U opt, type;
 		CDV_INT16U localaddr, remoteaddr;
 		CDV_INT32U no , num , val;
-		IO_VAL bit;
+		//IO_VAL bit;
 		RET_STATUS ret =OPT_SUCCESS;
 		CDV_INT08U host = buf[0];
 		no  = *(CDV_INT32U*)(buf + 4);
@@ -1882,7 +2053,15 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 //					bit = (ArithmeticEx((char*)buf + 10, len - 10, arg)) ? BIT_1 : BIT_0;
 //					coil = bit;
 					coil = (ArithmeticEx((char*)buf + 10, len - 10, arg)) ? 1 : 0;
-					
+
+#if USE_OVERLAP
+					if(coil) {
+						SET_COIL_ADDR(localaddr);
+				  }
+					else {
+						RESET_COIL_ADDR(localaddr);
+					}
+#else
 					WriteMultiCoilCmd(host, remoteaddr, 1, &coil, &cmdBuf, &cmdLen);
 
 					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART);
@@ -1894,14 +2073,20 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 					}
 				
 					DELETE(cmdBuf);
+#endif
 				}
 				break;
 			case 0x04:/*查询*/
 			case 0xFF:/*查询*/
-				ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, localaddr, host, 0, 1, CASCADE_USART);
+#if USE_OVERLAP
+			  ret = OPT_SUCCESS;
+#else
+				ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, localaddr, host, remoteaddr, 1, CASCADE_USART);
+#endif
 				if(OPT_SUCCESS == ret) {
-					bit = ORead(localaddr);
-					val = (BIT_1 == bit ? 1 : 0);
+//					bit = ORead(localaddr); // 如果o不是addr0开始的则不能这样用
+//					val = (BIT_1 == bit ? 1 : 0);
+					val = READ_COIL_ADDR(localaddr);
 					ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&val), 4, arg, RC_CRC);
 				}
 				break;
@@ -2068,4 +2253,3 @@ RET_STATUS BufToCoil3(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U* coil, CDV_INT
 		gtime = CalcCount(gendTime , gstartTime);
 		return ret;
 	}
-	
