@@ -1758,7 +1758,9 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		CDV_INT08U i;
 		struct CASCADE_MAP* map = CascadeMap;
 		//ASSERT(map);
-		if(!g_line.init || !map) 
+		ASSERT(g_coilCascade);
+		
+		if(!g_line.init || !map || !g_coilCascade) 
 			return OPT_FAILURE;
 		
 		for( i = 0; i < CascadeMapLen; i++) {
@@ -1812,7 +1814,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		CDV_INT08U i;
 		struct CASCADE_MAP* map = CascadeMap;
 		
-		if (!g_line.init) 
+		if (!g_line.init || !map) 
 			return OPT_FAILURE;
 		
 
@@ -1865,7 +1867,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		struct CASCADE_MAP* map = CascadeMap;
 		CDV_INT16U shift = 0;
 		
-		if (!g_line.init) 
+		if (!g_line.init || !map) 
 			return OPT_FAILURE;
 		
 		switch (type) {
@@ -1978,6 +1980,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		//IO_VAL bit;
 		RET_STATUS ret =OPT_SUCCESS;
 		CDV_INT08U host = buf[0];
+
 		no  = *(CDV_INT32U*)(buf + 4);
 		opt = buf[8];
 		type = buf[9];
@@ -2032,7 +2035,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		no  = *(CDV_INT32U*)(buf + 4);
 		opt = buf[8];
 		type = buf[9];
-		num  = *(CDV_INT32U*)(buf + 10);
+		//num  = *(CDV_INT32U*)(buf + 10);
     ////
 		//host no的映射转化
 		ret = CascadeModbus_MapFind(1, no, host, &localaddr, &remoteaddr);
@@ -2040,16 +2043,20 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		if(OPT_FAILURE == ret)
 			return ret;
 			
+					
+//		if(no!=0 && no != 5 && (0 == READ_COIL_ADDR(localaddr -1)))
+//			no = no;
 		////
 		switch(opt) {
 			case 0x00:/*输出*/			
 				{
+					CDV_INT08U  coil = 0;
+#if !USE_OVERLAP
 					CDV_INT08U* cmdBuf = NULL;
 					CDV_INT08U  cmdLen = 0;
-					CDV_INT08U  coil = 0;
 					CDV_INT08U recvBuf[20] = {0};
 					CDV_INT08U  recvLen = 0;
-					
+#endif
 //					bit = (ArithmeticEx((char*)buf + 10, len - 10, arg)) ? BIT_1 : BIT_0;
 //					coil = bit;
 					coil = (ArithmeticEx((char*)buf + 10, len - 10, arg)) ? 1 : 0;

@@ -357,8 +357,8 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   *USART6发送
   */
 void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
-	OS_ERR  err;
 #if EN_USART6_485
+	OS_ERR  err;
 	CPU_SR_ALLOC();
 #endif
 
@@ -382,7 +382,7 @@ void DMA_usart6Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	DMA_Enable(DMA2_Stream6,ndtr);    //开始一次DMA传输！	  
   
 #if EN_USART6_TCIF
-	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET) {};
+	while(USART_GetFlagStatus(USART6,USART_FLAG_TC)==RESET) {TaskSched();};
 #else
 	while(DMA_GetFlagStatus(DMA2_Stream6,DMA_FLAG_TCIF6)==RESET) {};	
 		
@@ -517,12 +517,12 @@ u8 USART6_Receive(u8 *len)
 void USART6_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&GENERAL_SERIAL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSSemPend(&COM_SEM[5],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	USART6_RxInit(rxbuf ,rxbufLen);
 	USART6_Send(txbuf ,txlen);
 	USART6_Receive(rxlen);
 	USART6_RxDeInit();
 	DelayTick(5);
-	OSSemPost (&GENERAL_SERIAL_SEM,OS_OPT_POST_1,&err); 
+	OSSemPost (&COM_SEM[5],OS_OPT_POST_1,&err); 
 }
 

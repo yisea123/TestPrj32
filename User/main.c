@@ -243,8 +243,8 @@ void start_task(void *p_arg){
 //								(OS_SEM_CTR )1, //信号量值为 1
 //								(OS_ERR* )&err);		
 								
-	OSSemCreate ((OS_SEM* )&GENERAL_SERIAL_SEM, //指向信号量
-								(CPU_CHAR* )"GENERAL_SERIAL_SEM", //信号量名字
+	OSSemCreate ((OS_SEM* )&COIL_SEM, //指向信号量
+								(CPU_CHAR* )"COIL_SEM", //信号量名字
 								(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);			
 	

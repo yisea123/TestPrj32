@@ -421,11 +421,10 @@ static void ETH_MACDMA_Config1(void)
 		timeout++;
 	};
 	
+	ASSERT(timeout < (1 << 8));
+	
 	if(timeout >= (1 << 8))
 		ResetCdv();
-	
-//	if(timeout >= (1 << 8))
-//		ResetCdv();
 
   /* ETHERNET Configuration --------------------------------------------------*/
   /* Call ETH_StructInit if you don't like to configure all ETH_InitStructure parameter */

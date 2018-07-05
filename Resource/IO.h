@@ -110,10 +110,16 @@ extern  CDV_INT08U* g_i;
 
 #if 1
 #define SET_O(A) do{\
+	OS_ERR err;\
+	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
 	(CH_CDV_O((A) >> 3)) |= (0x01 <<((A) & 0x07));\
+	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
 }while(0);
 #define RESET_O(A) do{\
+	OS_ERR err;\
+	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
 	(CH_CDV_O((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
+	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
 }while(0);
 #define READ_O(A) (((CH_CDV_O((A) >> 3)) & (0x01 <<((A) & 0x07)))? 1 :0)
 #else

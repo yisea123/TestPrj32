@@ -383,10 +383,10 @@ u8 USART3_Receive(u8 *len)
 void USART3_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&GENERAL_SERIAL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSSemPend(&COM_SEM[2],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	USART3_RxInit(rxbuf ,rxbufLen);
 	USART3_Send(txbuf ,txlen);
 	USART3_Receive(rxlen);
 	USART3_RxDeInit();
-	OSSemPost (&GENERAL_SERIAL_SEM,OS_OPT_POST_1,&err); 
+	OSSemPost (&COM_SEM[2],OS_OPT_POST_1,&err); 
 }

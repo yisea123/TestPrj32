@@ -291,7 +291,7 @@ void RunWorker(THREAD_INFO *pCtrl) {
 			switch (pCtrl->status) {
 				case WORKER_LOOP:
 					if (worker.doNo == 0) {
-						TaskSched1();
+						TaskSched();
 					}
 					loop = 1;
 					break;
