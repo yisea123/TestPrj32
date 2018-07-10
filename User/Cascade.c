@@ -1758,7 +1758,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		CDV_INT08U i;
 		struct CASCADE_MAP* map = CascadeMap;
 		//ASSERT(map);
-		ASSERT(g_coilCascade);
+		//ASSERT(g_coilCascade);//此函数无条件执行，不需要
 		
 		if(!g_line.init || !map || !g_coilCascade) 
 			return OPT_FAILURE;

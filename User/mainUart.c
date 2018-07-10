@@ -1770,7 +1770,7 @@ void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg) {
 	
 	if(crc == tmpCrc) {
 		ModbusRequestPlus(65,00,arg);
-		CDVParamInit();
+		//CDVParamInit();
 	} else {
 		ModbusRequestPlus(65,02,arg);
 	}
