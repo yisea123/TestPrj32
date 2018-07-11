@@ -435,19 +435,24 @@
           <WinNumber>2</WinNumber>
           <ItemText>no</ItemText>
         </Ww>
+        <Ww>
+          <count>26</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>g_modbusCoil.coilCh[18]</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>buf</ItemText>
+          <ItemText>txBuf</ItemText>
         </Mm>
       </MemoryWindow1>
       <MemoryWindow2>
         <Mm>
           <WinNumber>2</WinNumber>
           <SubType>0</SubType>
-          <ItemText>coil</ItemText>
+          <ItemText>\\NPC\User/mainUart.c\g_uartRx.QUEUE.rxBuf[0]</ItemText>
         </Mm>
       </MemoryWindow2>
       <MemoryWindow3>

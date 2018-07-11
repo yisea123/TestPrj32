@@ -77,7 +77,7 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//获取位状态
 	NEW08U(txBuf , len);
 	txBuf[0] = rxBuf[0];
 	txBuf[1] = rxBuf[1];
-	txBuf[2] = (num>>3);//numCh;
+	txBuf[2] = numCh;//(num>>3);//numCh;
 	//所处字节
 	for(i=0;i<txBuf[2]+1;i++){//多操作一位，防止最后一个字节少读位
 		txBuf[3+i] = MODBUS_COIL_CH(sta+i);
@@ -136,7 +136,7 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//获取位状
 	NEW08U(txBuf , len);
 	txBuf[0] = rxBuf[0];
 	txBuf[1] = rxBuf[1];
-	txBuf[2] = (num>>3);//numCh;
+	txBuf[2] = numCh;//(num>>3);//numCh;
 	//所处字节
 	for(i=0;i<txBuf[2]+1;i++){//多操作一位，防止最后一个字节少读位
 				txBuf[3+i] = MODBUS_INCOIL_CH(sta+i);
