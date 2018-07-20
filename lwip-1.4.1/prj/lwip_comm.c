@@ -113,6 +113,7 @@ void lwip_comm_mem_free(void)
 void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 {
 	u32 sn0;
+	u16 port;
 	sn0=*ONLY_ID_ADDR;//获取STM32的唯一ID的前24位作为MAC地址后三字节
 	//默认远端IP为:192.168.1.100
 	lwipx->remoteip[0]=192;	
@@ -128,15 +129,16 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 	lwipx->mac[5]=((sn0>> 8)&0xFF)+(sn0&0xFF); 
 	//默认本地IP为:192.168.1.30
 	Org_Flash_Read(lwipx->ip, NET_ADDR, sizeof(lwipx->ip));
+  Org_Flash_Read((CDV_INT08U *)&port, NET_ADDR + 4, sizeof(port));
 	
-	if(lwipx->ip[0] == 0xff&&lwipx->ip[1] == 0xff&&lwipx->ip[2] == 0xff&&lwipx->ip[3]==0xff) {
-	
+	if((lwipx->ip[0] == 0xff&&lwipx->ip[1] == 0xff&&lwipx->ip[2] == 0xff&&lwipx->ip[3]==0xff) || port == 0xFFFF) {
 		lwipx->ip[0]=192;	
 		lwipx->ip[1]=168;
 		lwipx->ip[2]=1;
 		lwipx->ip[3]=3;	
-		
+	  port = 60000;
 	  Org_Flash_Write(lwipx->ip, NET_ADDR, sizeof(lwipx->ip));
+	  Org_Flash_Write((CDV_INT08U *)&port, NET_ADDR + 4, sizeof(port));
 	}
 	//默认子网掩码:255.255.255.0
 	lwipx->netmask[0]=255;	

@@ -470,7 +470,7 @@ static void ETH_MACDMA_Config1(void)
   /* Configure Ethernet */
   EthStatus = ETH_Init(&ETH_InitStructure, LAN8720_PHY_ADDRESS);
   
-	ASSERT(EthStatus);
+//	ASSERT(EthStatus);
 //	if (!EthStatus)
 //		ResetCdv();
   /* Enable the Ethernet Rx Interrupt */
