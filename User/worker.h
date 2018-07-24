@@ -74,5 +74,6 @@ RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
 RET_STATUS ToWorkerCmd(DEBUG_SCRIPT *debugWorker , CDV_INT16U cmdNo) ;
 
 void AllWorkerCtrl(const WORKER_STATUS status);
+CDV_INT32S WorkerRead(CDV_INT08U no);
 #endif
 

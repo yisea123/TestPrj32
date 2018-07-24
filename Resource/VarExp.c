@@ -30,6 +30,7 @@
 #define ReadAdc(no)     AdcRead(no)  //Get_Read_AD( no )
 #define ReadDac(no)     DacRead(no)  //Dac_Get_Voltge(no)
 #define ReadTime(no)    ReadClock(no)
+#define ReadWorker(no)  WorkerRead(no)
 #define STACK_SIZE		  20	//max size of the stack
 #define STACK_INCREMENT	10	//realloc size
 
@@ -431,6 +432,17 @@ BOOL isDac(char ch)
 BOOL isTime(char ch)
 {
 	if (ch == 'T')
+	{
+		return TRUE;
+	}
+	else
+	{
+		return FALSE;
+	}
+}
+BOOL isWorker(char ch)
+{
+	if (ch == 'W')
 	{
 		return TRUE;
 	}
@@ -936,7 +948,7 @@ BOOL CheckExOut(const char* str , char *out, short len)
 			}
 			elm = 3;
 		}
-		else if (isVar(str[i]) || isI(str[i]) || isO(str[i]) || isAdc(str[i]) || isDac(str[i]) || isTime(str[i]))//资源的判断
+		else if (isVar(str[i]) || isI(str[i]) || isO(str[i]) || isAdc(str[i]) || isDac(str[i]) || isTime(str[i]) || isWorker(str[i]))//资源的判断
 		{
 			if ((elm & 0x0F) > 2)
 				return FALSE;
@@ -1364,6 +1376,13 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg)
 			i++;
 			f = Char2Int(exp, &i, expLen);//StrtoFloat(exp, &i);
 			f = ReadTime(f);
+			Push(istack, f);
+		}
+		else if (isWorker(exp[i]))//Worker
+		{
+			i++;
+			f = Char2Int(exp, &i, expLen);//StrtoFloat(exp, &i);
+			f = ReadWorker(f);
 			Push(istack, f);
 		}
 	}

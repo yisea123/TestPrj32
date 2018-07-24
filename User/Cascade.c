@@ -1329,7 +1329,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 	CDV_INT08U coil_sta_ch = (coiladdr >> 3);//读线圈的初始char
 	CDV_INT08U coil_sf = coiladdr & 0x07;
 	CDV_INT08U coil_numCh = (tonum - 8 + coil_sf + 7) / 8 + (coil_sf ? 1 :0);//标准长度，sf = 0
-	int ret = 1;
+	int ret = 0,i = 0;
 	CDV_INT08U* tmp_buf = NULL;
 	
 	ASSERT(buf  && coil);
@@ -1340,9 +1340,15 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 
 	CoilToCoil(buf, bufaddr, tmp_buf, coil_sf, tonum);
 	
-	if(0 == strncmp((CDV_INT08C*)tmp_buf, (CDV_INT08C*)(coil + coil_sta_ch), coil_numCh)) {
-		ret = 0;
+	for(i = 0; i< coil_numCh; i++) {
+		if((CDV_INT08C*)tmp_buf[i] != (CDV_INT08C*)(coil + coil_sta_ch)[i]) {
+			ret = 1;
+			break;
+		}
 	}
+//	if(0 == strncmp((CDV_INT08C*)tmp_buf, (CDV_INT08C*)(coil + coil_sta_ch), coil_numCh)) {
+//		ret = 0;
+//	}
 	
 	DELETE(tmp_buf);
 	return ret;

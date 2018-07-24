@@ -836,3 +836,7 @@ RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 }
 
 
+CDV_INT32S WorkerRead(CDV_INT08U no) {
+	CDV_INT32S num = WORKER_STOP;
+	RET_STATUS ret = WorkerQueryStatus(no, (WORKER_STATUS*)&num);
+}

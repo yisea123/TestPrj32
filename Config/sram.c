@@ -157,9 +157,9 @@ void FSMC_SRAM_ReadBuffer(u8* pBuffer,u32 ReadAddr,u32 n)
 	{											    
 		*pBuffer++=*(vu8*)(Bank1_SRAM3_ADDR+ReadAddr);    
 		ReadAddr++;
-	}  
-} 
- 
+	}
+}
+
 void fsmc_sram_test(void)
 {  
 	u32 i=0;  	  
