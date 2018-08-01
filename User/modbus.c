@@ -1257,15 +1257,18 @@ RET_STATUS ReadRegReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U reg, CDV_I
 	if(0x03 != fc || len < numCh + 3)
 		return ret;
 	
-	if(numCh > 2)
+	if(numCh == 4)
 	{
 		num = ((ENDIAN_TF16U(p_reg[reg + 1]))<<16)| ENDIAN_TF16U(p_reg[reg]);
 	}
-	else
+	else if(numCh == 2)
 	{
 		num = ENDIAN_TF16U(p_reg[reg]);
 	}
-	
+	else // 有些设备会回复numCH = 0
+	{
+		return OPT_SUCCESS;
+	}
 	
 	ValSet(var, num);
 	

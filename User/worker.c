@@ -615,6 +615,7 @@ RET_STATUS WorkerQueryStep(const CDV_INT08U no, CDV_INT16U* pStep) {
   */
 RET_STATUS ManagerControl(const WORKER_STATUS status) {
 	//return WorkerControl(0, status);
+	u32 i;
 	if(WORKER_STOP != status) //Æô¶¯
 	{	
 		WorkerControl(0, WORKER_LOOP);//Òþ²Ø
@@ -623,6 +624,19 @@ RET_STATUS ManagerControl(const WORKER_STATUS status) {
 	else
 	{
 		AllWorkerCtrl(WORKER_STOP);
+		
+		//µÈ´ýÍË³ö
+		for(i = 0; i < g_line.workerAddr.len; i++)
+	  {
+		  while (WORKER_STOP != WorkerRead(i));
+	  }
+		
+		memset(&g_modbusCoil , 0x00, sizeof(g_modbusCoil));
+		
+		for(i = 0 ; i < CDV_O_NUM/* + CDV_EXO_NUM*2 */; i ++) {
+			OWrite(i , BIT_0);
+		}
+		
 	}
 }
 
@@ -656,6 +670,7 @@ void AllWorkerCtrl(const WORKER_STATUS status)
 	{
 		WorkerControl(i, status);
 	}
+
 	
 }
 /******************************************************************
@@ -839,4 +854,5 @@ RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 CDV_INT32S WorkerRead(CDV_INT08U no) {
 	CDV_INT32S num = WORKER_STOP;
 	RET_STATUS ret = WorkerQueryStatus(no, (WORKER_STATUS*)&num);
+	return num;
 }

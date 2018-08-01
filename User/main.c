@@ -323,7 +323,7 @@ void start_task(void *p_arg){
 	OSTmrCreate((OS_TMR		*)&tmr1,		//定时器1
                 (CPU_CHAR	*)"tmr1",		//定时器名字
                 (OS_TICK	 )0,			//0*1=0ms
-                (OS_TICK	 )50,          //n*10ms=20ms 10ms=1/OS_CFG_TMR_TASK_RATE_HZ 
+                (OS_TICK	 )5,          //n*10ms=20ms 10ms=1/OS_CFG_TMR_TASK_RATE_HZ 
                 (OS_OPT		 )OS_OPT_TMR_PERIODIC, //周期模式
                 (OS_TMR_CALLBACK_PTR)tmr1_callback,//定时器1回调函数
                 (void	    *)0,			//参数为0
@@ -992,13 +992,15 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 	//	CascadeCombine(0x00);
 	//}
 	//	Test();
-		WorkerControl(0, WORKER_LOOP);//隐藏
-		WorkerControl(1, WORKER_ONCE);//监工
+		ManagerControl(WORKER_ONCE);
+		//WorkerControl(0, WORKER_LOOP);//隐藏
+		//WorkerControl(1, WORKER_ONCE);//监工
 		g_dipCtrlWorker = 1;
 	}
 	else if(DIP_OFF == READ_DIP_SW(2) && g_dipCtrlWorker != 0)//退出
 	{
-		AllWorkerCtrl(WORKER_STOP);
+		ManagerControl(WORKER_STOP);
+		//AllWorkerCtrl(WORKER_STOP);
 		g_dipCtrlWorker = 0;
 	}
 	

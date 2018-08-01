@@ -1713,6 +1713,12 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 	  NEWCH(g_coilCascade, sizeof(MODBUS_Coil));
 	  NEWCH(g_regCascade, sizeof(MODBUS_Register));
 #endif
+		/////////////////////////////检测从机是否挂载
+		if(OPT_FAILURE == CascadeModbus_Map()) {
+			OUT_DisPlay(0xFF280B48);
+			//OUT_DisPlay(0xFF511751);
+			while(1);
+		}
 		/////////////////////////////
 		return OPT_SUCCESS;
 	}
@@ -1758,13 +1764,66 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
             uart         从机所在串口
   * @retval RET_STATUS
   * @note   CascadeModbus只能用在一个线程中
+	          系统启动时先检测有无挂载，无挂载系统不能启动
   */
 
 	RET_STATUS CascadeModbus_Map(void) {
 		CDV_INT08U i;
+		RET_STATUS ret = OPT_FAILURE;
 		struct CASCADE_MAP* map = CascadeMap;
 		//ASSERT(map);
 		//ASSERT(g_coilCascade);//此函数无条件执行，不需要
+		
+		if(!g_line.init || !map || !g_coilCascade) 
+			return ret;
+		
+		for( i = 0; i < CascadeMapLen; i++) {
+			switch (map[i].type) {
+				case 0://I
+					ret = CascadeModbus_ReadInCoil2((CDV_INT08U*)g_modbusInCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					break;
+				case 1://O
+#if USE_OVERLAP
+				  ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+				  if(CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
+						CDV_INT08U *tmp_coil_val = NULL;
+						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
+						CoilToCoil(g_modbusCoil.coilCh, map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
+						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
+						DELETE(tmp_coil_val);
+					}
+#else
+					ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+#endif
+					break;
+				case 2://DA
+					ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					break;
+				case 3://AD
+					ret = CascadeModbus_ReadInReg2((CDV_INT08U*)g_modbusInReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					break;
+				default:
+					break;
+			}
+			
+			if(ret == OPT_FAILURE)
+				return ret;
+			
+			delay_ms(1);
+		}
+		return ret;
+	}
+	
+/** @brief  利用map检查从机是否有挂载
+  * @param  void
+  * @retval RET_STATUS
+  * @note   无挂载，系统不能启动
+  */
+
+	RET_STATUS CascadeModbus_MapCheck(void) {
+		CDV_INT08U i;
+		RET_STATUS ret = OPT_FAILURE;
+		struct CASCADE_MAP* map = CascadeMap;
 		
 		if(!g_line.init || !map || !g_coilCascade) 
 			return OPT_FAILURE;
@@ -1772,33 +1831,38 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		for( i = 0; i < CascadeMapLen; i++) {
 			switch (map[i].type) {
 				case 0://I
-					CascadeModbus_ReadInCoil2((CDV_INT08U*)g_modbusInCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadInCoil2((CDV_INT08U*)g_modbusInCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				case 1://O
 #if USE_OVERLAP
-				  CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+				  ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 				  if(CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
 						CDV_INT08U *tmp_coil_val = NULL;
 						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
 						CoilToCoil(g_modbusCoil.coilCh, map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
-						CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
+						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
 						DELETE(tmp_coil_val);
 					}
 #else
-					CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 #endif
 					break;
 				case 2://DA
-					CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				case 3://AD
-					CascadeModbus_ReadInReg2((CDV_INT08U*)g_modbusInReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadInReg2((CDV_INT08U*)g_modbusInReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				default:
 					break;
 			}
+			
+			if(ret == OPT_FAILURE)
+				return ret;
+			
 			delay_ms(1);
 		}
+		return ret;
 	}
 	
 /** @brief  得到一个具体资源的localaddr

@@ -699,7 +699,7 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 //			if(g_scriptInfo.no >= SRP_NUM_RUN)
 //				return;
 		
-		  AllWorkerCtrl(WORKER_STOP);
+		  ManagerControl(WORKER_STOP);
 			
 			g_scriptInfo.addr = __LINE_ADDR;
 //			nameLen = rxBuf[5];//脚本名称长度
@@ -1771,6 +1771,8 @@ void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg) {
 	if(crc == tmpCrc) {
 		ModbusRequestPlus(65,00,arg);
 		//CDVParamInit();
+		delay_ms(100);
+		ResetCdv();
 	} else {
 		ModbusRequestPlus(65,02,arg);
 	}

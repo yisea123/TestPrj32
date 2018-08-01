@@ -341,6 +341,11 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	if(5 < UniversalCnt[devAddr]) {
 		UniversalCnt[devAddr]++;
 		//delay_ms(20);
+//		if(0x01 == fc || 0x02 == fc || 0x03 == fc || 0x04 == fc)
+//		{
+//			ValSet(ftmp2, -1);//此操作可有可无，根据情况定
+//		}
+//		SET_INCOIL_ADDR(99+devAddr);
 		return OPT_SUCCESS;//通讯不通，跳过
 	}	
 	
@@ -437,6 +442,7 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	
 	if(OPT_SUCCESS == ret)
 	{
+//		RESET_INCOIL_ADDR(99+devAddr);
 		UniversalCnt[devAddr] = 0;
 	}
 	else
