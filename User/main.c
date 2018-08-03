@@ -772,66 +772,28 @@ u16 i=0;
 
 void cdv_refresh_task(void *p_arg){
 	
-  OS_ERR err;
-	WORKER_STATUS stat;
-	CDV_INT08U i;
-	u32 ftime, stime;
-  ftime = GetCdvTimeTick();
+//  OS_ERR err;
+//	CDV_INT08U i;
+//	u32 ftime, stime;
+  u32 cnt=0;
+//  ftime = GetCdvTimeTick();
 	while(1)	{
 		////CascadeModbus_AllUpdate();
-		CascadeModbus_Map();
-		stime = GetCdvTimeTick();
-		if (500 < CalcTimeMS(stime,ftime ))
-		{
-			ftime = stime;
-//		  LED1=~LED1;		//呼吸灯
-//		
-//			//delay_ms(500);
-//			data1 = Read_Input_All();
-//			data2 = Read_Output_ALL();
-//			IN_DisPlay(data1);          //输入状态显示
-//			OUT_DisPlay(data2);         //输出状态显示
-//			Adc_Voltge ();
-//		  // Flash_Check();
-//			UpdateDacVal();
-//			UpdateAdcVal();
-//			
-//			if(DIP_ON == READ_DIP_SW(2) && g_dipCtrlWorker != 1) //启动
-//			{
-//			//if(!Cascade_HaveSlaveTable()) //主机模式
-//			//{
-//			//	CascadeCombine(0x00);
-//			//}
-//			//	Test();
-//				WorkerControl(0, WORKER_LOOP);//隐藏
-//				WorkerControl(1, WORKER_ONCE);//监工
-//				g_dipCtrlWorker = 1;
-//			}
-//			else if(DIP_OFF == READ_DIP_SW(2) && g_dipCtrlWorker != 0)//退出
-//			{
-//				AllWorkerCtrl(WORKER_STOP);
-//				g_dipCtrlWorker = 0;
-//			}
-//			
-//			
-//			if(debug)//退出
-//			{
-//				WorkerControl(debug1, debug2);
-//			}
+		if(OPT_FAILURE ==CascadeModbus_Map()) {
+			if(cnt++ > 20) {
+				OUT_DisPlay(0xFF280B48);
+			  ManagerControl(WORKER_STOP);
+			}
+		}else{
+			cnt = 0;
 		}
-//#if USE_PVD == 1u
-//		if(PVD_GetFlag()) {
-//			ShutDown();
-//		}
-//#endif
+		
+//		stime = GetCdvTimeTick();
+//		if (500 < CalcTimeMS(stime,ftime ))
+//		{
+//			ftime = stime;
 
-//#if _NPC_VERSION_ > 1u
-//#if USE_NPC_NET
-//  Eth_Link_query();
-////#else
-////	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);
-//#endif
-//#endif
+//		}
 	}
 }
 
@@ -958,6 +920,7 @@ void cdv_Moto_task(void *p_arg){
 void tmr1_callback(void *p_tmr, void *p_arg) {
 //  OS_ERR err;
 	u32 data1,data2;
+  static u32 cnt = 0;
 //	if(++tm1Re < 2)
 //		return;
 ////	serial_state=USART3_Receive_Data2(general_serial_buf,&general_serial_count);//判断串口接收完成
@@ -973,7 +936,10 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 //	if(USART_RX_HAD) {
 //		OSTaskResume((OS_TCB*)&UsartRecvTaskTCB,&err);
 //	}
-	LED1=~LED1;		//呼吸灯
+	if(cnt++>10) {
+	  LED1=~LED1;		//呼吸灯
+		cnt = 0;
+	}
 
 	//delay_ms(500);
 	data1 = Read_Input_All();

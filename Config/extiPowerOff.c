@@ -84,10 +84,10 @@ void EXTI9_5_IRQHandler(void) {
   {
     EXTI_ClearITPendingBit(EXTI_Line5);  
 		if(0 == GPIO_ReadInputDataBit(GPIOB,GPIO_Pin_5)){//表示下降沿
-			start = GetCdvTimeTick();
 			FlashBak_BackUp();
+			start = GetCdvTimeTick();
 			g_exti_power_off_flag = -1;
-		}else{//上升沿
+		}else if(g_exti_power_off_flag == -1){//上升沿
 			if(0 < CalcTimeMS(GetCdvTimeTick(), start)) {
 			  ResetCdv();
 			}else{

@@ -1771,7 +1771,10 @@ void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg) {
 	if(crc == tmpCrc) {
 		ModbusRequestPlus(65,00,arg);
 		//CDVParamInit();
-		delay_ms(100);
+		delay_ms(500);
+#if USE_EXTI_POWER_OFF == 1u
+		FlashBak_BackUp();
+#endif
 		ResetCdv();
 	} else {
 		ModbusRequestPlus(65,02,arg);

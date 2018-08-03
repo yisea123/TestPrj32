@@ -1714,10 +1714,13 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 	  NEWCH(g_regCascade, sizeof(MODBUS_Register));
 #endif
 		/////////////////////////////ºÏ≤‚¥”ª˙ «∑Òπ“‘ÿ
-		if(OPT_FAILURE == CascadeModbus_Map()) {
-			OUT_DisPlay(0xFF280B48);
-			//OUT_DisPlay(0xFF511751);
-			while(1);
+		if(DIP_ON == READ_DIP_SW(2))
+		{
+			if(OPT_FAILURE == CascadeModbus_Map()) {
+				OUT_DisPlay(0xFF280B48);
+				//OUT_DisPlay(0xFF511751);
+				while(1);
+			}
 		}
 		/////////////////////////////
 		return OPT_SUCCESS;
