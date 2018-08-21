@@ -65,8 +65,8 @@ void PeriphDriverInit(void)
 	CASCADE_CS_DS;
 	
 	//Org_Flash_Read((CDV_INT08U *)&dac_par, DAC_PAR_ADDR, sizeof(dac_par));//从flash读DAC的参数
-	Org_Flash_Read((CDV_INT08U *)&dac_par, DAC_PAR_ADDR, sizeof(dac_par));//从flash读DAC的参数
-	Org_Flash_Read((CDV_INT08U *)&adc_par, ADC_PAR_ADDR, sizeof(adc_par));//从flash读ADC的参数
+	//Org_Flash_Read((CDV_INT08U *)&dac_par, DAC_PAR_ADDR, sizeof(dac_par));//从flash读DAC的参数
+	//Org_Flash_Read((CDV_INT08U *)&adc_par, ADC_PAR_ADDR, sizeof(adc_par));//从flash读ADC的参数
 	
 	
 #ifdef ENABLE_PID

@@ -187,6 +187,7 @@ CDV_INT08U ExOReadAll(void);
 CDV_INT08U ExIReadAll(void);
 CDV_INT08U ExOWriteAll(void);
 void IReadAll(void);
+void IReadAllFilter(int readCnt, int delayUs);
 void OReadAll(void);
 void OWriteAll(void);
 #define I_PAR_NUM 2 //所有参数的字节长度

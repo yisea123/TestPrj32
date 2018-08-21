@@ -358,6 +358,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 		break;
 		case 0xF3:
 		{
+#if USE_CENTRALIZEDCONTROL == 1u
 		  switch (buf[1]) {
 				case 0x01:
 					CentralizedControl_QuerySysInfo(buf, len, arg);
@@ -374,6 +375,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				default:
 					break;
 			}
+#endif
 //			global_clk = CalcTimeMS(GetCdvTimeTick(), global_start);
 //			global_cnt2++;
 //			if(global_clk > 100) {

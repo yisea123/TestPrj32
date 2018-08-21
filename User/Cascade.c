@@ -1772,7 +1772,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 
 	RET_STATUS CascadeModbus_Map(void) {
 		CDV_INT08U i;
-		RET_STATUS ret = OPT_FAILURE;
+		RET_STATUS ret = OPT_SUCCESS;
 		struct CASCADE_MAP* map = CascadeMap;
 		//ASSERT(map);
 		//ASSERT(g_coilCascade);//此函数无条件执行，不需要

@@ -1178,6 +1178,62 @@ void IReadAll(void)
 }
 
 /**
+  * @brief  CDV 读所有普通I,带滤波
+  *  
+  * @param  readCnt 读取次数
+  *         delayUs 每次读取的间隔
+  *   
+  * @retval CDV_INT08U：1成功、0失败
+  *
+  * @note   刷新modbus线圈
+  */
+void IReadAllFilter(int readCnt, int delayUs)
+{
+	CDV_INT08S val[CDV_I_NUM] = {0};
+	CDV_INT08S no;
+	CDV_INT32S cnt;
+	
+	for(cnt = 0; cnt < readCnt; cnt++) {
+		
+		for(no = 0; no < CDV_I_NUM;no++) {
+			val[no] += GPIO_ReadInputDataBit(g_cdvI[no].port , g_cdvI[no].pin);
+			
+			if (cnt == readCnt - 1) {
+				if (val[no] >= readCnt - 1) {
+					val[no] = 1;
+				} else if (val[no] <= 1) {
+					val[no] = 0;
+				} else {
+					val[no] = -1;
+				}
+			}
+			
+		}
+		
+		if(cnt < readCnt - 1)
+		  DelayUS(delayUs);
+	}
+	
+	for(no = 0; no < CDV_I_NUM;no++) {
+		
+		if(val[no] != -1) {
+		
+			switch((IO_VAL)val[no]) {
+				case BIT_1:
+					SET_I(no);
+					break;
+				case BIT_0:
+					RESET_I(no);
+					break;
+				default:
+					break;
+			}
+		}
+		
+	}
+}
+
+/**
   * @brief  CDV 读所有扩展I
   *  
   * @param  无
@@ -1315,7 +1371,7 @@ void OReadAll(void)
 	CDV_INT32U no = 0;
 	CDV_INT08U val;
 	do {
-		val = GPIO_ReadInputDataBit(g_cdvO[no].port , g_cdvO[no].pin);
+		val = GPIO_ReadOutputDataBit(g_cdvO[no].port , g_cdvO[no].pin);
 		
 		switch((IO_VAL)val) {
 			case BIT_1:
@@ -1360,13 +1416,13 @@ void OWriteAll(void)
   */
 CDV_INT08U OBitRead(CDV_INT32U no) {
 	CDV_INT08U val;
-	CDV_INT16U localaddr;
+	CDV_INT16U localaddr = no;
 //	CDV_INT16U remoteaddr;
 //	CDV_INT08U host;
 	IO_VAL bit;
 	
 	if(no < O_NUM) {
-		localaddr = no;
+		//localaddr = no;
   } else {
 		CascadeModbus_MapFindInExp(1, no, &localaddr, NULL, NULL);
 	}

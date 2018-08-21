@@ -807,9 +807,9 @@ void worker_manage_task(void *p_arg){
 			
 		int i=0;
 		
-		IReadAll();
+		IReadAllFilter(5, 10); //IReadAll();
 
-		OReadAll();
+		//OReadAll();
 #if ENABLE_FPGA_DOWN
 		ExIReadAll();
 		ExOReadAll();
