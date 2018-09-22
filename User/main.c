@@ -772,6 +772,7 @@ u16 i=0;
 
 void cdv_refresh_task(void *p_arg){
 	
+#if _NPC_VERSION_ > 2u
 //  OS_ERR err;
 //	CDV_INT08U i;
 //	u32 ftime, stime;
@@ -795,6 +796,7 @@ void cdv_refresh_task(void *p_arg){
 
 //		}
 	}
+#endif
 }
 
 /*本机外设刷新任务*/

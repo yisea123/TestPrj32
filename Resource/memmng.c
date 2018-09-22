@@ -193,20 +193,20 @@ void *memmng_realloc(void *p,size_t size)
   */
 void memmng_test(void)  
 {  
-	//#define LEN 0xFF
-	//u8* ptr = NULL;
+	#define LEN 0xFF
+	u8* ptr = NULL;
 	static u32 allocd;
 	static u32 used;
 	static u8 perused;
 	static char onon2 = 0;
-	//memmng_init();
+//	memmng_init();
 	if(onon2) {
-		//ptr = memmng_malloc(LEN);
-		//memmng_free(ptr);
+		ptr = memmng_malloc(LEN);
 		allocd = memmng_allocd();
 		used = memmng_used();
 		perused = memmng_perused();
 		//onon2 = 0;
+		memmng_free(ptr);
 	}
 }
 

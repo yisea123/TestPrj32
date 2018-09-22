@@ -170,7 +170,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #endif
 
 
-#if _NPC_VERSION_ < 3u
+#if _NPC_VERSION_ < 2u
 
   #define ENABLE_PID 1u  // ±ÈÀý·§pidµ÷½Ú
 	
