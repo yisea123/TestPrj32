@@ -29,7 +29,7 @@
 	#define CASCADE_ReadWriteByte(a)				SPIx_ReadWriteByte(SPI2,(a))
 
   //级联资源表——版本号
-  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 4/*迭代小版本*/};
+  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 6/*迭代小版本*/};
 	//从机资源表
 	CDV_INT08U *slaveTable = NULL;
 	CDV_INT08U *slaveTable2 = NULL;
@@ -1614,11 +1614,12 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 	
 	struct CASCADE_MAP{
 		u8 type;	//标注类型：I:0 0:1 DA:2 AD:3 ……
-		u8 host;
+		u8 host;//主机号
 		u16 typeno;//例：起始DA号
-		u16 localaddr;
-		u16 remoteaddr;
-		u16 remotenum;
+		u16 localaddr;//主机的映射基址
+		u16 remoteaddr;//远程地址，一般是0
+		u16 remotenum;//数量：比如DA的数量
+		u16 len;//长度：比如一个DA所占资源（地址）的长度，即占多少个线圈/寄存器
 		//u8 spec;//标注类型int?short?
 		u8 dowrite[3];
 		u8* wbuf;//待写的buf
@@ -1681,25 +1682,29 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		  CascadeMap[i].type = every_map[0];
 			CascadeMap[i].host = every_map[1];
 			CascadeMap[i].typeno = *(CDV_INT16U*)(every_map + 2);
-			CascadeMap[i].remotenum = *(CDV_INT16U*)(every_map + 4);
+			CascadeMap[i].remotenum = *(CDV_INT16U*)(every_map + 4);/*通道数量*/
 			CascadeMap[i].remoteaddr = 0;
 			shift += MAP_LINE_LEN;
 			switch (CascadeMap[i].type) {
 				case 0://I
-			    CascadeMap[i].localaddr = incoilshift;
-					incoilshift += *(CDV_INT16U*)(every_map + 4);
+			    CascadeMap[i].localaddr = incoilshift;/*在主机的映射基址*/
+				  CascadeMap[i].len = 1;
+					incoilshift += CascadeMap[i].remotenum * CascadeMap[i].len;//*(CDV_INT16U*)(every_map + 4);
 				  break;
 				case 1://O
 					CascadeMap[i].localaddr = coilshift;
-					coilshift += *(CDV_INT16U*)(every_map + 4);
+				  CascadeMap[i].len = 1;
+					coilshift += CascadeMap[i].remotenum * CascadeMap[i].len;//*(CDV_INT16U*)(every_map + 4);
 				  break;
 				case 2://DA
 					CascadeMap[i].localaddr = regshift;
-					regshift += *(CDV_INT16U*)(every_map + 4);
+				  CascadeMap[i].len = 1;
+					regshift += CascadeMap[i].remotenum * CascadeMap[i].len;//*(CDV_INT16U*)(every_map + 4);
 				  break;
 				case 3://AD
 					CascadeMap[i].localaddr = inregshift;
-					inregshift += *(CDV_INT16U*)(every_map + 4);
+				  CascadeMap[i].len = 1;
+					inregshift += CascadeMap[i].remotenum * CascadeMap[i].len;//*(CDV_INT16U*)(every_map + 4);
 				  break;
 				default:
 					break;
@@ -1922,8 +1927,9 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 /** @brief  得到一个具体资源的localaddr
   * @param  type          类型 I:0/O:1/DA:2/AD:3 
 	*         typeno        序号（包括主机与非主机）
-  *         host          主机号
-  *         retno         返回no
+	*         localaddr     主机的映射地址
+	*         remoteaddr    从机的所在地址
+  *         host          从机的主机号
   * @retval RET_STATUS
   * @note   
   */
@@ -1939,6 +1945,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		CDV_INT08U i;
 		struct CASCADE_MAP* map = CascadeMap;
 		CDV_INT16U shift = 0;
+		//CDV_INT16U len = 0;
 		
 		if (!g_line.init || !map) 
 			return OPT_FAILURE;
@@ -1968,18 +1975,18 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 				continue;
 			
 			if (typeno >= shift + map[i].remotenum) {
-				shift += map[i].remotenum;
+				shift += map[i].remotenum * map[i].len;/*偏移量增加*/
 				continue;
 			}
 			
 			if (localaddr)
-			  *localaddr = map[i].localaddr + typeno - shift;
+			  *localaddr = map[i].localaddr + (typeno - shift);/*得到主机的映射地址*/
 			
 			if (remoteaddr)
-			  *remoteaddr = map[i].remoteaddr + typeno - shift;
+			  *remoteaddr = map[i].remoteaddr + (typeno - shift);/*得到从机的序号*/
 			
 			if (host)
-			  *host = map[i].host;
+			  *host = map[i].host;/*得到从机的主机号*/
 			
 			return OPT_SUCCESS;
 		}

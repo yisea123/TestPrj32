@@ -157,7 +157,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 //#define FPGA_LEN 801462 //XC6SLX25 
 /*定义CDV版本*/
 //#define CDV_V1 1u
-#define CDV_V2_2
+//#define CDV_V2_2//针对的时V1
 #define VIRTUAL_LOGIC 1u //使用需逻辑资源
 
 #define _NPC_VERSION_ 3u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
@@ -206,6 +206,8 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 	
 	#define USE_MEMMNG 1u  // 外部sram管理
 	
+	#define USE_COUNTER 1u //使用计数器 
+	
 #endif
 
 #define USE_OVERLAP 1u // 使用异步
@@ -247,7 +249,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define VERSION_ADDR         0x100 
 // OTA升级地址，3个字节，如果是OTA即需要升级
 #define OTA_ADDR             VERSION_ADDR + 1
-#define WORKER_NUM           (SCRIP_MAX_RUN - 2)
+#define WORKER_NUM           SCRIP_MAX_RUN
 //#define SCRIP_NUM_RUN        0x050000                 //脚本运行数量
 //#define SCRIP_NUM_DEBUG      0x050005                   //脚本调试数量
 //#define SCRIP_NAME_LEN(i)    0x050010 + 0x00001 * (i) //脚本名称长度地址

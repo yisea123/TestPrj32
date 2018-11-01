@@ -72,6 +72,7 @@
 #include "VarExp.h"
 #include "memmng.h"
 #include "FlashBak.h"
+#include "Counter.h"
 /*Config*/
 #include "dmax.h"
 #include "uartx.h"

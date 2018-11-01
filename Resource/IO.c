@@ -828,46 +828,50 @@ void NPC2_3_IOInit(void) {
 	/**
 	*I初始化
 	*/
-	g_cdvI[0].port = PORT_D;
-	g_cdvI[0].pin  = PIN_6;
-	g_cdvI[1].port = PORT_D;
-	g_cdvI[1].pin  = PIN_7;
-	g_cdvI[2].port = PORT_D;
-	g_cdvI[2].pin  = PIN_3;
-	g_cdvI[3].port = PORT_F;
-	g_cdvI[3].pin  = PIN_11;
-	g_cdvI[4].port = PORT_H;
-	g_cdvI[4].pin  = PIN_3;
-	g_cdvI[5].port = PORT_H;
-	g_cdvI[5].pin  = PIN_5;
-	g_cdvI[6].port = PORT_H;
-	g_cdvI[6].pin  = PIN_2;
-	g_cdvI[7].port = PORT_H;
-	g_cdvI[7].pin  = PIN_4;
-	g_cdvI[8].port = PORT_A;
-	g_cdvI[8].pin  = PIN_0;
-	g_cdvI[9].port = PORT_C;
-	g_cdvI[9].pin  = PIN_3;
-	g_cdvI[10].port = PORT_C;
-	g_cdvI[10].pin  = PIN_2;
-	g_cdvI[11].port = PORT_C;
-	g_cdvI[11].pin  = PIN_0;
-	g_cdvI[12].port = PORT_F;
-	g_cdvI[12].pin  = PIN_10;
-	g_cdvI[13].port = PORT_F;
-	g_cdvI[13].pin  = PIN_9;
-	g_cdvI[14].port = PORT_F;
-	g_cdvI[14].pin  = PIN_8;
-	g_cdvI[15].port = PORT_F;
-	g_cdvI[15].pin  = PIN_7;
-	g_cdvI[16].port = PORT_F;
-	g_cdvI[16].pin  = PIN_6;
-	g_cdvI[17].port = PORT_B;
-	g_cdvI[17].pin  = PIN_4;
-	g_cdvI[18].port = PORT_B;
-	g_cdvI[18].pin  = PIN_3;
-	g_cdvI[19].port = PORT_G;
-	g_cdvI[19].pin  = PIN_15;
+	int i = 0;
+	g_cdvI[i].port = PORT_D;
+	g_cdvI[i++].pin  = PIN_6;
+	g_cdvI[i].port = PORT_D;
+	g_cdvI[i++].pin  = PIN_7;
+	g_cdvI[i].port = PORT_D;
+	g_cdvI[i++].pin  = PIN_3;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_11;
+	g_cdvI[i].port = PORT_H;
+	g_cdvI[i++].pin  = PIN_3;
+	g_cdvI[i].port = PORT_H;
+	g_cdvI[i++].pin  = PIN_5;
+	g_cdvI[i].port = PORT_H;
+	g_cdvI[i++].pin  = PIN_2;
+	
+#if USE_COUNTER != 1u
+	g_cdvI[i].port = PORT_H;
+	g_cdvI[i++].pin  = PIN_4;
+	g_cdvI[i].port = PORT_A;
+	g_cdvI[i++].pin  = PIN_0;
+	g_cdvI[i].port = PORT_C;
+	g_cdvI[i++].pin  = PIN_3;
+	g_cdvI[i].port = PORT_C;
+	g_cdvI[i++].pin  = PIN_2;
+#endif
+	g_cdvI[i].port = PORT_C;
+	g_cdvI[i++].pin  = PIN_0;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_10;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_9;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_8;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_7;
+	g_cdvI[i].port = PORT_F;
+	g_cdvI[i++].pin  = PIN_6;
+	g_cdvI[i].port = PORT_B;
+	g_cdvI[i++].pin  = PIN_4;
+	g_cdvI[i].port = PORT_B;
+	g_cdvI[i++].pin  = PIN_3;
+	g_cdvI[i].port = PORT_G;
+	g_cdvI[i++].pin  = PIN_15;
 	
 	/**
 	*O初始化

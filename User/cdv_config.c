@@ -89,6 +89,9 @@ void PeriphDriverInit(void)
 #if USE_MEMMNG == 1u
 	memmng_init();
 #endif
+#if USE_COUNTER == 1u
+  Counter_init();
+#endif
 //	fsmc_sram_test();
 //#if USE_PVD == 1u
 //	//g_dipCtrlWorker = PVD_Restore();
