@@ -16,7 +16,7 @@
 //修改信息
 //无
 ////////////////////////////////////////////////////////////////////////////////// 	   
- #if _NPC_VERSION_ > 1u
+// #if  USE_NPC_NET == 1u
 
 #define LWIP_MAX_DHCP_TRIES		4   //DHCP服务器最大重试次数
    
@@ -49,7 +49,7 @@ void lwip_comm_destroy(void);
 void lwip_comm_delete_next_timeout(void);
 void LwIP_Init(void);
 
-#endif
+//#endif
 #endif
 
 

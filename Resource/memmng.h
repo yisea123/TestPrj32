@@ -21,6 +21,7 @@ void memmng_init(void);
 u8 memmng_perused(void);
 void *memmng_realloc(void *p,size_t size);
 
+void memmng_test(void)  ;
 #endif
 
 

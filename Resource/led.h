@@ -18,7 +18,26 @@
 //LED¶Ë¿Ú¶¨Òå
 //#define LED0 PFout(9)		// DS0
 //#define LED1 PFout(10)	// DS1	
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+	#define	IN_RCK_ENABLE      		    
+	#define IN_RCK_DISABLE	    			
+
+	#define	IN_SCK_ENABLE       			
+	#define	IN_SCK_DISABLE      			
+
+	#define	IN_SDA_ENABLE    					
+	#define	IN_SDA_DISABLE    				
+
+	#define	OUT_RCK_ENABLE     				
+	#define OUT_RCK_DISABLE	    			
+
+	#define	OUT_SCK_ENABLE      			
+	#define	OUT_SCK_DISABLE     			
+
+	#define	OUT_SDA_ENABLE    				
+	#define	OUT_SDA_DISABLE    				
+
+#elif _NPC_VERSION_ == 2u
 	#define	IN_RCK_ENABLE      		    GPIO_SetBits(GPIOD,GPIO_Pin_10)     //IN_RCK
 	#define IN_RCK_DISABLE	    			GPIO_ResetBits(GPIOD,GPIO_Pin_10) 
 

@@ -15,10 +15,10 @@ CDV_INT16U buff_x[BUFFX_LEN];
 CDV_FP32 buff_v[BUFFV_LEN];
 u16 adc3_value2[adc3_value_lens][2]={0};
 
-u16 adc1_value[adc1_value_lens]={0}; //ADC1 DMA采样缓存	
-u16 adc2_value[adc2_value_lens]={0}; //ADC2 DMA采样缓存
-u16 adc3_value[adc3_value_lens]={0}; //ADC3 DMA采样缓存
-u16 adc4_value[adc4_value_lens]={0}; //ADC4 DMA采样缓存
+//u16 adc1_value[adc1_value_lens]={0}; //ADC1 DMA采样缓存	
+//u16 adc2_value[adc2_value_lens]={0}; //ADC2 DMA采样缓存
+//u16 adc3_value[adc3_value_lens]={0}; //ADC3 DMA采样缓存
+//u16 adc4_value[adc4_value_lens]={0}; //ADC4 DMA采样缓存
 u16 AD_Value[N][M];
 
 #if _NPC_VERSION_ == 2u
@@ -66,6 +66,80 @@ void  Adc_Init(void)
 	ADC_Cmd(ADC1, ENABLE);//开启AD转换器	
 
 }	
+
+#if _NPC_VERSION_ == 1u
+void ADC1_DMA_Init(void)//ADC2 压力传感器
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	ADC_CommonInitTypeDef ADC_CommonInitStructure;
+	ADC_InitTypeDef       ADC_InitStructure;
+	DMA_InitTypeDef       DMA_InitStructure;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2,ENABLE);
+//  DMA_DeInit(DMA2_Stream0);
+  /* DMA2 Stream0 channe0 configuration **************************************/
+  DMA_InitStructure.DMA_Channel = DMA_Channel_0;	  //DMA通道选择
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&ADC1->DR;//(uint32_t)0x4001204C; 	//外设地址
+//  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&ADC_ConvertedValue;	//内存地址
+//  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		//数据传输方向：外设至内存
+//  DMA_InitStructure.DMA_BufferSize = RX_ADC1_DMA;						//传输数据大小，由ADC_ConvertedValue数组决定
+//	
+	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc_par[0].buf;	//内存地址
+//	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc2_value;	//内存地址
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		
+  DMA_InitStructure.DMA_BufferSize = adc1_value_lens;	
+	
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	//外设地址寄存器自动增加失能
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;	//内存地址自增失能
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord;//外设的数据大小 
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;	//内存的数据大小
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;	//传输模式：循环传输
+  DMA_InitStructure.DMA_Priority = DMA_Priority_Low;		//优先级为高，总共：超高、高、中、低
+  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;     //指定使用FIFO模式还是直接模式    
+  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;	//指定了FIFO的阀值
+  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;		//内存突发传输每次转移一个数据
+  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;//外设突发传输每次转移一个数据
+  DMA_Init(DMA2_Stream0, &DMA_InitStructure);
+  DMA_Cmd(DMA2_Stream0, ENABLE); //开DMA2_Stream0
+
+	
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE);//使能GPIOC时钟
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1, ENABLE); //使能ADC1时钟
+	
+	
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,ENABLE);	//ADC1复位
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,DISABLE);	//复位结束	 
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;//PA0 通道0
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;//模拟输入
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;//不带上下拉
+  GPIO_Init(GPIOA, &GPIO_InitStructure);//初始化  
+	
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,ENABLE);	  //ADC1复位
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC1,DISABLE);	//复位结束	 
+ 
+	
+  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;//独立模式
+  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;//两个采样阶段之间的延迟5个时钟
+  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled; //DMA失能
+  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;//预分频4分频。ADCCLK=PCLK2/4=84/4=21Mhz,ADC时钟最好不要超过36Mhz 
+  ADC_CommonInit(&ADC_CommonInitStructure);//初始化	
+
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;//12位模式
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;//扫描模式	
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE	;//连续转换
+	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;//禁止触发检测，使用软件触发
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//右对齐	
+	ADC_InitStructure.ADC_NbrOfConversion = 1;//1个转换在规则序列中 也就是只转换规则序列1 
+	ADC_Init(ADC1, &ADC_InitStructure);//ADC初始化	
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_480Cycles);
+
+	ADC_DMARequestAfterLastTransferCmd(ADC1, ENABLE);//源数据变化时开启DMA传输
+
+	ADC_DMACmd(ADC1, ENABLE);//关联ADC1-DMA使能
+	ADC_Cmd(ADC1, ENABLE);//开启AD转换器	  
+	ADC_SoftwareStartConv(ADC1);	//开软件中断
+}
+#elif _NPC_VERSION_ == 2u
 void ADC1_DMA_Init(void)//ADC2 压力传感器
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -137,6 +211,8 @@ void ADC1_DMA_Init(void)//ADC2 压力传感器
 	ADC_Cmd(ADC1, ENABLE);//开启AD转换器	  
 	ADC_SoftwareStartConv(ADC1);	//开软件中断
 }
+
+#endif
 //初始化ADC，通道10															   
 void  Adc2_Init(void)
 {    
@@ -189,10 +265,10 @@ void Adc2_Dma_Init(void)//ADC3 变频器
 //  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc2_value;	//内存地址
 //  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		
 //  DMA_InitStructure.DMA_BufferSize = adc2_value_lens;	
-//	  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc_par[1].buf;	//内存地址
+	  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc_par[1].buf;	//内存地址
 //	DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc3_value;	//内存地址
   DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		
-  DMA_InitStructure.DMA_BufferSize = adc3_value_lens;	
+  DMA_InitStructure.DMA_BufferSize = adc2_value_lens;	
 	
   DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	
   DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;	
@@ -207,7 +283,7 @@ void Adc2_Dma_Init(void)//ADC3 变频器
   DMA_Init(DMA2_Stream2, &DMA_InitStructure);
   DMA_Cmd(DMA2_Stream2, ENABLE); 
 
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);//使能GPIOC时钟
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);//使能GPIOC时钟
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC2, ENABLE); //使能ADC1时钟
 	
 	
@@ -217,7 +293,7 @@ void Adc2_Dma_Init(void)//ADC3 变频器
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;//模拟输入
   GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;//不带上下拉
-  GPIO_Init(GPIOB, &GPIO_InitStructure);//初始化  
+  GPIO_Init(GPIOC, &GPIO_InitStructure);//初始化  
 	
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC2,ENABLE);	  //ADC1复位
 	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC2,DISABLE);	//复位结束	 
@@ -236,7 +312,7 @@ void Adc2_Dma_Init(void)//ADC3 变频器
 	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//右对齐	
 	ADC_InitStructure.ADC_NbrOfConversion = 1;//1个转换在规则序列中 也就是只转换规则序列1 
 	ADC_Init(ADC2, &ADC_InitStructure);//ADC初始化	
-	ADC_RegularChannelConfig(ADC2, ADC_Channel_8, 1, ADC_SampleTime_480Cycles);
+	ADC_RegularChannelConfig(ADC2, ADC_Channel_10, 1, ADC_SampleTime_480Cycles);
 
 	ADC_DMARequestAfterLastTransferCmd(ADC2, ENABLE);//源数据变化时开启DMA传输
 
@@ -449,6 +525,80 @@ void  Adc3_Init(void)
 	ADC_Cmd(ADC3, ENABLE);//开启AD转换器	
 
 }	
+
+
+#if _NPC_VERSION_ == 1u
+void Adc3_Dma_Init(void)//ADC1 比例阀
+{
+	GPIO_InitTypeDef  GPIO_InitStructure;
+	ADC_CommonInitTypeDef ADC_CommonInitStructure;
+	ADC_InitTypeDef       ADC_InitStructure;
+	DMA_InitTypeDef       DMA_InitStructure;
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA2,ENABLE);
+//  DMA_DeInit(DMA2_Stream1);
+  /* DMA2 Stream0 channe0 configuration **************************************/
+  DMA_InitStructure.DMA_Channel = DMA_Channel_2;	  
+  DMA_InitStructure.DMA_PeripheralBaseAddr = (u32)&ADC3->DR;//(uint32_t)0x4001224C; 	//外设地址
+//  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc3_value;	//内存地址
+//  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		
+//  DMA_InitStructure.DMA_BufferSize = adc3_value_lens;	
+//	
+	  DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&adc_par[2].buf;	//内存地址
+//	 DMA_InitStructure.DMA_Memory0BaseAddr = (uint32_t)&ADC_ConvertedValue;	//内存地址
+  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralToMemory;		//数据传输方向：外设至内存
+  DMA_InitStructure.DMA_BufferSize = adc3_value_lens;						//传输数据大小，由ADC_ConvertedValue数组决定
+	
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;	
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;	
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_HalfWord; 
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_HalfWord;	
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;	
+  DMA_InitStructure.DMA_Priority = DMA_Priority_Medium;	
+  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_HalfFull;
+  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
+  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+  DMA_Init(DMA2_Stream1, &DMA_InitStructure);
+  DMA_Cmd(DMA2_Stream1, ENABLE); 
+
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE);//使能GPIOC时钟
+  RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC3, ENABLE); //使能ADC3时钟
+	
+	
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC3,ENABLE);	//ADC3复位
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC3,DISABLE);	//复位结束	 
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;//PF10 通道8
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AN;//模拟输入
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL ;//不带上下拉
+  GPIO_Init(GPIOF, &GPIO_InitStructure);//初始化  
+	
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC3,ENABLE);	  //ADC3复位
+	RCC_APB2PeriphResetCmd(RCC_APB2Periph_ADC3,DISABLE);	//复位结束	 
+ 
+	
+  ADC_CommonInitStructure.ADC_Mode = ADC_Mode_Independent;//独立模式
+  ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;//两个采样阶段之间的延迟5个时钟
+  ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled; //DMA失能
+  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;//预分频4分频。ADCCLK=PCLK2/4=84/4=21Mhz,ADC时钟最好不要超过36Mhz 
+  ADC_CommonInit(&ADC_CommonInitStructure);//初始化	
+
+	ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;//12位模式
+	ADC_InitStructure.ADC_ScanConvMode = ENABLE;//扫描模式	
+	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE	;//连续转换
+	ADC_InitStructure.ADC_ExternalTrigConvEdge = ADC_ExternalTrigConvEdge_None;//禁止触发检测，使用软件触发
+	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;//右对齐	
+	ADC_InitStructure.ADC_NbrOfConversion = 1;//1个转换在规则序列中 也就是只转换规则序列1 
+	ADC_Init(ADC3, &ADC_InitStructure);//ADC初始化	
+	ADC_RegularChannelConfig(ADC3, ADC_Channel_8, 1, ADC_SampleTime_480Cycles);
+
+	ADC_DMARequestAfterLastTransferCmd(ADC3, ENABLE);//源数据变化时开启DMA传输
+
+	ADC_DMACmd(ADC3, ENABLE);//关联ADC3-DMA使能
+	ADC_Cmd(ADC3, ENABLE);//开启AD转换器	  
+	ADC_SoftwareStartConv(ADC3);	//开软件中断
+}
+#elif _NPC_VERSION_ == 2u
 void Adc3_Dma_Init(void)//ADC1 比例阀
 {
 	GPIO_InitTypeDef  GPIO_InitStructure;
@@ -520,6 +670,7 @@ void Adc3_Dma_Init(void)//ADC1 比例阀
 	ADC_SoftwareStartConv(ADC3);	//开软件中断
 }
 
+#endif
 //初始化ADC3，通道8															   
 //void  Adc3_Init(void)
 //{    
@@ -747,7 +898,9 @@ void Adc_Voltge ( void)
 	//u8 *buf;
 	 if( 1 )
 	{
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+
+#elif _NPC_VERSION_ == 2u
 		for(i=0;i<adc3_value_lens;i++)
 		{
 			sum1[i] = AD_Value[i][0];			 //adc_par[2].buf
@@ -1354,10 +1507,19 @@ s32 Get_Read_AD(u8 no)   //电压值
   float Pressure_AD;
 	Pressure_AD = Grubbs(adc_par[no].buf,100);
 	//Pressure_AD = Pressure_AD*adc_par[no].fen_ya_value;
-	if(0 == no)
+#if _NPC_VERSION_ == 1u
+	if(0==no)
+		tmp = Pressure_AD*1.4276679187314317096466093600764;
+	else if(1==no)
+		tmp = Pressure_AD*0.76400118114582622029133657040634;
+	else
+	  tmp = Pressure_AD*3.2641571391360037968675842429995;              //0~3.3V对应 0~3300
+#else
+	if(0==no)
 		tmp = Pressure_AD*1.494768310911809;
 	else
 	  tmp = Pressure_AD*3.43878954607978;              //0~3.3V对应 0~3300
+#endif
 	return tmp;
 }
 //刷新adc的值到g_adcval

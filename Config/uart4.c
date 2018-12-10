@@ -22,8 +22,9 @@
 	#include "uart4.h"
 
 #define EN_UART4_RX 1
-#define EN_UART4_485 0
-
+#if _NPC_VERSION_ == 1u
+  #define EN_UART4_485 1
+#endif
 //485模式控制
 #if EN_UART4_485
 #define UART4_TX_ENABLE		GPIO_SetBits(GPIOC,GPIO_Pin_10)	//485模式控制.0,接收;1,发送.
@@ -131,12 +132,12 @@ void UART4_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	GPIO_Init(GPIOC,&GPIO_InitStructure);
 	
 #if EN_UART4_485
-  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	GPIO_Init(GPIOC,&GPIO_InitStructure);
+	GPIO_Init(GPIOH,&GPIO_InitStructure);
 #endif
 	
    //UART4 初始化设置

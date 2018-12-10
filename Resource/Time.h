@@ -28,6 +28,9 @@ RET_STATUS TimeCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
 RET_STATUS ClockCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
 void TIM3_Init(u16 TIM_scale, u16 TIM_Period);
 CDV_INT32S ReadClock(CDV_INT08U which);
-
+CDV_INT32S ReadClock1ms(void);
+CDV_INT32S ReadClock10ms(void);
+CDV_INT32S ReadClock100ms(void);
+CDV_INT32S ReadClock1s(void);
 #endif
 

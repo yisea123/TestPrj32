@@ -218,7 +218,7 @@ void udpecho_find( CDV_INT08U uartNo)
   {
   }
 	
-	AddTxNoCrc(buffer, buffer_pointer,uartNo);
+	AddTxNoCrc((CDV_INT08U*)buffer, buffer_pointer,uartNo);
 	DELETE(buffer);
   netbuf_delete(sbuf);
 }

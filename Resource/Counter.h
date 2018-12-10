@@ -31,7 +31,7 @@ typedef struct
 	
 }COUNTER;
 
-#define COUNTER_NUM 4
+#define COUNTER_NUM 5
 
 void Counter_init(void);
 

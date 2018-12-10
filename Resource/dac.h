@@ -28,7 +28,15 @@ typedef struct
 #define TRA_SPEED_LIMIT  5000
 #define TRA1_SPEED_LIMIT 5000   //主变频器速度上限，扩大了100倍
 #define TRA2_SPEED_LIMIT 5000   //辅变频器速度上限，扩大了100倍
+
+#if _NPC_VERSION_ == 1u
+#define Dac_no   3
+#elif _NPC_VERSION_ == 2u
 #define Dac_no   4
+#elif _NPC_VERSION_ == 3u
+#define Dac_no   4
+#endif
+
 
 extern CDV_INT32S* g_dacval;
 extern DAC_STRUCT dac_par[Dac_no];

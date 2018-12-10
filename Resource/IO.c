@@ -513,8 +513,8 @@ void GPIO_Configuration(void){
 }
 
 
+#if _NPC_VERSION_ == 1u
 void CDV1_IOInit(void) {
-		
 #if defined(CDV_V1)
 	/*IO初始化*/
 	g_cdvO[0].port = ((GPIO_TypeDef *) GPIOE_BASE);
@@ -711,9 +711,10 @@ void CDV1_IOInit(void) {
 	g_dipSW[5].port = PORT_C;
 	g_dipSW[5].pin  = PIN_8;  /* Pin 8 selected    */		
 #endif
-	
 }
+#endif
 
+#if _NPC_VERSION_ == 2u
 void NPC2_IOInit(void) {
 	/**
 	*O初始化
@@ -821,9 +822,9 @@ void NPC2_IOInit(void) {
 	g_dipSW[2].pin  = PIN_10;
 	
 }
+#endif
 
-
-
+#if _NPC_VERSION_ == 3u
 void NPC2_3_IOInit(void) {
 	/**
 	*I初始化
@@ -933,7 +934,7 @@ void NPC2_3_SWInit(void) {
 	g_dipSW[2].pin  = PIN_6;
 	
 }
-
+#endif
 
 /**
   * @brief  IO初始化
@@ -1074,6 +1075,7 @@ CDV_INT08U ExOReadAll(void)
   return 1;
 }
 
+#if ENABLE_FPGA_DOWN
 /**
   * @brief  CDV 写所有扩展O
   *  
@@ -1086,7 +1088,6 @@ CDV_INT08U ExOReadAll(void)
 CDV_INT08U ExOWriteAll(void) 
 {
 	
-#if ENABLE_FPGA_DOWN
 	CDV_INT08U i,val,num;	
 	CDV_INT08U pOState[FPGA_COMMAND_LEN*2];
 	for(i = 0; i < 5; i++) {
@@ -1120,8 +1121,8 @@ CDV_INT08U ExOWriteAll(void)
 		}
 	}
   return 1;
-#endif
 }
+#endif
 /**
   * @brief  CDV O输出 34
   *  
@@ -1780,7 +1781,7 @@ u32 Read_Input_All()
 				|(s19<<5)|(s20<<4);	
 	state =  state|0x00000f;	
 	#else
-	u32 s[CDV_I_NUM];
+	u32 s[20/*CDV_I_NUM*/];
 	u32 state = 0xffffff;
 	int i;
 	for(i=0;i<CDV_I_NUM;i++)
@@ -1835,7 +1836,7 @@ u32 Read_Output_ALL()
 				|(s19<<5)|(s20<<4)|(s21<<3)|(s22<<2);
 	state = state|Alarm_flag(Alarmflag);
 	#else
-	u32 s[CDV_O_NUM];
+	u32 s[22/*CDV_O_NUM*/];
 	u32 state = 0xffffff;
 	int i;
 	for(i=0;i<CDV_O_NUM;i++)

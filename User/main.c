@@ -128,7 +128,6 @@ int main(void){
 	INTX_ENABLE();                                 //开中断	
 	
 	
-#if _NPC_VERSION_ > 1u
 #if USE_NPC_NET
 	NPC_PRINT("net init start\r\n");
 //	if(!lwip_comm_init()) 		//lwip初始化
@@ -151,7 +150,6 @@ int main(void){
 	
 	udpecho_init();
 	NPC_PRINT("net init end\r\n");
-#endif
 #endif
 	
 	OS_CRITICAL_ENTER();                           //进入临界区
@@ -273,7 +271,7 @@ void start_task(void *p_arg){
 	//Log_Write("START DOWNLOAD FPGA" , LOG_EVENT);
 	NPC_PRINT("—— sem end\r\n");
 	
-#if _NPC_VERSION_ == 2u
+#if ENABLE_FPGA_DOWN == 1u
 	FpgaRecvCtl();
 #endif
 	CDVParamInit();
@@ -361,10 +359,10 @@ void start_task(void *p_arg){
 			
 		if(debug)//退出
 		{
-			WorkerControl(1, 2);
+			WorkerControl(1, WORKER_LOOP);
 			if(debug)//退出
 			{
-				WorkerControl(0, 2);
+				WorkerControl(0, WORKER_LOOP);
 			}
 			return;
 		}
@@ -414,10 +412,10 @@ void start_task(void *p_arg){
 		(OS_ERR* )&err);
 		if(debug)//退出
 		{
-			WorkerControl(1, 2);
+			WorkerControl(1, WORKER_LOOP);
 			if(debug)//退出
 			{
-				WorkerControl(0, 2);
+				WorkerControl(0, WORKER_LOOP);
 			}
 			return;
 		}
@@ -537,7 +535,7 @@ void usart_recv_task(void *p_arg){
 					  USART_RX_QUEUE_SELF_ADD;
 			}
 		}
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 		//级联命令的接收
 		if(GetUsartRxLen())//判断当前缓存是否为0
 		{
@@ -599,7 +597,7 @@ void parse_task(void *p_arg)
 		if(HAVE_ONLINE_CMD) 
 		{
 			if(
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 				CascadeGetNativeNo() == g_olCache.buf[3] || 
 #endif
 				(KFC_IC == g_olCache.buf[0] && (0x10 > g_olCache.buf[1]||0x30 == g_olCache.buf[1])) ||
@@ -612,7 +610,7 @@ void parse_task(void *p_arg)
 				arg.arg = g_olCache.arg;
 				arg.len = g_olCache.len;
 				arg.buf =	g_olCache.buf;
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 				arg.hostid = CascadeGetNativeNo();
 #endif
 				
@@ -623,7 +621,7 @@ void parse_task(void *p_arg)
 				CmdArgDelete(&arg);
 				
 			}
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE_MAP == 1u
 			else//命令给从机
 			{
 				CMD_ARG arg;
@@ -683,7 +681,7 @@ void parse_task(void *p_arg)
 			
 
 		} 
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 		else if (g_portCmdCache.mark)//级联的解析
 		{
 				CMD_ARG arg;
@@ -772,7 +770,7 @@ u16 i=0;
 
 void cdv_refresh_task(void *p_arg){
 	
-#if _NPC_VERSION_ > 2u
+#if USE_CASCADE_MAP == 1u
 //  OS_ERR err;
 //	CDV_INT08U i;
 //	u32 ftime, stime;
@@ -974,13 +972,13 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 	
 
 		
-#if _NPC_VERSION_ > 1u
+
 #if USE_NPC_NET
   Eth_Link_query();
 //#else
 //	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);
 #endif
-#endif
+
 }
 ////定时器1的回调函数
 ////用于联机状态下的串口收

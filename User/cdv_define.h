@@ -148,7 +148,6 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define YYC_IC 0xF2
 #define ENABLE_FPGA_DOWN 0 // FPGA扩展
 
-#define MAIN_COM 4//MainUsart//
 #define TCP_COM 0xEE
 /*用作FPGA下载时的定义*/
 #define FPGA_QUE_NUM 4
@@ -156,38 +155,74 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 #define FPGA_LEN 464196 //XC6SLX16 
 //#define FPGA_LEN 801462 //XC6SLX25 
 /*定义CDV版本*/
-//#define CDV_V1 1u
-//#define CDV_V2_2//针对的时V1
+//#define CDV_V1 1u // v1 第一版
+#define CDV_V2_2//针对的时V1 第三版
+#define NPC_V2_2	//针对v2 的2.2硬件
 #define VIRTUAL_LOGIC 1u //使用需逻辑资源
+/*
 
-#define _NPC_VERSION_ 3u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
+2u版本修改
+stm32f4x7_eth_conf.h
+	#define ETH_RXBUFNB        4
+	#define ETH_TXBUFNB        2
+lwipopts.h
+	#define MEM_SIZE                4800
+	#define MEMP_NUM_TCP_SEG        50
+	#define PBUF_POOL_SIZE          7
+	#define PBUF_POOL_BUFSIZE       512
+	#define TCP_SND_BUF             (4*TCP_MSS)
+	#define TCP_SND_QUEUELEN        (2* TCP_SND_BUF/TCP_MSS)
+	#define TCP_WND                 (2*TCP_MSS)
+startup_stm32f40_41xxx.s
+	Heap_Size       EQU     0x0000C000
+
+3u版本修改
+stm32f4x7_eth_conf.h
+ #define ETH_RXBUFNB        10
+ #define ETH_TXBUFNB        10
+lwipopts.h
+	#define MEM_SIZE                10000
+	#define MEMP_NUM_TCP_SEG        110
+	#define PBUF_POOL_SIZE          20
+	#define PBUF_POOL_BUFSIZE       1520
+	#define TCP_SND_BUF             (10*TCP_MSS)
+	#define TCP_SND_QUEUELEN        (10* TCP_SND_BUF/TCP_MSS)
+	#define TCP_WND                 (6*TCP_MSS)
+startup_stm32f40_41xxx.s
+	Heap_Size       EQU     0x00000200
+*/
+#define _NPC_VERSION_ 1u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
 
 
-#if _NPC_VERSION_ == 3u
+#if _NPC_VERSION_ == 1u
+		#if defined(CDV_V1)
+			#define MAIN_COM 1//MainUsart//
+		#else
+			#define MAIN_COM 2//MainUsart//
+		#endif
+		
+		#define USE_CASCADE  1u
+//  #define ENABLE_PID 1u  // 比例阀pid调节
+#elif _NPC_VERSION_ == 2u
+
+  #define MAIN_COM 4//MainUsart//
+	
+	#define USE_NPC_NET  1u
+
+  #define USE_CASCADE  1u
+	
+	#if USE_CASCADE == 1u
+	
+		#define USE_CASCADE_MAP 0u
+		
+	#endif
+
+#elif _NPC_VERSION_ == 3u
+  
+  #define MAIN_COM 4//MainUsart//
 
 	#undef ENABLE_FPGA_DOWN
 	
-#endif
-
-
-#if _NPC_VERSION_ < 2u
-
-  #define ENABLE_PID 1u  // 比例阀pid调节
-	
-#endif
-
-//资源使用定义
-#define USE_NPC_NET  1u
-
-#if USE_NPC_NET == 1u
-
-	#define USE_CENTRALIZEDCONTROL 1u
-	
-#endif
-
-/*配置开关*/
-#if _NPC_VERSION_ >= 3u
-
 	#define USE_PVD 0u // PVD 掉电保存
 
 	#if USE_PVD == 0u
@@ -208,7 +243,54 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
 	
 	#define USE_COUNTER 1u //使用计数器 
 	
+	#define USE_NPC_NET  1u
+	
+  #define USE_CASCADE  1u
+	
+	#if USE_CASCADE == 1u
+	
+		#define USE_CASCADE_MAP 1u
+		
+	#endif
+
 #endif
+
+
+////资源使用定义
+//#define USE_NPC_NET  1u
+
+#if USE_NPC_NET == 1u
+
+	#define USE_CENTRALIZEDCONTROL 1u
+	
+#endif
+
+///*配置开关*/
+//#if _NPC_VERSION_ >= 3u
+
+//	#undef ENABLE_FPGA_DOWN
+//	
+//	#define USE_PVD 0u // PVD 掉电保存
+
+//	#if USE_PVD == 0u
+//	
+//		#define USE_EXTI_POWER_OFF 1u // 掉电中断保存
+//		
+//		#if USE_EXTI_POWER_OFF == 1u
+//		
+//			#define USE_FLASH_BAK 1u // flash 备份
+//			
+//		#endif
+//		
+//	#endif
+
+//	#define USE_LOWPOWER 0u // 低功耗
+//	
+//	#define USE_MEMMNG 1u  // 外部sram管理
+//	
+//	#define USE_COUNTER 1u //使用计数器 
+//	
+//#endif
 
 #define USE_OVERLAP 1u // 使用异步
 /*LED定义*/

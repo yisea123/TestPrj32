@@ -196,7 +196,7 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 			ASSERT(JumpCmd < ((DEBUG_SCRIPT*)(arg->ptrWorker))->cmdNum);
 
 			//Mem_Read(Calcu,Addr+11,ExpLen);
-			Mem_Read_Ptr(&Calcu,Addr+11);
+			Mem_Read_Ptr((void**)(&Calcu),Addr+11);
 
 			if(Result(Calcu,ExpLen,arg)){
 				

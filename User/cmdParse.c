@@ -58,9 +58,12 @@ RET_STATUS NPC1Parse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 RET_STATUS NPC2Parse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 {
 	RET_STATUS ret       = OPT_FAILURE;	
-#if _NPC_VERSION_ > 1u
-	CDV_INT08U native    = CascadeGetNativeNo(); //本机号
+
+	CDV_INT08U native  
+#if USE_CASCADE == 1u  
+	= CascadeGetNativeNo()
 #endif
+	; //本机号
 //	CDV_INT08U devAddr   = buf[1];
 //	CDV_INT08U res       = buf[2];
 //	/*保留字段*/
@@ -288,7 +291,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 					break;
 				case 0x01:                                               /*获取NPC信息*/
 		      //CascadeCombine(0x00);
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
      			CascadeTableSend(buf, len, arg);
 #endif
 					break;
@@ -311,7 +314,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				case 0x07:
 					break;
 				case 0x30:
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 				  NPC_NETParse(buf + 2 ,len - 2, arg);
 #endif
 					break;
@@ -328,7 +331,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 				  AlarmQuery( buf + 4 ,len - 4, arg); 
 				  break;
 				case 0x30:
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 				  NPC_NETParse(buf + 2 ,len - 2, arg);
 #endif
 					break;

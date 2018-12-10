@@ -51,10 +51,10 @@ void SPI2_Configuration(uint16_t baudRatePrescaler)
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
-	
+#if  USE_CASCADE == 1u
 	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_15;//主端级联片选
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
-	
+#endif
 //	GPIO_InitStructure.GPIO_Pin =  GPIO_Pin_12;//FPGA1控制片选
 //	GPIO_Init(GPIOF, &GPIO_InitStructure);
 //	

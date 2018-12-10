@@ -29,6 +29,7 @@
 
 void ClearRxBuf(void);
 void DoRxCmd(void);
+void SPI3_ReSend(void);
 
 RET_STATUS SPI3_Send(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
 void SPI3_Configuration(uint16_t baudRatePrescaler);

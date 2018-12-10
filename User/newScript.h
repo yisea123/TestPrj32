@@ -59,6 +59,7 @@ extern LINE_ADDR_INFO g_line;
 CDV_INT32U GetWorkerAddr(const CDV_INT08U workerNo);
 CDV_INT32U GetConfigAddr(const CDV_INT08U workerNo);
 CDV_INT32U GetResAddr(const CDV_INT08U resType);
+CDV_INT32U GetResAddr0(const CDV_INT08U resType, const CDV_INT08U resNo, const CDV_INT08U resPar, const CDV_INT08U ctrl);
 //CDV_INT32U GetResAddr(const CDV_INT08U resType, const CDV_INT08U resNo, const CDV_INT08U resPar, const CDV_INT08U ctrl);
 RET_STATUS GetLineInfo(const CDV_INT08U no);
 

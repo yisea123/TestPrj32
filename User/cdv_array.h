@@ -63,5 +63,6 @@ CDV_LIST* LIST_Insert(CDV_LIST *elm, void *data , /*size_t size,*/ uint32_t tag)
 CDV_LIST* LIST_Remove(CDV_LIST *elm);
 void LIST_RemoveAll(CDV_LIST *elm);
 
+void LIST_Test(void) ;
 #endif
 

@@ -3,7 +3,26 @@
 
 #include "cdv_include.h"   
 
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+#define	DAC7512_DIN_ENABLE     GPIO_SetBits(GPIOB,GPIO_Pin_5)     //SPI1_MOSI
+#define DAC7512_DIN_DISABLE	    GPIO_ResetBits(GPIOB,GPIO_Pin_5) 
+
+#define	DAC7512_CCLK_ENABLE       GPIO_SetBits(GPIOG,GPIO_Pin_1) //SPI0_SLCK
+#define	DAC7512_CCLK_DISABLE        GPIO_ResetBits(GPIOG,GPIO_Pin_1)
+
+#define	DAC7512_SYNC_ENABLE    GPIO_SetBits(GPIOE,GPIO_Pin_8) //FPGA_PR_B
+#define	DAC7512_SYNC_DISABLE    GPIO_ResetBits(GPIOE,GPIO_Pin_8)
+
+#define	DAC7512_DIN_ENABLE1     	     //DAC7512_DIN2
+#define DAC7512_DIN_DISABLE1	    
+
+#define	DAC7512_CCLK_ENABLE1       		//DAC7512_CCLK2
+#define	DAC7512_CCLK_DISABLE1     
+
+#define	DAC7512_SYNC_ENABLE1    	 		//DAC_SYNC2
+#define	DAC7512_SYNC_DISABLE1    	
+
+#elif _NPC_VERSION_ == 2u
 #define	DAC7512_DIN_ENABLE     GPIO_SetBits(GPIOE,GPIO_Pin_11)     //SPI1_MOSI
 #define DAC7512_DIN_DISABLE	    GPIO_ResetBits(GPIOE,GPIO_Pin_11) 
 

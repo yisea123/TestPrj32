@@ -201,7 +201,7 @@ RET_STATUS WorkerCmdParse(DEBUG_SCRIPT *debugWorker) {
 		ret = CmdParse (debugWorker->buf , debugWorker->len , arg);
 		//ret =  ResParse (debugWorker->buf , debugWorker->len ,(void* )&debugWorker->which, 0, &arg);
 	}
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 	else
 	{
 		ret = TFUsartCmdParse (debugWorker->buf , debugWorker->len , arg);
@@ -638,6 +638,7 @@ RET_STATUS ManagerControl(const WORKER_STATUS status) {
 		}
 		
 	}
+	return OPT_SUCCESS;
 }
 
 /** @brief  ¹¤ÈË×´Ì¬²éÑ¯

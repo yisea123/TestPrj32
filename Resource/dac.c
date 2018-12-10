@@ -122,6 +122,12 @@ void Dac_set_Voltge( CDV_INT08U dac_num, float vol)
 		{
 			 Dac2_Set_Vol(temp);
 		}	
+#if _NPC_VERSION_ == 1u
+		else if( dac_num == 0X02 )
+		{
+			 WriteToDAC7512(temp);
+		}	
+#else
 		else if( dac_num == 0X02 )
 		{
 			 WriteToDA2C_7512(temp);
@@ -130,7 +136,7 @@ void Dac_set_Voltge( CDV_INT08U dac_num, float vol)
 		{
 			 WriteToDAC7512(temp);
 		}
-		
+#endif
 		else
 		{
 			;

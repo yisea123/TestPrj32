@@ -3,9 +3,39 @@
 u32 data ;
 
 void LED_Init(void)
-{    	 
+{
 	
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+		#if defined(CDV_V1)
+	
+  GPIO_InitTypeDef  GPIO_InitStructure;
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);//使能GPIOF时钟
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 |GPIO_Pin_11| GPIO_Pin_13;          //调试指示灯对应IO口
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;       //普通输出模式
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      //推挽输出
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;  //100MHz
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
+  GPIO_Init(GPIOD, &GPIO_InitStructure);              //初始化H
+	
+		#else
+	
+  GPIO_InitTypeDef  GPIO_InitStructure;
+  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH|RCC_AHB1Periph_GPIOB, ENABLE);//使能GPIOF时钟
+
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12 ;          //调试指示灯对应IO口
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;       //普通输出模式
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;      //推挽输出
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;  //100MHz
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
+  GPIO_Init(GPIOB, &GPIO_InitStructure);              //初始化H
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11 | GPIO_Pin_12;    //led2|LED状态指示灯配置
+	GPIO_Init(GPIOH, &GPIO_InitStructure);                                             //初始化D
+	 
+	#endif
+	
+#elif _NPC_VERSION_ == 2u
   GPIO_InitTypeDef  GPIO_InitStructure;
   RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOH|RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOG, ENABLE);//使能GPIOF时钟
 

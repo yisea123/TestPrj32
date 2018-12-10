@@ -68,10 +68,10 @@ u16_t ADC_Handler(int iIndex, char *pcInsert, int iInsertLen)
      /* configure ADC if not yet configured */
      
      /* get ADC conversion value */
-     ADCVal = Grubbs(adc3_value,100);
+     ADCVal = AdcRead(0);//Grubbs(adc3_value,100);
      
      /* convert to Voltage,  step = 0.8 mV */
-     ADCVal = (uint32_t)(ADCVal * 3300/4096);  
+    // ADCVal = (uint32_t)(ADCVal * 3300/4096);  
      //TEST
 		 ADCVal = VarGet(1);
      /* get digits to display */

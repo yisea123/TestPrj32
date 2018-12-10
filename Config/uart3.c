@@ -26,11 +26,16 @@
 
 //485模式控制
 #if EN_USART3_485
+#if _NPC_VERSION_ == 1u
+#define USART3_TX_ENABLE		GPIO_SetBits(GPIOA,GPIO_Pin_3)	//485模式控制.0,接收;1,发送.
+#define USART3_TX_DISABLE		GPIO_ResetBits(GPIOA,GPIO_Pin_3)	//485模式控制.0,接收;1,发送.
+
+#else
+
 #define USART3_TX_ENABLE		GPIO_SetBits(GPIOF,GPIO_Pin_0)	//485模式控制.0,接收;1,发送.
 #define USART3_TX_DISABLE		GPIO_ResetBits(GPIOF,GPIO_Pin_0)	//485模式控制.0,接收;1,发送.
-#else
-#define USART3_TX_ENABLE
-#define USART3_TX_DISABLE
+
+#endif
 #endif
 
 #if 3 == CASCADE_USART
@@ -149,6 +154,68 @@ void USART3_IRQHandler(void)
   *USART3设置
   */
 void USART3_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
+#if _NPC_VERSION_ == 1u 
+  GPIO_InitTypeDef GPIO_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+	/*usart1配置*/
+	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOA,ENABLE); //使能GPIOA时钟
+	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3,ENABLE);//使能USART3时钟
+	
+  //串口3引脚复用映射
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource10,GPIO_AF_USART3); //GPIOB10复用为USART3
+	GPIO_PinAFConfig(GPIOB,GPIO_PinSource11,GPIO_AF_USART3); //GPIOB11复用为USART3
+	
+	//USART3    
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10 | GPIO_Pin_11; //GPIOA2与GPIOA3
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;//复用功能
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;	//速度100MHz
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP; //推挽复用输出
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; //上拉
+	GPIO_Init(GPIOB,&GPIO_InitStructure); //初始化PA2，PA3
+	
+#if EN_USART3_485
+  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3; //GPIOA3
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//输出
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;	//速度100MHz
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP; //推挽输出
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP; //上拉
+	GPIO_Init(GPIOA,&GPIO_InitStructure); //初始化PG8
+#endif
+	
+   //USART3 初始化设置
+	USART_InitStructure.USART_BaudRate = bound;//波特率设置
+	USART_InitStructure.USART_WordLength = wordLength;//字长为8位数据格式
+	USART_InitStructure.USART_StopBits = stopBits;//一个停止位
+	USART_InitStructure.USART_Parity = parity;//无奇偶校验位
+	
+//	USART_InitStructure.USART_BaudRate = bound;//波特率设置
+//	USART_InitStructure.USART_WordLength = USART_WordLength_8b;//字长为8位数据格式
+//	USART_InitStructure.USART_StopBits = USART_StopBits_1;//一个停止位
+//	USART_InitStructure.USART_Parity = USART_Parity_No;//无奇偶校验位
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;//无硬件数据流控制
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;	//收发模式
+	USART_Init(USART3, &USART_InitStructure); //初始化串口1
+	
+	USART_Cmd(USART3, ENABLE);  //使能串口1 
+	
+	USART_ClearFlag(USART3, USART_FLAG_TC);
+	//使能串口读
+#if EN_USART3_RX	
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);//开启相关中断
+
+	//Usart1 NVIC 配置
+	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;//串口1中断通道
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
+
+#endif
+  USART3_TX_DISABLE;
+  DMA_Config(DMA1_Stream3,DMA_Channel_4,(u32)&USART3->DR,(u32)0,0);
+	USART_DMACmd(USART3,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送 
+#else
   GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
@@ -209,7 +276,7 @@ void USART3_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   USART3_TX_DISABLE;
   DMA_Config(DMA1_Stream3,DMA_Channel_4,(u32)&USART3->DR,(u32)0,0);
 	USART_DMACmd(USART3,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送  
-
+#endif
 }
 /**
   *USART3发送

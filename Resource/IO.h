@@ -189,7 +189,9 @@ CDV_INT08U OBitRead(CDV_INT32U no);
 CDV_INT08U IBitRead(CDV_INT32U no);
 CDV_INT08U ExOReadAll(void);
 CDV_INT08U ExIReadAll(void);
+#if ENABLE_FPGA_DOWN
 CDV_INT08U ExOWriteAll(void);
+#endif
 void IReadAll(void);
 void IReadAllFilter(int readCnt, int delayUs);
 void OReadAll(void);

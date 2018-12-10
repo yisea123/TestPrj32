@@ -26,7 +26,11 @@
 #define EN_USART2_485 0
 
 //485模式控制
-#if EN_USART1_485
+#if _NPC_VERSION_ == 1u
+	#undef EN_USART2_485
+#endif
+
+#if EN_USART2_485
 #define USART2_TX_ENABLE		GPIO_SetBits(GPIOD,GPIO_Pin_5)	//485模式控制.0,接收;1,发送.
 #define USART2_TX_DISABLE		GPIO_ResetBits(GPIOD,GPIO_Pin_5)	//485模式控制.0,接收;1,发送.
 #else

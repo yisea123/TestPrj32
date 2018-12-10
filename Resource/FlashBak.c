@@ -174,6 +174,8 @@ CDV_INT32S FlashBak_BackUp(void) {
 	  BAK_WRITE((CDV_INT08U *)&flag, GetFlashBakAddr(next_bak), 4);
 	
 	FlashBak_Lock();
+	
+	return 0;
 }
 
 #endif

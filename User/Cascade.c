@@ -21,6 +21,18 @@
 	
 	#include "Cascade.h"
 	
+  //级联资源表——版本号
+	
+#if _NPC_VERSION_ == 1u
+	CDV_INT08U version[] = {0/*id号*/, 2/*软件大版本*/, 1/*硬件大版本*/, 1/*硬件驱动版本*/, 18/*迭代小版本*/};
+#elif _NPC_VERSION_ == 2u
+	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 2/*硬件驱动版本*/, 18/*迭代小版本*/};
+#elif _NPC_VERSION_ == 3u
+	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 6/*迭代小版本*/};
+#endif
+
+
+	
   //开启主级联口
 	#define	CASCADE_EN 			CASCADE_CS_EN;FPGA1_CS_DS;FPGA2_CS_DS;FLASH_CS_DS;
 	//关闭主级联口
@@ -28,8 +40,6 @@
 	//主级联口发数据
 	#define CASCADE_ReadWriteByte(a)				SPIx_ReadWriteByte(SPI2,(a))
 
-  //级联资源表——版本号
-  CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 6/*迭代小版本*/};
 	//从机资源表
 	CDV_INT08U *slaveTable = NULL;
 	CDV_INT08U *slaveTable2 = NULL;
@@ -779,7 +789,7 @@ CDV_INT08U ClearPortCmdCache(void) {
 		
 		CDV_INT16U crc;
 		
-		crc = getCRC16(pBuf, len-2); 
+		crc = getCRC16((CDV_INT08U*)pBuf, len-2); 
 		if((pBuf[len-1] == ((crc >> 8) & 0xff)) && (pBuf[len-2] == (crc & 0xff)))//crc chk
 		{
 		}
@@ -1796,7 +1806,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 				  if(CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
 						CDV_INT08U *tmp_coil_val = NULL;
 						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
-						CoilToCoil(g_modbusCoil.coilCh, map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
+						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
 						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
 						DELETE(tmp_coil_val);
 					}
@@ -1847,7 +1857,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 				  if(CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
 						CDV_INT08U *tmp_coil_val = NULL;
 						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
-						CoilToCoil(g_modbusCoil.coilCh, map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
+						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
 						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
 						DELETE(tmp_coil_val);
 					}
@@ -2340,3 +2350,4 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 		gtime = CalcCount(gendTime , gstartTime);
 		return ret;
 	}
+

@@ -1025,7 +1025,7 @@ RET_STATUS LineInit(void) {
 		return OPT_FAILURE;
 	}
 	
-#if _NPC_VERSION_ > 2u
+#if USE_CASCADE_MAP == 1u
 	CascadeModbus_MapInit();
 #endif
 	Mem_ReadLine();

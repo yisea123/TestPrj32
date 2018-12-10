@@ -26,10 +26,7 @@ CDV_INT32S Time_100ms = 0;
 CDV_INT32S Time_1s = 0;
 
 
-CDV_INT32S ReadClock1ms(void);
-CDV_INT32S ReadClock10ms(void);
-CDV_INT32S ReadClock100ms(void);
-CDV_INT32S ReadClock1s(void);
+
 
 
 RET_STATUS TimeCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
@@ -136,7 +133,6 @@ RET_STATUS ClockCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 		case 0xFF:
 			valNo = ReadClock(no);
 		  ResRequest(arg->buf, arg->len, (CDV_INT08U*)(&valNo), 4, arg, RC_CRC);
-			break;
 			break;
 		default:
 			break;

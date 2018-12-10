@@ -118,6 +118,7 @@ void memmng_memset(void *p, u8 c, u32 count)
   */
 void memmng_init(void)
 {
+	FSMC_SRAM_Init();
 	int size = sizeof(mem_mapbase);
 	memmng_memset(mem_mapbase, 0, size);
 	map_start_cache = 0;

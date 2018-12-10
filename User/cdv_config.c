@@ -47,7 +47,11 @@ void PeriphDriverInit(void)
 #endif
 
 
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+	ADC1_DMA_Init();
+	Adc2_Dma_Init();
+	Adc3_Dma_Init();	
+#elif _NPC_VERSION_ == 2u
   ADC1_DMA_Init();
 	Adc2_Dma_Init2();
 	Adc3_Dma_Init();	
@@ -84,9 +88,9 @@ void PeriphDriverInit(void)
 
   mymem_init(SRAMCCM); 	//³õÊ¼»¯CCMÄÚ´æ³Ø
   USART_Configuration();
-#if _NPC_VERSION_ > 2u
-	FSMC_SRAM_Init();
+
 #if USE_MEMMNG == 1u
+	
 	memmng_init();
 #endif
 #if USE_COUNTER == 1u
@@ -99,7 +103,6 @@ void PeriphDriverInit(void)
 //#endif
 
 
-#endif
 }
 /** @brief  
   * @param  
@@ -353,7 +356,7 @@ void CDVParamInit(void) {
 	  FlashToVal(0, CDV_VAR_NUM);
 #endif
 	}
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 		GetTable();
 #endif
 }

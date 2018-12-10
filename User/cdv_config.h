@@ -21,9 +21,6 @@
 #define  _CDV_CONFIG_
 
 
-
-
-
 #include "cdv_include.h"
 
 extern CDV_INT08S g_dipCtrlWorker;//µÙµÁª÷∏¥”√

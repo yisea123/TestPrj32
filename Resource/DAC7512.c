@@ -13,7 +13,42 @@ void delay_ns(u32 cnt)
 void DAC7512_Pin_Config(void)
 {
 //	Fpga1_Config_Init();
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+	  GPIO_InitTypeDef  GPIO_InitStructure;
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOE|RCC_AHB1Periph_GPIOG, ENABLE);//使能相关时钟
+
+	  #ifdef CDV_V2_2
+      GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
+			GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+			GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+			GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+			GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);
+	    
+	    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;
+			GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+			GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+			GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+			GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+			GPIO_Init(GPIOG, &GPIO_InitStructure); 
+    #else	
+			GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_3 | GPIO_Pin_4;
+			GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
+			GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+			GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
+			GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+			GPIO_Init(GPIOB, &GPIO_InitStructure);	
+	  #endif
+		
+	  GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//设置类型
+		GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//
+		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;//设置速度
+		GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;//设置上拉下拉寄存器
+		GPIO_Init(GPIOE, &GPIO_InitStructure);
+	
+	
+#elif _NPC_VERSION_ == 2u
 	  GPIO_InitTypeDef  GPIO_InitStructure;
     RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB|RCC_AHB1Periph_GPIOE|RCC_AHB1Periph_GPIOH, ENABLE);//使能相关时钟
 	  

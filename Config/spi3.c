@@ -46,7 +46,7 @@ void DoRxCmd(void) {
 	for(i = 0; i < Rx_Idx; i++) {
 		if(RxBuffer[i] != 0xFF) {
 			//Cascade_Slave_Write("you can!" , 8);
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE== 1u
 			CascadeSlaveParse2((char*)RxBuffer, Rx_Idx);
 #endif
 			break;
@@ -179,7 +179,7 @@ RET_STATUS SPI3_Send(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
   * @note   写入发送缓存，具体发送在spi中断里
   *         缓存中的第一个字节为后面的命令长度
   */
-void SPI3_ReSend(){  
+void SPI3_ReSend(void){  
 	Tx_Idx = 0;
 }
 

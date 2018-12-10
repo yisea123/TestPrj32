@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////// 
  #define ETH_VISION 2u
  
-#if _NPC_VERSION_ > 1u
+//#if USE_NPC_NET == 1u
 
 #define LAN8720_PHY_ADDRESS  	0x00				//LAN8720 PHYÐ¾Æ¬µØÖ·.
 //#define LAN8720_RST 		   	PDout(3) 			//LAN8720¸´Î»Òý½Å	  
@@ -48,6 +48,6 @@ void Eth_Link_query( void );
 #include "netif.h"
 void ETH_link_callback(struct netif *netif);
 
-#endif
+//#endif
 #endif 
 

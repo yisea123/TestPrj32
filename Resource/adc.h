@@ -5,13 +5,22 @@
 #define BUFFX_LEN 200
 #define BUFFV_LEN 200
 
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+#define adc1_value_lens   100
+#define adc2_value_lens   100
+#define adc3_value_lens   100
+#define adc4_value_lens   100
+#define  N  1
+#define  M  1
+#define  Adc_no  3
+#elif _NPC_VERSION_ == 2u
 #define adc1_value_lens   100
 #define adc2_value_lens   100
 #define adc3_value_lens   100
 #define adc4_value_lens   100
 #define  N  100
 #define  M  2
+#define  Adc_no  4
 #elif _NPC_VERSION_ == 3u
 #define adc1_value_lens   1
 #define adc2_value_lens   1
@@ -19,8 +28,8 @@
 #define adc4_value_lens   1
 #define  N  100
 #define  M  4
-#endif
 #define  Adc_no  4
+#endif
 
 typedef struct 
 {	
@@ -32,7 +41,7 @@ typedef struct
 	CDV_INT32U Zero2;   //临时零位值 B
 	CDV_INT32U Ad_Coeff1;  //系数1
 	CDV_INT32U Ad_Coeff2;  //系数2
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u ||_NPC_VERSION_ == 2u
 	u16 buf[adc1_value_lens]; //	
 #elif _NPC_VERSION_ == 3u
 	u16 *buf; //	
@@ -42,9 +51,9 @@ typedef struct
 extern ADC_STRUCT adc_par[Adc_no];
 
 extern CDV_INT32S* g_adcval;
-extern u16 adc1_value[adc1_value_lens];
-extern u16 adc2_value[adc2_value_lens];
-extern u16 adc3_value[adc3_value_lens];
+//extern u16 adc1_value[adc1_value_lens];
+//extern u16 adc2_value[adc2_value_lens];
+//extern u16 adc3_value[adc3_value_lens];
  							   
 void Adc_Init(void); 				//ADC通道初始化
 u16  Get_Adc(u8 ch); 				//获得某个通道值 

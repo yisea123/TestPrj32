@@ -67,7 +67,7 @@ int RPressureCnt = 0;
 void CmdArgInit(CMD_ARG *arg)
 {
 	INIT_CLEAR(*arg);
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 	arg->hostid = CascadeGetNativeNo();
 #endif
 	arg->uart = 0;//Õ¼ÓÃ´®¿Ú

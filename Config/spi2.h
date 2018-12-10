@@ -22,7 +22,19 @@
 
 
 #include "cdv_include.h"
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+#define	CASCADE_CS_EN 		
+	#define	CASCADE_CS_DS 		
+	#define	FPGA1_CS_EN 			
+	#define	FPGA1_CS_DS 			
+	#define	FPGA2_CS_EN 			
+	#define	FPGA2_CS_DS 			
+	#define	FLASH_CS_EN 			GPIO_ResetBits(GPIOI,GPIO_Pin_0)  //选中FLASH
+	#define	FLASH_CS_DS 			GPIO_SetBits(GPIOI,GPIO_Pin_0)  //关闭FLASH					 
+	#define SPEED_FLASH       SPIx_SetSpeed(SPI2, SPI_BaudRatePrescaler_2)
+	#define SPEED_FPGA        SPIx_SetSpeed(SPI2, SPI_BaudRatePrescaler_2)
+	#define SPEED_CASCADE     SPIx_SetSpeed(SPI2, SPI_BaudRatePrescaler_2)
+#elif _NPC_VERSION_ == 2u
 	#define	CASCADE_CS_EN 		GPIO_ResetBits(GPIOD,GPIO_Pin_15)  //选中级联
 	#define	CASCADE_CS_DS 		GPIO_SetBits(GPIOD,GPIO_Pin_15)  //关闭级联				 
 	//#define	FPGA1_CS_EN 			GPIO_ResetBits(GPIOF,GPIO_Pin_12)  //选中FPGA1

@@ -256,7 +256,7 @@ void CDVInfoSend(CDV_INT08U uartNo) {
 	,(CDV_INT08U*)cdv_error[g_cdvStat] 
 	);
 	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
-#if _NPC_VERSION_ > 1u
+#if USE_CASCADE == 1u
 	//if(slaveTableLen)
 	{
 		sprintf(tmp , "本机id:%d\r\n" 
@@ -420,10 +420,12 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, voi
 			CDVUsartSend(uartNo);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"LINE START",10)){
-			AllWorkerCtrl(WORKER_LOOP);
+			//AllWorkerCtrl(WORKER_LOOP);
+			ManagerControl(WORKER_ONCE);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"LINE STOP",9)){
-			AllWorkerCtrl(WORKER_STOP);
+			//AllWorkerCtrl(WORKER_STOP);
+			ManagerControl(WORKER_STOP);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"CDV RESET",9)){
 			ResetCdv();
@@ -528,8 +530,10 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, voi
 				}
 			}
 		  AddTxNoCrc("FAILURE", 7, uartNo);
+#if USE_NPC_NET == 1u
 		} else if (0 == strncmp((CDV_INT08C*)rxBuf, "NPC FIND", 8)) {
 			udpecho_find(uartNo);
+#endif
 		} else {///回复开发层
 		  //OnlineRequest(rxBuf[1], 0xFF, 0xFF, uartNo);
 	  }

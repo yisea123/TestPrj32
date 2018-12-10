@@ -33,6 +33,10 @@
 #endif
 
 //485模式控制
+#if _NPC_VERSION_ == 1u
+	#undef EN_USART6_485
+#endif
+
 #if EN_USART6_485
 	#if _NPC_VERSION_ == 2u
 		#define USART6_TX_ENABLE		GPIO_SetBits(GPIOC,GPIO_Pin_8)	//485模式控制.0,接收;1,发送.

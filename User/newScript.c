@@ -156,7 +156,7 @@ CDV_INT32U GetResAddr(const CDV_INT08U resType){
 	else
 		return g_line.resAddr + shift-4;//返回种类脚本大小地址
 	
-	return 0;
+//	return 0;
 	
 }
 /**
@@ -320,7 +320,7 @@ RET_STATUS GetLineInfo(const CDV_INT08U no) {
 	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线资源脚本大小
 	shift += 4;
 	shift += size;
-#if _NPC_VERSION_ > 2u
+#if USE_CASCADE_MAP == 1u
 	lineMapAddr = __LINE_ADDR + shift;//得到生产线映射地址
 	SPI_Flash_Read((CDV_INT08U*)&size, __LINE_ADDR + shift, 4);//读取生产线映射脚本大小
 	shift += 4;
@@ -362,7 +362,7 @@ RET_STATUS GetLineInfo(const CDV_INT08U no) {
 		g_line.resAddr = lineResAddr;
 		g_line.workAddr = lineWorkAddr;
 		g_line.AlarmAddr = lineAlarmAddr;
-#if _NPC_VERSION_ > 2u
+#if USE_CASCADE_MAP == 1u
 		g_line.mapAddr = lineMapAddr;
 #endif
 		g_line.no = no;

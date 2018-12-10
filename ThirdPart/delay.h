@@ -39,7 +39,9 @@ u32 CalcTimeMS(u32 endTick , u32 startTick);
 void StartCdvTime(u8 no);
 u32 GetCdvTimeTick(void);
 u32 EndCdvTime(u8 no);
+u32 CalcCount(u32 endCount , u32 startCount);
 void DelayMS(u32 num);
+void DelayTick(u32 num);
 //extern u32 Sys_time_1ms;	//系统计时1ms自增
 //extern u32 Sys_time_50ms;	//系统计时1s自增
 extern u8 ValveAdjust_Flag;

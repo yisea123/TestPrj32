@@ -28,21 +28,35 @@
 	#include "uart6.h"
 
 /*USART设置*/
-
+void USART_ConfigNull(u32 bound, u16 wordLength, u16 stopBits, u16 parity){
+	
+}
+//TODO 不能用null，用空函数
 void (*p_UartSet[])(u32 , u16 , u16 , u16) =
 {
-	USART1_Configuration,
 	
-#if _NPC_VERSION_ == 2u
+#if _NPC_VERSION_ == 1u
+	USART1_Configuration,
 	USART2_Configuration,
 	USART3_Configuration,
-#elif _NPC_VERSION_ == 3u
-	NULL,
-	NULL,
-#endif
+	UART4_Configuration,
+	UART5_Configuration,
+	USART_ConfigNull,
+#elif _NPC_VERSION_ == 2u
+	USART1_Configuration,
+	USART2_Configuration,
+	USART3_Configuration,
 	UART4_Configuration,
 	UART5_Configuration,
 	USART6_Configuration,
+#elif _NPC_VERSION_ == 3u
+	USART1_Configuration,
+	USART_ConfigNull,
+	USART_ConfigNull,
+	UART4_Configuration,
+	UART5_Configuration,
+	USART6_Configuration,
+#endif
 };
 
 /** @brief  校正串口配置到stm32专用配置
@@ -173,7 +187,7 @@ void USART_Configuration(void){
 			if(OPT_SUCCESS == CorrectComParam(&comPar, i))
 				p_UartSet[i](comPar.bound, comPar.wordLength, comPar.stopBits, comPar.parity);
 			else
-				p_UartSet[i](57600, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+				p_UartSet[i](115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 		}
 	}
  // USART1_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
@@ -213,19 +227,32 @@ void USARTSet(u32 bound, u16 wordLength, u16 stopBits, u16 parity, u8 no) {
 }
 
 
+void USART_SendNull(u8 *buf,u16 len){}
+
 void (*p_UartSend[])(u8* ,u16) =
 {
+#if _NPC_VERSION_ ==1u
 	USART1_Send,
-#if _NPC_VERSION_ == 2u
 	USART2_Send,
 	USART3_Send,
-#elif _NPC_VERSION_ == 3u
-	NULL,
-	NULL,
-#endif
+	UART4_Send,
+	UART5_Send,
+	USART_SendNull,
+#elif _NPC_VERSION_ == 2u
+	USART1_Send,
+	USART2_Send,
+	USART3_Send,
 	UART4_Send,
 	UART5_Send,
 	USART6_Send,
+#elif _NPC_VERSION_ == 3u
+	USART1_Send,
+	USART_SendNull,
+	USART_SendNull,
+	UART4_Send,
+	UART5_Send,
+	USART6_Send,
+#endif
 };
 
 	
@@ -245,20 +272,31 @@ void USARTSend(u8 *buf ,u16 len ,u8 no) {
 	p_UartSend[no-1](buf ,len);
 	
 }
-
+void USART_TRNull(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen){}
 void (*p_UartTR[])(u8 *,u16  ,u8*  ,u8 ,u8* ) =
 {
+#if _NPC_VERSION_ == 1u
 	USART1_TR,
-#if _NPC_VERSION_ == 2u
 	USART2_TR,
 	USART3_TR,
-#elif _NPC_VERSION_ == 3u
-	NULL,
-	NULL,
-#endif
+	UART4_TR,
+	UART5_TR,
+	USART_TRNull,
+#elif _NPC_VERSION_ == 2u
+	USART1_TR,
+	USART2_TR,
+	USART3_TR,
 	UART4_TR,
 	UART5_TR,
 	USART6_TR,
+#elif _NPC_VERSION_ == 3u
+	USART1_TR,
+	USART_TRNull,
+	USART_TRNull,
+	UART4_TR,
+	UART5_TR,
+	USART6_TR,
+#endif
 };
 
 	

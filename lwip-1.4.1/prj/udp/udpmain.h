@@ -20,12 +20,12 @@
 ////////////////////////////////////////////////////////////////////////////////// 	   
 
 
-#if _NPC_VERSION_ > 1u
+//#if USE_NPC_NET == 1u
 extern u8_t closeTcp;
 u8 udp_init(void);			//TCP服务器初始化(创建TCP服务器线程)
 u8 udpecho_init(void);
 //RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
 void udpecho_find( CDV_INT08U uartNo);
-#endif
+//#endif
 #endif
 

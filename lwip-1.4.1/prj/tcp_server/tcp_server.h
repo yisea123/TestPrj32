@@ -23,7 +23,7 @@
 //无
 ////////////////////////////////////////////////////////////////////////////////// 	   
 
-#if _NPC_VERSION_ > 1u
+//#if  USE_NPC_NET == 1u
 
 #define ENABLE_MULTI_TCP    1u
  
@@ -37,10 +37,11 @@
 #if ENABLE_MULTI_TCP
 extern CDV_LIST *g_connected;
 #endif
-
+void EthInfoSend(CDV_INT08U uartNo);
 u8 tcp_server_init(void);			//TCP服务器初始化(创建TCP服务器线程)
 RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CMD_ARG *arg);
 RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
-#endif
+RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_INT08U* exBuf, CDV_INT16U exLen);
+//#endif
 #endif
 
