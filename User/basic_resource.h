@@ -40,7 +40,7 @@
 		#define LED1 PDout(9)	  // LED1 运行指示
 		#define LED2 PDout(11)	// LED2	告警指示
 		#define LED3 PDout(13)	// LED3 故障指示
-		#else
+	#else
 		#define LED1 PHout(12)	// LED1 运行指示
 		#define LED2 PBout(12)	// LED2	告警指示
 		#define LED3 PHout(11)	// LED3 故障指示

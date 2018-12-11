@@ -33,7 +33,7 @@
 #define ReadWorker(no)  WorkerRead(no)
 #define STACK_SIZE		  20	//max size of the stack
 #define STACK_INCREMENT	10	//realloc size
-
+//float模式有效位数7位，2^23
 typedef struct FStack  //stack of int
 {
 	float* base;
@@ -180,7 +180,7 @@ void Push(IStack* s, int e)
 	(s->top)++;
 }
 
-float GetTop(IStack* s)
+int GetTop(IStack* s)
 {
 	int e;
 	if (s->top == s->base)
@@ -1272,6 +1272,7 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg)
 	char *exp = NULL;
 	int i;
 	int f, f1, f2;
+	//float ff;
 	char oper;
 	IStack *istack = &arg->stack.istack;
 	CStack *cstack = &arg->stack.cstack;
@@ -1394,6 +1395,9 @@ int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg)
 		f2 = GetTop(istack);
 		Pop(istack);
 		f1 = GetTop(istack);
+		//ff =f1;
+		//f1 = ff;
+		
 		Pop(istack);
 		f = Calculate(f1, f2, oper);
 		Push(istack, f);
