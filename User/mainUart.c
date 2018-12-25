@@ -702,7 +702,7 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 //			g_scriptInfo.no = rxBuf[4];
 //			if(g_scriptInfo.no >= SRP_NUM_RUN)
 //				return;
-		
+		  
 		  ManagerControl(WORKER_STOP);
 			
 			g_scriptInfo.addr = __LINE_ADDR;
@@ -849,8 +849,7 @@ case 0x0002://Ñ¹Ëõ°ü¶Á
 			txBuf[6] = (CDV_INT08U)(g_scriptInfo.len);
 			AddTx(txBuf , 7, arg->uart);
 			
-			
-		    g_scriptInfo.addr = INI_ADDR(g_scriptInfo.no);
+			g_scriptInfo.addr = INI_ADDR(g_scriptInfo.no);
 			
 			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len, arg->uart);
 					

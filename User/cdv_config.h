@@ -36,6 +36,7 @@ void NewMemory(void **p , size_t size );
 void ReNewMemory(void **p , size_t size );
 void DelMemory(void **p);
 void* MemCpy(void* dst, const void* src, size_t n);
+void* MemCpyUnsafe(void* dst, const void* src, size_t n);
 void NewError(void );
 void WhileError(void );
 

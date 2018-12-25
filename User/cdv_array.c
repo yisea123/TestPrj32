@@ -20,6 +20,111 @@
   */
 	
 #include "cdv_array.h"
+#include "cdv_include.h"
+
+	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	///////////////////Array void Function///////////////////
+	///////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	
+/*调用者负责释放*/
+//size 类型的字节数
+ARRAY_VOID* CreateArray(size_t size) {
+	ARRAY_VOID* array = NULL;
+	NEWCH(array,sizeof(ARRAY_VOID));
+	array->size = size;
+	return array;
+}
+
+
+void ClearArray(ARRAY_VOID *array) {
+	ASSERT(array);
+	DELETE(array->p);
+	array->len = 0;
+}
+//与CteateArray一起用
+void	DeleteArray(ARRAY_VOID **array) {
+	ClearArray(*array);
+	DELETE(*array);
+}
+
+
+//void不允许差错，注意data的类型
+CDV_INT08S ArrayAdd(ARRAY_VOID *array, void* data) {
+	void *tmp = NULL;
+	ASSERT(array);
+	//ASSERT(array->len < MAX_ARRAY_LEN); 
+	if(array->len >= MAX_ARRAY_LEN)
+		return -1;
+	
+	if(array->len) {
+		NEWCH(tmp , (array->len+1)*array->size);
+		MemCpy(tmp , array->p , (array->len)*array->size);
+		DELETE(array->p);
+		array->p = tmp;
+	} else {
+		NEWCH(array->p , (array->len+1)*array->size);
+	}
+	
+	MemCpy((char*)array->p + (array->len)*array->size, data , array->size);
+	array->len++;
+	return 0;
+}
+
+
+CDV_INT08S ArrayDelete(ARRAY_VOID *array, CDV_INT32U no) {
+	ASSERT(array);
+	if(no >= array->len)
+		return -1;
+
+	MemCpyUnsafe((char*)array->p + (no)*array->size, (char*)array->p + (no+1)*array->size , (array->len-1-no)*array->size);
+	array->len--;
+	return 0;
+}
+
+
+//void不允许差错，注意data的类型
+CDV_INT08S ArrayModify(ARRAY_VOID *array, CDV_INT32U no, void* data) {
+	ASSERT(array);
+	if(no >= array->len)
+		return -1;
+
+	MemCpy((char*)array->p + (no)*array->size, data , array->size);
+	return 0;
+}
+
+void* ArrayGet(ARRAY_VOID *array, CDV_INT32U no) {
+	ASSERT(array);
+	if(no >= array->len)
+		return NULL;
+
+	return (char*)array->p + (no)*array->size;
+}
+
+void ArrayTest(void) {
+	typedef struct tagTest {
+		char ch1;
+		int  w1;
+		char ch2;
+	} test_type;
+	int size = 0, i;
+	ARRAY_VOID* testArray = NULL;
+	test_type data = {0, 0, 0};
+	size = sizeof(test_type);
+	testArray = CreateArray(size);
+	
+	for(i = 0; i < 10 ; i++) {
+		data.ch1++;
+		data.ch2+=2;
+		data.w1+=3;
+		ArrayAdd(testArray, &data);
+	}
+	
+	DeleteArray(&testArray);
+	
+	
+}
 
 	///////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////
@@ -43,7 +148,7 @@ void	DeleteArrayU32(ARRAY_U32 **array) {
 	DELETE(*array);
 }
 
-void WriteArrayU32(ARRAY_U32 *array, unsigned int *p, unsigned int len) {
+void WriteArrayU32(ARRAY_U32 *array, CDV_INT32U *p, CDV_INT32U len) {
 	NEW32U(array->p , len);
 	MemCpy(array->p, p, len);
 	array->len = len;
@@ -96,7 +201,7 @@ void	DeleteArrayU8(ARRAY_U8 **array) {
 	DELETE(*array);
 }
 
-void WriteArrayU8(ARRAY_U8 *array, unsigned int *p, unsigned int len) {
+void WriteArrayU8(ARRAY_U8 *array, CDV_INT32U *p, CDV_INT32U len) {
 	NEW32U(array->p , len);
 	MemCpy(array->p, p, len);
 	array->len = len;
@@ -221,7 +326,7 @@ CDV_LIST* LIST_Cteate(void) {
 }
 // tail添加
 // 链表一元素
-CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, uint32_t tag) {
+CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, CDV_INT32U tag) {
   OS_ERR err;
 	CDV_LIST *add = NULL; // 增加的元素
 	CDV_LIST *head = NULL; // 开头
@@ -254,7 +359,7 @@ CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, uint32_t tag
 }
 
 //head添加
-CDV_LIST* LIST_AddHead(CDV_LIST *elm, void *data ,/* size_t size, */uint32_t tag) {
+CDV_LIST* LIST_AddHead(CDV_LIST *elm, void *data ,/* size_t size, */CDV_INT32U tag) {
 	OS_ERR err;
 	CDV_LIST *add = NULL; // 增加的元素
 	CDV_LIST *head = NULL; // 开头
@@ -288,7 +393,7 @@ CDV_LIST* LIST_AddHead(CDV_LIST *elm, void *data ,/* size_t size, */uint32_t tag
 
 // 前插入
 // head之前不能插入
-CDV_LIST* LIST_Insert(CDV_LIST *elm, void *data ,/* size_t size,*/ uint32_t tag) {
+CDV_LIST* LIST_Insert(CDV_LIST *elm, void *data ,/* size_t size,*/ CDV_INT32U tag) {
 	OS_ERR err;
 	CDV_LIST *insert = NULL; // 增加的元素
 	CDV_LIST *head = NULL; // 开头
@@ -346,7 +451,7 @@ void LIST_RemoveAll(CDV_LIST *elm) {
 	OS_ERR err;
 	CDV_LIST *tail = NULL; // 结尾
 	CDV_LIST *deling = NULL;
-	uint32_t num = elm->head->size + 2;
+	CDV_INT32U num = elm->head->size + 2;
 	
 	ASSERT(elm);
 	deling = elm->head;
@@ -378,7 +483,7 @@ void LIST_Check(CDV_LIST *elm)
 	CDV_LIST *head = NULL; // 结尾
 	CDV_LIST *tail = NULL;
 	CDV_LIST *deal = NULL;
-	uint32_t num ;
+	CDV_INT32U num ;
 	
 	ASSERT(elm && elm->head && elm->tail);
 	head = elm->head;
@@ -415,8 +520,8 @@ void LIST_Check(CDV_LIST *elm)
 void LIST_Test(void)  
 {  
 	CDV_LIST *list = NULL;
-	static uint32_t list_test_on = 0;
-	uint32_t num = list_test_on;
+	static CDV_INT32U list_test_on = 0;
+	CDV_INT32U num = list_test_on;
 	if(list_test_on) {
 		list = LIST_Cteate();
 		

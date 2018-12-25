@@ -299,7 +299,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 					break;
 				case 0x03:
 					break;
-				case 0x04:
+				case 0x04:                                               /*通用串口设置*/
 					ret = UniSerialComSetCmd(buf + 4, len - 4, arg);
 				  if(OPT_SUCCESS != ret)
 					{
@@ -307,7 +307,10 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 					  ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
 					}
 					break;
-				case 0x05:
+				case 0x05:                                               /*在线调试工人*/
+#if USE_WORKER_DEBUG == 1u
+				WorkerDebugParse(buf + 2 ,len - 2, arg);
+#endif
 					break;
 				case 0x06:
 					break;
@@ -352,6 +355,11 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 					break;
 				case 0x11:                                              
 					ret = NPC1Parse(buf + 4, len - 4, arg);
+					break;
+				case 0x05:                                               /*在线调试工人*/
+#if USE_WORKER_DEBUG == 1u
+				WorkerDebugParse(buf + 2 ,len - 2, arg);
+#endif
 					break;
 				default:
 					break;

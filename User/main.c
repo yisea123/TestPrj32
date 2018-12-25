@@ -264,6 +264,13 @@ void start_task(void *p_arg){
 								(CPU_CHAR* )"PLUSE_SEM", //信号量名字
 								(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
+
+#if USE_WORKER_DEBUG == 1u
+	OSSemCreate ((OS_SEM* )&DEBUG_SEM, //指向信号量
+								(CPU_CHAR* )"DEBUG_SEM", //信号量名字
+								(OS_SEM_CTR )1, //信号量值为 1
+								(OS_ERR* )&err);
+#endif
 	/*FPGA程序接收下载控制*/
 //	SPI_Flash_Read((CDV_INT08U *)&SRP_NUM_RUN,SCRIP_NUM_RUN,2);
 //	SPI_Flash_Read((CDV_INT08U *)&SRP_NUM_RUN,SCRIP_NUM_RUN,2);

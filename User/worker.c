@@ -31,15 +31,11 @@ THREAD_INFO g_threadInfo[WORKER_MAX_NUM] = {0};
   */
 BOOL IsTaskExist(const OS_TCB tcb) {
 	if(OS_TASK_STATE_DEL == tcb.TaskState
-			|| NULL == tcb.StkPtr)
-	{
+			|| NULL == tcb.StkPtr) {
 		return FALSE;
-	}
-	else
-	{
+	} else {
 		return TRUE;
 	}
-	
 }
 	
 
@@ -253,11 +249,13 @@ RET_STATUS RunWorkerCmd(DEBUG_SCRIPT *debugWorker , CDV_INT08U loop) {
   * @retval 返回值说明
   * @note   必须在获取完工人流程后进行
   */
+#ifdef  _DEBUG_NPC_
 CDV_INT32U time[100] = {0};
 CDV_INT08U time_cnt = 0;
 CDV_INT08U time_which = 0;
 CDV_INT32U time_tmp = 0;
 CDV_INT32U time_max = 100;
+#endif
 
 void RunWorker(THREAD_INFO *pCtrl) {
   CDV_INT08U loop = 0;
@@ -274,10 +272,18 @@ void RunWorker(THREAD_INFO *pCtrl) {
     goto runworker_exit;//return;
 	}
 	
+#if USE_WORKER_DEBUG == 1u
+	DebugOpen(&pCtrl->debug);
+#endif
+	
 	worker.arg = &arg;
 	
 	if(1/*0 != pCtrl->which*/) {/*非管理工人*/
 		do {
+			pCtrl->step = worker.doNo;
+
+#ifdef  _DEBUG_NPC_
+			//流程计时start
 			if(time_which==pCtrl->which && !worker.doNo)
 			{
 				time[time_cnt] = CalcCount(GET_TICK, time_tmp);
@@ -287,59 +293,109 @@ void RunWorker(THREAD_INFO *pCtrl) {
 				MAX_SELF_ADD(time_cnt, 100);
 				time_tmp = GetCdvTimeTick();
 			}
+#endif
+
+#if USE_WORKER_DEBUG == 1u
+			while(1) {
+				switch (pCtrl->debug.state) {
+					
+					case DEBUG_DISABLE:
+						break;
+					
+					case DEBUG_ENABLE:
+						if(TRUE == IsDebugPoint(&pCtrl->debug, worker.doNo)) {
+							pCtrl->debug.state = DEBUG_PAUSE;
+							continue;
+						}
+						break;
+						
+					case DEBUG_CONTINUE:
+						pCtrl->debug.state = DEBUG_ENABLE;
+						break;
+					
+					case DEBUG_PAUSE:
+						continue;
+						break;
+					
+					case DEBUG_STEP:
+						pCtrl->debug.state = DEBUG_PAUSE;
+						break;
+					
+					default:
+						break;
+				}
+				break;
+			}
+#endif
 			
 			switch (pCtrl->status) {
+				
 				case WORKER_LOOP:
 					if (worker.doNo == 0) {
 						TaskSched();
 					}
 					loop = 1;
 					break;
+					
 				case WORKER_ONCE:
 					loop = 0;
 					break;
+				
 				case WORKER_STOP:
 					goto runworker_exit;//return;
+				
 				case WORKER_PAUSE:
 					while (WORKER_PAUSE == pCtrl->status)
 						OS_TaskSuspend((OS_TCB*)0,&err);
 					break;
+					
 				case WORKER_EXIT:
 					if (worker.doNo == pCtrl->exitStep) {
 						pCtrl->status = WORKER_STOP;
 						goto runworker_exit;//return;
 					}
 					break;
+					
 				default:
 					break;
 			}
 			
-			switch(pCtrl->opt)
-			{
+			switch(pCtrl->opt) {
+				
 				case 0:
 					break;
+				
 				case 1:
 					ToWorkerCmd(&worker, pCtrl->gotoStep);
+				
 				default:
 			    pCtrl->opt = 0;
+				  continue;
 					break;
 			}
-			pCtrl->step = worker.doNo;
+			
 			//if(8 == pCtrl->which && 29 == pCtrl->step )
 			//	pCtrl->step = worker.doNo;
 		} while (OPT_SUCCESS == RunWorkerCmd (&worker , loop));
+		
 	}	else {/*管理工人*/
+		
 		do {
 			int i = 0;
 			int flag = 0;
+			
 			switch (pCtrl->status) {
+				
 				case WORKER_LOOP:
 					
 					break;
+				
 				case WORKER_ONCE:
 					loop = 0;
 					break;
+				
 				case WORKER_STOP:
+					
 					do {
 						flag = 0;
 						for( i = 0; i < WORKER_MAX_NUM; i++)                                    /*判断工人是否已经运行*/
@@ -351,24 +407,34 @@ void RunWorker(THREAD_INFO *pCtrl) {
 							}
 						}
 					} while(flag);/*等待直到所有工人退出*/
+					
 					goto runworker_exit;//return;
+					
 				case WORKER_PAUSE:
 					
 					break;
+				
 				case WORKER_EXIT:
 					
 					break;
+				
 				default:
 					loop = 1;
 					break;
 			}
 			pCtrl->step = worker.doNo;
+			
 		} while (OPT_SUCCESS == RunWorkerCmd (&worker , loop));
 		
 	}
 
 runworker_exit:
 	CmdArgDelete(&arg);
+	
+#if USE_WORKER_DEBUG == 1u
+	DebugClose(&pCtrl->debug);
+#endif
+	
 	pCtrl->status = WORKER_STOP;
 //	for ( worker.doNo = 0; worker.doNo < worker.cmdNum ;) {
 //		if (OPT_FAILURE == RunWorkerCmd(worker.doNo, uartNo)) {
@@ -380,8 +446,11 @@ runworker_exit:
 //	return OPT_SUCCESS;
 }
 void WorkerTask(void *p_arg) {
+	OS_ERR err;
 	
 	RunWorker((THREAD_INFO *)p_arg);
+	
+	OSTaskDel((OS_TCB*)0,&err); //删除 start_task 任务自身
 }
 
 /** @brief  工人线程分配
@@ -562,7 +631,25 @@ RET_STATUS WorkerQuery(const CDV_INT08U no, WORKER_STATUS* pStatus, CDV_INT32U* 
 	}
 	return ret;
 }
-
+/** @brief  工人是否存在（占用线程
+  * @param  no 几号工人
+  * @retval TRUE 占用， FALSE 不占用
+  * @note   
+  */
+BOOL IsWorkerExist(const CDV_INT08U no) {
+	int i = 0;
+	
+	for( i = 0; i < WORKER_MAX_NUM; i++)                                    /*判断工人是否已经运行*/
+	{
+		if (no == g_threadInfo[i].which)
+		{
+			return IsTaskExist(WorkerTaskTCB[i]);
+		}
+	}
+	
+	return FALSE;
+	
+}
 /** @brief  工人状态查询
   * @param  no 几号工人
   *         status 目标状态
@@ -616,19 +703,22 @@ RET_STATUS WorkerQueryStep(const CDV_INT08U no, CDV_INT16U* pStep) {
 RET_STATUS ManagerControl(const WORKER_STATUS status) {
 	//return WorkerControl(0, status);
 	u32 i;
-	if(WORKER_STOP != status) //启动
+	if(WORKER_STOP != status && WORKER_EXIT != status) //启动
 	{	
 		WorkerControl(0, WORKER_LOOP);//隐藏
 		WorkerControl(1, WORKER_ONCE);//监工
 	}
 	else
 	{
+		AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
+		
 		AllWorkerCtrl(WORKER_STOP);
 		
 		//等待退出
 		for(i = 0; i < g_line.workerAddr.len; i++)
 	  {
-		  while (WORKER_STOP != WorkerRead(i));
+		  //while (WORKER_STOP != WorkerRead(i));
+		  while (IsWorkerExist(i));
 	  }
 		
 		memset(&g_modbusCoil , 0x00, sizeof(g_modbusCoil));

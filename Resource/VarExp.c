@@ -179,7 +179,7 @@ void Push(IStack* s, int e)
 	*(s->top) = e;
 	(s->top)++;
 }
-
+//181211 ·µ»ØÖµfloat¸Äint
 int GetTop(IStack* s)
 {
 	int e;

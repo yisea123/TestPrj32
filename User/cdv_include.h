@@ -36,7 +36,6 @@
 //#include "cdv_debug.h"
 //#include "esp8266.h"
 #include "mainUart.h"
-#include "worker.h"
 #include "Cascade.h"
 //#include "rs485_uart3.h"	
 //#include "rs485.h"	
@@ -47,6 +46,12 @@
 #include "tcp_server.h"
 #include "udpmain.h"
 #include "CentralizedControl.h"
+
+#if USE_WORKER_DEBUG == 1u
+  #include "workerDebug.h"
+#endif
+#include "worker.h"
+
 /*resource*/
 #include "IO.h"
 #include "Var.h"

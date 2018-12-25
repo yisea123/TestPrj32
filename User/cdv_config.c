@@ -258,6 +258,30 @@ memcpy_again:
   * @retval 
   * @note   
   */
+void* MemCpyUnsafe(void* dst, const void* src, size_t n)  
+{  
+	char *tmp;  
+	char *s_src;  
+	size_t s_n;
+	
+	ASSERT(dst);
+	ASSERT(src);
+	
+	s_n = n;
+  tmp = (char*)dst;  
+	s_src = (char*)src;  
+	while(s_n--) {  
+		*tmp++ = *s_src++;  
+	}  
+	
+	return dst;  
+}  
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
 void* MemMove(void* dst, const void* src, size_t n)  
 {  
 	char* s_dst;  

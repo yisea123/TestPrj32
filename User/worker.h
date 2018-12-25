@@ -53,6 +53,11 @@ typedef struct {
 	CDV_INT16U step;                   /*指令所在位置*/
 	CDV_INT16U exitStep;               /*退出指令所在位置*/
 	CDV_INT16U gotoStep;
+	
+#if USE_WORKER_DEBUG == 1u
+	DEBUG_CTRL debug;
+#endif
+	
 	WORKER_STATUS status;              /*哪个状态*/
 } THREAD_INFO;
 
@@ -62,6 +67,7 @@ BOOL IsTaskExist(const OS_TCB tcb) ;
 void WorkerTask(void *p_arg);
 RET_STATUS ManagerControl(const WORKER_STATUS status);
 void RestartWorkers(void);
+BOOL IsWorkerExist(const CDV_INT08U no);
 RET_STATUS ManagerQueryStatus(WORKER_STATUS* pStatus);
 RET_STATUS WorkerControl(const CDV_INT08U no, const WORKER_STATUS status);
 RET_STATUS WorkerExitSet(CDV_INT08U no, CDV_INT32U step);
