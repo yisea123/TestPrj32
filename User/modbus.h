@@ -27,10 +27,11 @@
  */
  
  //modbus各缓存的数组大小
-#define COIL_CHN   32
-#define INCOIL_CHN 32
-#define REG_N    640
-#define INREG_N  32
+#define COIL_CHN		32
+#define INCOIL_CHN	32
+#define REG_N				800//640
+#define HALF_REG_N	400
+#define INREG_N			32
 
  /*只读线圈*/
 // #define RES_I_NUM              CDV_IO_NUM
@@ -251,7 +252,7 @@ typedef union
 		{
 			CDV_WORD valL;                               /*!< word:     80~9f  变量                           */
 			CDV_WORD valH;
-		} var[300];
+		} var[400];
   } TYPE;                                          /*!< Structure used for resource  access             */
   CDV_WORD reg[REG_N];                           /*!< Type      used for word access                  */
 } MODBUS_Register;

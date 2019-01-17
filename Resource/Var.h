@@ -24,7 +24,7 @@
 #include "cdv_include.h"    
 
 
-#define CDV_VAR_NUM 290
+#define CDV_VAR_NUM 390//290
 #define VAR_ADDR(A) (VAL_STADDR + 4 * (A))
 
 
