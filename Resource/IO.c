@@ -1449,30 +1449,51 @@ CDV_INT08U OBitRead(CDV_INT32U no) {
 void OWrite(CDV_INT32U no , IO_VAL ioVal) {
 	
 	CDV_INT08U val = ioVal;
+
+	switch(ioVal){
+		case BIT_1:
+			SET_O(no);
+			break;
+		case BIT_0:
+			RESET_O(no);
+			break;
+		default:
+			break;
+	}
 	
-	
-	if(no >= CDV_O_NUM) {
-#if ENABLE_FPGA_DOWN
-		if(val) {
-			SET_COIL(g_otmp, no - CDV_O_NUM)
-		} else {
-			RESET_COIL(g_otmp, no - CDV_O_NUM);
-		}//ExOWrite(no - CDV_O_NUM, val);
-#endif
-	} else {
-		switch(ioVal){
-			case BIT_1:
-				SET_O(no);
-				break;
-			case BIT_0:
-				RESET_O(no);
-				break;
-			default:
-				break;
-		}
+	if(no < CDV_O_NUM) {
 		GPIO_WriteBit(g_cdvO[no].port , g_cdvO[no].pin, val);
 	}
+	
 }
+//下面的函数，对于CDV_O_NUM以上的O无反应，因为我们的研磨机需要用到O来作为标记使用，开发层故意设置了100多的O，所以可以编译进来。所以这里要放宽限制条件了
+//void OWrite(CDV_INT32U no , IO_VAL ioVal) {
+//	
+//	CDV_INT08U val = ioVal;
+//	
+//	
+//	if(no >= CDV_O_NUM) {
+//#if ENABLE_FPGA_DOWN
+//		if(val) {
+//			SET_COIL(g_otmp, no - CDV_O_NUM)
+//		} else {
+//			RESET_COIL(g_otmp, no - CDV_O_NUM);
+//		}//ExOWrite(no - CDV_O_NUM, val);
+//#endif
+//	} else {
+//		switch(ioVal){
+//			case BIT_1:
+//				SET_O(no);
+//				break;
+//			case BIT_0:
+//				RESET_O(no);
+//				break;
+//			default:
+//				break;
+//		}
+//		GPIO_WriteBit(g_cdvO[no].port , g_cdvO[no].pin, val);
+//	}
+//}
 ///**
 //  * @brief  CDV 读拨码开关
 //  *  
