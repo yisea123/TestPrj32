@@ -18,7 +18,7 @@
 
 #ifndef  _WORKER_DEBUG_
 #define  _WORKER_DEBUG_
-
+#if USE_WORKER_DEBUG == 1u
 #include "cdv_array.h"
 
 typedef enum
@@ -53,6 +53,6 @@ void AllDebugStateSet(DEBUG_STATE state);
 RET_STATUS WorkerDebugParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 
 	extern OS_SEM DEBUG_SEM;
-
+#endif
 #endif
 

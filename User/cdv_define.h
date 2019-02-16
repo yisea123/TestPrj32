@@ -192,7 +192,7 @@ lwipopts.h
 startup_stm32f40_41xxx.s
 	Heap_Size       EQU     0x00000200
 */
-#define _NPC_VERSION_ 3u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
+#define _NPC_VERSION_ 2u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
 
 
 #if _NPC_VERSION_ == 1u
@@ -208,13 +208,13 @@ startup_stm32f40_41xxx.s
 
   #define MAIN_COM 4//MainUsart//
 	
-	#define USE_NPC_NET  1u
+	#define USE_NPC_NET  0u
 
   #define USE_CASCADE  1u
 	
 	#if USE_CASCADE == 1u
 	
-		#define USE_CASCADE_MAP 0u
+		#define USE_CASCADE_MAP 1u
 		
 	#endif
 

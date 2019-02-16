@@ -974,7 +974,9 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 	{
 		//ManagerControl(WORKER_STOP);
 		//AllWorkerCtrl(WORKER_STOP);
+		#if USE_WORKER_DEBUG == 1u
 		AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
+		#endif
 		
 		AllWorkerCtrl(WORKER_STOP);
 		g_dipCtrlWorker = 0;

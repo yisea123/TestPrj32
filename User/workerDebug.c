@@ -18,7 +18,7 @@
   *
   ******************************************************************************
   */
-	
+	#if USE_WORKER_DEBUG == 1u
 	#include "workerDebug.h"
 	
 	OS_SEM DEBUG_SEM;
@@ -430,5 +430,5 @@
 		return ret;
 	}
 
-
+#endif
 	

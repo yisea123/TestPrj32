@@ -710,8 +710,9 @@ RET_STATUS ManagerControl(const WORKER_STATUS status) {
 	}
 	else
 	{
+		#if USE_WORKER_DEBUG == 1u
 		AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
-		
+		#endif
 		AllWorkerCtrl(WORKER_STOP);
 		
 		//等待退出
