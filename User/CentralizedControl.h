@@ -26,6 +26,8 @@
 
 RET_STATUS CentralizedControl_QuerySysInfo(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 RET_STATUS CentralizedControl_QueryDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
+RET_STATUS CentralizedControl_SetDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
+
 RET_STATUS CentralizedControl_SysOperation(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 void CentralizedControl_OTA(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 

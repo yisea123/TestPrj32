@@ -18,8 +18,10 @@
   *
   ******************************************************************************
   */
-	#if USE_WORKER_DEBUG == 1u
+	
 	#include "workerDebug.h"
+	
+	#if USE_WORKER_DEBUG == 1u
 	
 	OS_SEM DEBUG_SEM;
 	

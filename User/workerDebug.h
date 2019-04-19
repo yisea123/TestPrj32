@@ -18,7 +18,8 @@
 
 #ifndef  _WORKER_DEBUG_
 #define  _WORKER_DEBUG_
-#if USE_WORKER_DEBUG == 1u
+
+
 #include "cdv_array.h"
 
 typedef enum
@@ -43,11 +44,12 @@ typedef struct {
 	CDV_INT08U len;          /*条件长度*/	
 } DEBUG_POINT;
 
+#include "cdv_include.h"
 
+#if USE_WORKER_DEBUG == 1u
 CDV_INT08S DebugOpen(DEBUG_CTRL* debug);
 CDV_INT08S DebugClose(DEBUG_CTRL* debug);
   BOOL IsDebugPoint(DEBUG_CTRL* debug, CDV_INT16U pos);
-	#include "cdv_include.h"
 
 void AllDebugStateSet(DEBUG_STATE state);
 RET_STATUS WorkerDebugParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);

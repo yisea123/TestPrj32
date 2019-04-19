@@ -371,17 +371,20 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 		{
 #if USE_CENTRALIZEDCONTROL == 1u
 		  switch (buf[1]) {
-				case 0x01:
+				case 0x01://查系统信息
 					CentralizedControl_QuerySysInfo(buf, len, arg);
 					break;
-				case 0x02:
+				case 0x02://查设备数据
 					CentralizedControl_QueryDevData(buf, len, arg);
 					break;
-				case 0x03:
+				case 0x03://系统
 					CentralizedControl_SysOperation(buf, len, arg);
 					break;
-				case 0x04:
+				case 0x04://在线升级
 					CentralizedControl_OTA(buf, len, arg);
+					break;
+				case 0x05://写设备数据
+					CentralizedControl_SetDevData(buf, len, arg);
 					break;
 				default:
 					break;
