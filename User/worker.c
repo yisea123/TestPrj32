@@ -57,9 +57,9 @@ RET_STATUS ReadWorkerBuf(DEBUG_SCRIPT *debugWorker) {
 //#ifdef  _DEBUG_NPC_
 //	Mem_Read(&debugWorker->len, debugWorker->cmdPos + 2, 1);
 //#else
-	debugWorker->len = *(CDV_INT08U*)(SCRIPT_GETADDR(debugWorker->cmdPos + 2));
+	debugWorker->len = *(CDV_INT16U*)(SCRIPT_GETADDR(debugWorker->cmdPos + 2));
 //#endif	
-	debugWorker->len += 3;
+	debugWorker->len += 4;//3;
 	//NEW08U(debugWorker->buf , debugWorker->len);
   //Mem_Read(debugWorker->buf, debugWorker->cmdPos + 3, (CDV_INT16U)(debugWorker->len));	
   debugWorker->buf = Mem_Ptr(debugWorker->cmdPos/* + 3*/);
@@ -189,7 +189,7 @@ RET_STATUS WorkerCmdParse(DEBUG_SCRIPT *debugWorker) {
 	CMD_ARG *arg = debugWorker->arg;
 	//INIT_CLEAR(arg);
 	//CmdArgInit(&arg);
-	if(arg->hostid == debugWorker->buf[3] || 
+	if((KFC_IC == debugWorker->buf[0]&& 0x10 == debugWorker->buf[1] && arg->hostid == debugWorker->buf[4] ||(( KFC_IC != debugWorker->buf[0]|| 0x10 != debugWorker->buf[1]) && arg->hostid == debugWorker->buf[3] ))|| 
 		(KFC_IC == debugWorker->buf[0] && 0x10 > debugWorker->buf[1]))
 	{
 //		arg->uart = uartNo;
@@ -780,7 +780,7 @@ void AllWorkerCtrl(const WORKER_STATUS status)
   * @retval 返回值说明OPT_SUCCESS，OPT_FAILURE
   * @note   							
   */
-RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg) {
+RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen , CMD_ARG *arg) {
 	OS_ERR err;
 	CDV_INT08U opt, type;
 	CDV_INT32U no, par;
@@ -847,7 +847,7 @@ RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg) {
   * @retval 返回值说明OPT_SUCCESS，OPT_FAILURE
   * @note   							
   */
-RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
+RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 //	OS_ERR err;
 //	CDV_INT08U opt/* , type , strLen*/;
 //	CDV_INT32S num;

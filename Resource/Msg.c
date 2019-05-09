@@ -104,7 +104,7 @@ void ClearMsg(void){
 	                          01Ω” ’	ED									
   */
 
-RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
+RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 	OS_ERR err;
 	//CPU_SR_ALLOC();//OS_CRITICAL_ENTER()
 	CDV_INT08U opt/* , type , strLen*/;

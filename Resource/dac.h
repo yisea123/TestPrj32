@@ -47,7 +47,7 @@ void Dac1_Set_Vol(u16 vol);	//设置通道1输出电压
 
 void Dac2_Set_Vol(u16 vol);//DAC通道2初始化
 void Dac2_Set_Vol(u16 vol);	//设置通道2输出电压
-RET_STATUS DacCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen,CMD_ARG *arg);
+RET_STATUS DacCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen,CMD_ARG *arg);
 u8 Read_Dac_Par(u8 *buf,u8 no,u32 pflag);//DAC参数读取
 u16  Get_Adc_Voltge(u8 adc_num);
 u16  Get_Da_value(u8 no);

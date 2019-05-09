@@ -1530,7 +1530,7 @@ void OWrite(CDV_INT32U no , IO_VAL ioVal) {
   * @note   资源号（00-FF）	00等待	枚举号（00-03	枚举值	枚举值	枚举值	枚举值	枚举值	枚举值	枚举值	枚举值	字符串
   */
 
-RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 	OS_ERR err;
 	CDV_INT08U opt, type;
 	CDV_INT32U no , num , val;
@@ -1700,7 +1700,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 
   */
 
-RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 //	OS_ERR err;
   //CDV_INT08U no , opt, type, val  /*, strLen*/;
 	CDV_INT08U opt, type;

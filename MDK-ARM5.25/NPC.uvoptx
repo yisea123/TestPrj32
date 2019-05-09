@@ -119,6 +119,10 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
+          <Key>DLGUARM</Key>
+        </SetRegEntry>
+        <SetRegEntry>
+          <Number>0</Number>
           <Key>PWSTATINFO</Key>
           <Name>200,50,700</Name>
         </SetRegEntry>
@@ -157,18 +161,18 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>539</LineNumber>
+          <LineNumber>434</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134464712</Address>
+          <Address>134352574</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>G:\NPC\NPC_V3\UCOSIII\Micrium\Software\uCOS-III\Source\os_task.c</Filename>
+          <Filename>..\User\cdv_config.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\NPC\../UCOSIII/Micrium/Software/uCOS-III/Source/os_task.c\539</Expression>
+          <Expression>\\NPC\../User/cdv_config.c\434</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -307,6 +311,36 @@
           <WinNumber>1</WinNumber>
           <ItemText>WorkerTaskTCB</ItemText>
         </Ww>
+        <Ww>
+          <count>27</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>no</ItemText>
+        </Ww>
+        <Ww>
+          <count>28</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>inexp</ItemText>
+        </Ww>
+        <Ww>
+          <count>29</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Rbuf+6</ItemText>
+        </Ww>
+        <Ww>
+          <count>30</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>arg</ItemText>
+        </Ww>
+        <Ww>
+          <count>31</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>(DEBUG_SCRIPT*)(arg-&gt;ptrWorker),0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>32</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_olCache.buf</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -384,7 +418,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>array-&gt;p</ItemText>
+          <ItemText>rxBuf</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -392,7 +426,7 @@
         <Mm>
           <WinNumber>2</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x68002590</ItemText>
+          <ItemText>OfflineScript+28138</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow2>
@@ -400,7 +434,7 @@
         <Mm>
           <WinNumber>3</WinNumber>
           <SubType>0</SubType>
-          <ItemText>cmdBuf</ItemText>
+          <ItemText>inexp</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow3>
@@ -408,7 +442,7 @@
         <Mm>
           <WinNumber>4</WinNumber>
           <SubType>0</SubType>
-          <ItemText>pBuf</ItemText>
+          <ItemText>Rbuf</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow4>

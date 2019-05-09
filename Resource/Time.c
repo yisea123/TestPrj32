@@ -29,7 +29,7 @@ CDV_INT32S Time_1s = 0;
 
 
 
-RET_STATUS TimeCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS TimeCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 //	OS_ERR err;
 	//CPU_SR_ALLOC();//OS_CRITICAL_ENTER()
 	CDV_INT08U opt , type /*, strLen*/;
@@ -82,7 +82,7 @@ RET_STATUS TimeCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) {
 	return OPT_SUCCESS;
 }
 
-RET_STATUS ClockCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS ClockCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 	CDV_INT08U /*no , */opt , type /*, strLen*/;
 	CDV_INT32U no ,valNo = 0; 
 	CDV_INT32S num;

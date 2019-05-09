@@ -1054,7 +1054,7 @@ u32 SUM(u16 x[],u16 n)
 //
 //
 //*******************************************
-RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
+RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg)
 {
 	u8 i=0 ,j=0;
 	RET_STATUS  ret =OPT_SUCCESS;

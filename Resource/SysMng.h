@@ -22,7 +22,7 @@
 
 #include "cdv_include.h"
 
-RET_STATUS SysCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS SysCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 void ResetCdv(void);
 void ChangeToCdvStat(CDV_INT08U stat);
 #endif

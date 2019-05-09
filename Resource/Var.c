@@ -426,7 +426,7 @@ void ValParRead(CDV_INT32U no , CDV_INT32U flag , CDV_INT08U* buf , CDV_INT08U* 
             使用到全局变量R_APP_SET_NUM，由于是启动脚本才有的，故不会发生冲突
   */
 
-RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 	CDV_INT08U opt , type;
 	CDV_INT32U no;
 	CDV_INT32S num;

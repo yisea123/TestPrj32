@@ -22,22 +22,22 @@
 	#include"logic.h"
 
 
-RET_STATUS Log_BreakIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
-RET_STATUS Log_ContinueIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
-RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
-RET_STATUS Log_ElseIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
-RET_STATUS Log_Else(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
+RET_STATUS Log_BreakIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
+RET_STATUS Log_ContinueIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
+RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
+RET_STATUS Log_ElseIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
+RET_STATUS Log_Else(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
 RET_STATUS Log_EndIf(CMD_ARG *arg);
-RET_STATUS Log_Loop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
-RET_STATUS Log_EndLoop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
+RET_STATUS Log_Loop(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
+RET_STATUS Log_EndLoop(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
 
 /*****************新驱动*******/
 
 CDV_INT08U Log_Relation(CDV_INT08U ret1,CDV_INT08U ret2,CDV_INT08U relation);
 CDV_INT08U Log_Compare(CDV_INT32S value,CDV_INT08U compare,CDV_INT32S Num);
-CDV_INT32U Result(CDV_INT08U* p, CDV_INT08U ExpLen,CMD_ARG *arg);
+CDV_INT32U Result(CDV_INT08U* p, CDV_INT16U ExpLen,CMD_ARG *arg);
 //void Log_LoopUp(CDV_INT32U *p);
-CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
+CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
 
 //void Log_If1(CDV_INT08U *Rbuf,CDV_INT32U *pAddr);
 //void Log_Loopxu(CDV_INT32U *pAddr);
@@ -47,7 +47,7 @@ CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
 
 
 
-RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 	CDV_INT08U opt , type;
 	RET_STATUS ret =OPT_SUCCESS;
 	//no = Rbuf[0];           //脚本资源号:对应的脚本号
@@ -148,9 +148,9 @@ RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 }
 
 
-RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
-
-	CDV_INT08U ExpLen=0,ResNo=0,Action=0,*Jump = NULL/*[2]={0}*/,*Calcu = NULL/*[100]={0}*/; 
+RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
+  CDV_INT16U ExpLen=0;
+	CDV_INT08U ResNo=0,Action=0,*Jump = NULL/*[2]={0}*/,*Calcu = NULL/*[100]={0}*/; 
 	CDV_INT16U JumpCmd=0;
 	CDV_INT32S Times=0;//公式中有多少个条件 
 //	CDV_INT32U *paddr=NULL;
@@ -172,8 +172,8 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 //			Mem_Read(&ResNo,Addr + 4,1);
 //			Mem_Read(&Action,Addr + 9,1);
 //#else
-	    ResNo = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 4));
-	    Action = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 9));
+	    ResNo = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 5/*4*/));
+	    Action = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 10/*9*/));
 //#endif	
 			if(ResNo == 0x08 &&((Action == 0x03)||(Action == 0x02))){
 				//g_run.cmdPos[WorkNo] = *paddr;
@@ -182,13 +182,13 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 //#ifdef  _DEBUG_NPC_
 //			Mem_Read(&ExpLen,Addr,1);
 //#else
-	    ExpLen = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr));
+	    ExpLen = *(CDV_INT16U*)(SCRIPT_GETADDR(Addr));
 //#endif	
 			ExpLen = ExpLen - 12;
 			
 			//Mem_Read(Jump,Addr+11+ExpLen,2);
 			
-	    JumpCmd = *(CDV_INT16U*)(SCRIPT_GETADDR(Addr+11+ExpLen));
+	    JumpCmd = *(CDV_INT16U*)(SCRIPT_GETADDR(Addr+11+ExpLen+1/*16bit*/));
 			
 //			Mem_Read_Ptr(&Jump,Addr+11+ExpLen);
 
@@ -196,7 +196,7 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 			ASSERT(JumpCmd < ((DEBUG_SCRIPT*)(arg->ptrWorker))->cmdNum);
 
 			//Mem_Read(Calcu,Addr+11,ExpLen);
-			Mem_Read_Ptr((void**)(&Calcu),Addr+11);
+			Mem_Read_Ptr((void**)(&Calcu),Addr+11+1/*16bit*/);
 
 			if(Result(Calcu,ExpLen,arg)){
 				
@@ -208,7 +208,7 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 	}	
 }
 
-RET_STATUS Log_ElseIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_ElseIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT08U ExpLen=0; 
 	CDV_INT16U JumpCmd=0;
@@ -225,7 +225,7 @@ RET_STATUS Log_ElseIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 //	}	
 }
 
-RET_STATUS Log_Else(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_Else(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT16U JumpCmd=0;	
 	JumpCmd = *(CDV_INT16U*)(Rbuf+6);//CalculateForAll(Rbuf,6,2);	
@@ -239,7 +239,7 @@ RET_STATUS Log_EndIf(CMD_ARG *arg){
 }
 
 
-RET_STATUS Log_Loop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_Loop(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT08U ExpLen=0; 
 	CDV_INT16U JumpCmd=0;
@@ -258,7 +258,7 @@ RET_STATUS Log_Loop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 
 }
 
-RET_STATUS Log_EndLoop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_EndLoop(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT16U JumpCmd=0;	
 	JumpCmd = *(CDV_INT16U*)(Rbuf+6);//CalculateForAll(Rbuf,6,2);	
@@ -270,7 +270,7 @@ RET_STATUS Log_EndLoop(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 
 
 
-RET_STATUS Log_BreakIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_BreakIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT08U ExpLen=0; 
 	CDV_INT16U JumpCmd=0;
@@ -289,7 +289,7 @@ RET_STATUS Log_BreakIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
 	}	
 }
 
-RET_STATUS Log_ContinueIf(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+RET_STATUS Log_ContinueIf(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT08U ExpLen=0;
 	CDV_INT16U JumpCmd=0;
@@ -328,7 +328,7 @@ CDV_INT32U ExpResult(CDV_INT08U* p,CDV_INT32S len,CMD_ARG *arg) {
   *返回值:1成立  0不成立
   *warnning: 
 */
-CDV_INT32U Result(CDV_INT08U* p, CDV_INT08U ExpLen,CMD_ARG *arg){
+CDV_INT32U Result(CDV_INT08U* p, CDV_INT16U ExpLen,CMD_ARG *arg){
 //	CDV_INT08U compare=0,num[4]={0},relation[10]={0},resultC[10]={0};
 //	CDV_INT32U valueno=0;
 //	CDV_INT32S value=0, Num=0,i=0;
@@ -468,7 +468,7 @@ CDV_INT08U Log_Relation(CDV_INT08U ret1,CDV_INT08U ret2,CDV_INT08U relation){
   *返回值:1成立  0不成立 2error
   *warnning: 
 */
-CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT08U rxLen,CMD_ARG *arg){
+CDV_INT08U BackResultToKFC(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 	CDV_INT08U ExpLen=0; 
 	CDV_INT32S Times=0;//公式中有多少个条件 

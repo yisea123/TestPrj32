@@ -32,7 +32,7 @@
   *
   * @note   
   */
-RET_STATUS SysCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg) { 
+RET_STATUS SysCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) { 
 
 	CDV_INT08U opt /*no , , type , strLen*/;
   

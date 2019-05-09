@@ -19,7 +19,7 @@
 	#define _CDV_LOGIC_
 	#include "cdv_include.h" 
 
-	RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT08U rxLen,CMD_ARG *arg);
+	RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT16U rxLen,CMD_ARG *arg);
 
 	#endif
 

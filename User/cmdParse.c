@@ -31,7 +31,7 @@
   * @retval 返回值说明
   * @note   
   */
-RET_STATUS NPC1Parse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
+RET_STATUS NPC1Parse(CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg)
 {
 	RET_STATUS ret = OPT_FAILURE;
 	switch(buf[0]){//CDV地址应答
@@ -269,7 +269,7 @@ RET_STATUS YYCCtrlParse1(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
   *         不能使用addtx等，因如果workermanage先申请了锁，会导致死锁
 主字段		从字段		报文数据长度
   */
-RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
+RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg)
 {
 	RET_STATUS ret = OPT_FAILURE;
 //	if (len != buf[2] + 3)                                         /*报文数据长度不正常？*/
@@ -284,7 +284,8 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 			                                                           /**/
 			switch (buf[1]) {
 				case 0x10:                                               /*原下发指令*/
-					ret = NPC1Parse(buf + 4, len - 4, arg);
+					//ret = NPC1Parse(buf + 4, len - 4, arg);
+				  ret = NPC1Parse(buf + 5, len - 5, arg);//剩余长度16bit
 					break;
 				case 0x11:                                               /*新下发指令:通用串口*/
 					ret = NPC2Parse(buf + 3, len - 3, arg);

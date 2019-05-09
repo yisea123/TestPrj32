@@ -325,7 +325,12 @@ startup_stm32f40_41xxx.s
 
 #define SCRIP_LINE_LEN        0x200000//脚本长度2M
 //#define INILEN                0x10000       //INI长度，最长64KB
+
+#if USE_MEMMNG == 1u
+#define LINE_LEN              0xF000//工人脚本长度60KB
+#else
 #define LINE_LEN              0x8000//工人脚本长度32KB
+#endif
 #define LOG_LEN               0x100000//log长度1M
 
 #define SCRIP_MAX_RUN        16

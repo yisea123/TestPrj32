@@ -27,6 +27,6 @@
 
 
 
-RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT08U len,CMD_ARG *arg);
+RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT16U len,CMD_ARG *arg);
 
 #endif

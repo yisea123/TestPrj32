@@ -80,7 +80,7 @@ typedef enum  {
 //void MotorRefresh(void);
 //void MotorStepRefresh(void);
 void CdvInit(void);
-RET_STATUS ResParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen,  CMD_ARG *arg);
+RET_STATUS ResParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen,  CMD_ARG *arg);
 //RET_STATUS DisplayCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U debug, CDV_INT08U uartNo);
 RET_STATUS VirtualMotorRun(CDV_INT08U no /*, CDV_INT08U opt*/ , CDV_INT32S num);
 RET_STATUS ActualMotorRun(CDV_INT08U no /*, CDV_INT08U opt*/ , CDV_INT32S num);

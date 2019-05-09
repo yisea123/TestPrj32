@@ -354,7 +354,7 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 //不能使用addtx等，因如果workermanage先申请了锁，会导致死锁
   */
 
-RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg)
+RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, void *arg)
 {
 	vu32 local_start = 0;
 	vu32 local_clk = 0;
@@ -618,7 +618,7 @@ CDV_INT16U oneCRC16(CDV_INT08U ch , CDV_INT16U crc)
   * @note   RecvParse中
   */
 
-RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg){	
+RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg){	
 
 	//OS_ERR err;
 	RET_STATUS ret;
@@ -664,7 +664,7 @@ RET_STATUS OnlineParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg){
   * @note   使用到全局变量,不能重入
   *         如果要给自定义字符串添加CRC，rxbuf传入自定义字符串即可
   */
-void RequestAdd(CDV_INT08U* rxBuf,CDV_INT08U txLen){
+void RequestAdd(CDV_INT08U* rxBuf,CDV_INT16U txLen){
 	CDV_INT16U crc;
 	USART_TX_BUF(0) = rxBuf[0];
 	USART_TX_BUF(1) = rxBuf[1];
@@ -1093,7 +1093,7 @@ CDV_INT08U NeedRequestTx(CDV_INT08U uartNo) {
   *
   * @note   
   */
-CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo, void *arg) {
+CDV_INT08U OnlineCmdCache(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, void *arg) {
 	OS_ERR err;
 	
 	ASSERT(rxBuf && rxLen);
@@ -1436,10 +1436,10 @@ void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 //}
 //	
 //}
-void AddTx(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
+void AddTx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 	CDV_INT16U crc;
 	
-	CDV_INT08U txRealLen;
+	CDV_INT16U txRealLen;
 	CDV_INT08U *TX_BUF= NULL;
 	CDV_INT08U TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
 	

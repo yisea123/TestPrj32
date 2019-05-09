@@ -25,7 +25,7 @@
 #define CDV_MSG_NUM 32
 
 
-RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 void ClearMsg(void);
 
 

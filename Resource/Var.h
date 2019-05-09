@@ -24,14 +24,14 @@
 #include "cdv_include.h"    
 
 
-#define CDV_VAR_NUM 390//290
+#define CDV_VAR_NUM 490//390//290
 #define VAR_ADDR(A) (VAL_STADDR + 4 * (A))
 
 
 
 //extern CDV_INT32S* g_var;
 
-RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS ValCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 void ValSet(CDV_INT32U no, CDV_INT32S num);
 CDV_INT32S VarGet(CDV_INT32U no);
 void ValFlashSet(CDV_INT32U no, CDV_INT32S num);

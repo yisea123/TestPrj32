@@ -197,6 +197,15 @@ RET_STATUS CentralizedControl_SetDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_AR
 	  ResRequest(sndBuf , 3, 0,0,arg, RC_CRC);
 		return OPT_FAILURE;
 	}
+	//ºÏ≤È±‰¡ø∫≈
+	for(i = 0; i < varNum; i++) {
+		if(addr[i] > CDV_VAR_NUM) {
+			
+			sndBuf[2] = 0x01;
+	    ResRequest(sndBuf , 3, 0,0,arg, RC_CRC);
+		  return OPT_FAILURE;
+		}
+	}
 	
 	for(i = 0; i < varNum; i++) {
 		ValSet(addr[i], val[i]);

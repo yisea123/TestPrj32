@@ -833,7 +833,7 @@ void Mem_ReadLine(void) {
   * @note   pos不会变
   */
 CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {	
-	CDV_INT08U chNum;
+	CDV_INT16U chNum;
 	CDV_INT16U cmdNo = 0, no;
 	CDV_INT32U addr = flashAddr;
 	while(addr - flashAddr < len-2) {
@@ -842,12 +842,12 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
 //		Mem_Read(&chNum, addr + 2, 1);
 //		Mem_Read((CDV_INT08U*)&no, addr, 2);
 //#else
-	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+	chNum = *(CDV_INT16U*)(SCRIPT_GETADDR(addr + 2));
 	//no = *(CDV_INT16U*)(SCRIPT_GETADDR(addr));//多余的
 //#endif	
 		
 		cmdNo++;
-		addr += chNum + 3 ;
+		addr += chNum + 4 ;
 	}
 
   return cmdNo;//返回有效命令数
@@ -864,15 +864,15 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
   * @note   
   */
 CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
-	CDV_INT08U chNum;
+	CDV_INT16U chNum;
 	CDV_INT32U addr = flashAddr; 
 //#ifdef  _DEBUG_NPC_
 //	Mem_Read(&chNum, addr + 2, 1);
 //#else
-	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+	chNum = *(CDV_INT16U*)(SCRIPT_GETADDR(addr + 2));
 //#endif	
-	addr += chNum + 3 ;
-
+	addr += chNum + 4 ;
+//addr += chNum + 3 ;
 	return addr;
 }
 
@@ -887,7 +887,7 @@ CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
   * @note   
   */
 CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
-	CDV_INT08U chNum;
+	CDV_INT16U chNum;
 	CDV_INT16U cmdNo = 0;
 	CDV_INT32U addr = startPos;
 	
@@ -895,9 +895,9 @@ CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
 //#ifdef  _DEBUG_NPC_
 //	Mem_Read(&chNum, addr + 2, 1);
 //#else
-	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+	chNum = *(CDV_INT16U*)(SCRIPT_GETADDR(addr + 2));
 //#endif	
-		addr += chNum + 3 ;
+		addr += chNum + 4 ;
 		cmdNo++;
 	}
 	
@@ -921,7 +921,7 @@ CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
   * @note   
   */
 CDV_INT32U Mem_GetCmdPos(CDV_INT16U no , CDV_INT16U cmdNum , CDV_INT32U flashAddr) {
-	CDV_INT08U chNum;
+	CDV_INT16U chNum;
 	CDV_INT16U cmdNo = 0;
 	CDV_INT32U addr = flashAddr;
 	
@@ -933,10 +933,10 @@ CDV_INT32U Mem_GetCmdPos(CDV_INT16U no , CDV_INT16U cmdNum , CDV_INT32U flashAdd
 //#ifdef  _DEBUG_NPC_
 //	Mem_Read(&chNum, addr + 2, 1);
 //#else
-	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+	chNum = *(CDV_INT16U*)(SCRIPT_GETADDR(addr + 2));
 //#endif	
 		{
-		  addr += chNum + 3 ;
+		  addr += chNum + 4 ;
 		}
 		
 		cmdNo++;

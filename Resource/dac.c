@@ -220,7 +220,7 @@ RET_STATUS CDV_DacWait()
 //
 //
 //*******************************************
-RET_STATUS DacCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen,CMD_ARG *arg)
+RET_STATUS DacCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen,CMD_ARG *arg)
 {
 	u8 i=0 , j=0;
 	RET_STATUS  ret =OPT_SUCCESS;

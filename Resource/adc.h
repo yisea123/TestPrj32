@@ -77,7 +77,7 @@ void Adc2_Dma_Init2(void);
 void Adc2_Dma_Init4(void);
 u16 Get_VFD_Speed(u16 *buf,u16 lens);
 u8 Read_Adc_Par(u8 *buf,u8 no,u32 pflag);//ADC²ÎÊý¶ÁÈ¡
-RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS AdcCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 
 u16 Get_Adc_Voltge(u8 adc_num);
 void Adc_Voltge ( void);

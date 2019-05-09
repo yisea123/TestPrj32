@@ -172,8 +172,8 @@ typedef enum
 void GPIO_Configuration(void);
 
 void IOInit(void);
-RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
-RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
+RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 IO_VAL IRead(CDV_INT32U no);
 //IO_VAL ShakeIRead(CDV_INT32U no);
 IO_VAL ORead(CDV_INT32U no);

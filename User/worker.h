@@ -42,7 +42,7 @@ typedef struct {
 	CDV_INT16U doNo;                   /*脚本处理序号，自累加，可与脚本中存储的序号进行对比检错*/	
 	CDV_INT16U totalLen;               /*脚本总长度*/
 	CDV_INT08U *buf;                   /*工人脚本缓存指针，一条*/
-	CDV_INT08U len;                    /*工人脚本缓存长度，一条*/
+	CDV_INT16U len;                    /*工人脚本缓存长度，一条*/
 	CMD_ARG *arg;//指向执行时的命令参数，做传递用
 } DEBUG_SCRIPT;
 
@@ -74,8 +74,8 @@ RET_STATUS WorkerExitSet(CDV_INT08U no, CDV_INT32U step);
 RET_STATUS WorkerQuery(const CDV_INT08U no, WORKER_STATUS *pStatus, CDV_INT32U* pStep);
 RET_STATUS WorkerQueryStatus(const CDV_INT08U no, WORKER_STATUS* pStatus);
 RET_STATUS WorkerQueryStep(const CDV_INT08U no, CDV_INT16U* pStep);
-RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg);
-RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
+RET_STATUS WorkerCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen , CMD_ARG *arg);
+RET_STATUS LineCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg);
 
 RET_STATUS ToWorkerCmd(DEBUG_SCRIPT *debugWorker , CDV_INT16U cmdNo) ;
 

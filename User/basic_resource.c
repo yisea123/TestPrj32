@@ -119,7 +119,7 @@ ClearUniversalCnt();
   * @note   
   */
 
-RET_STATUS ResParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen , CMD_ARG *arg) {
+RET_STATUS ResParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen , CMD_ARG *arg) {
 	RET_STATUS ret = OPT_SUCCESS;
 	
 	switch(rxBuf[0]){

@@ -2312,7 +2312,7 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U co
   * @retval RET_STATUS
   * @note   0x01	0x10	报文数据长度	主机ID	原指令
   */
-  RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg) {
+  RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg) {
 		RET_STATUS ret = OPT_SUCCESS;
 		
 	u32 gstartTime ,gendTime , gtime;
