@@ -57,9 +57,15 @@ RET_STATUS ReadWorkerBuf(DEBUG_SCRIPT *debugWorker) {
 //#ifdef  _DEBUG_NPC_
 //	Mem_Read(&debugWorker->len, debugWorker->cmdPos + 2, 1);
 //#else
+#if USE_16BIT_CMD == 1u
 	debugWorker->len = *(CDV_INT16U*)(SCRIPT_GETADDR(debugWorker->cmdPos + 2));
 //#endif	
 	debugWorker->len += 4;//3;
+	#else
+		debugWorker->len = *(CDV_INT08U*)(SCRIPT_GETADDR(debugWorker->cmdPos + 2));
+//#endif	
+	debugWorker->len += 3;
+	#endif
 	//NEW08U(debugWorker->buf , debugWorker->len);
   //Mem_Read(debugWorker->buf, debugWorker->cmdPos + 3, (CDV_INT16U)(debugWorker->len));	
   debugWorker->buf = Mem_Ptr(debugWorker->cmdPos/* + 3*/);
@@ -189,7 +195,11 @@ RET_STATUS WorkerCmdParse(DEBUG_SCRIPT *debugWorker) {
 	CMD_ARG *arg = debugWorker->arg;
 	//INIT_CLEAR(arg);
 	//CmdArgInit(&arg);
+	#if USE_16BIT_CMD == 1u
 	if((KFC_IC == debugWorker->buf[0]&& 0x10 == debugWorker->buf[1] && arg->hostid == debugWorker->buf[4] ||(( KFC_IC != debugWorker->buf[0]|| 0x10 != debugWorker->buf[1]) && arg->hostid == debugWorker->buf[3] ))|| 
+	#else
+		if(arg->hostid == debugWorker->buf[3] || 
+	#endif
 		(KFC_IC == debugWorker->buf[0] && 0x10 > debugWorker->buf[1]))
 	{
 //		arg->uart = uartNo;

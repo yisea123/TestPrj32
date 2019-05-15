@@ -149,7 +149,11 @@ RET_STATUS LogicScript(CDV_INT08U* Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 
 
 RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
+#if USE_16BIT_CMD == 1u
   CDV_INT16U ExpLen=0;
+#else
+CDV_INT08U ExpLen=0;
+#endif
 	CDV_INT08U ResNo=0,Action=0,*Jump = NULL/*[2]={0}*/,*Calcu = NULL/*[100]={0}*/; 
 	CDV_INT16U JumpCmd=0;
 	CDV_INT32S Times=0;//公式中有多少个条件 
@@ -172,8 +176,13 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 //			Mem_Read(&ResNo,Addr + 4,1);
 //			Mem_Read(&Action,Addr + 9,1);
 //#else
+#if USE_16BIT_CMD == 1u
 	    ResNo = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 5/*4*/));
 	    Action = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 10/*9*/));
+#else
+	    ResNo = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 4));
+	    Action = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr + 9));
+#endif
 //#endif	
 			if(ResNo == 0x08 &&((Action == 0x03)||(Action == 0x02))){
 				//g_run.cmdPos[WorkNo] = *paddr;
@@ -182,6 +191,7 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 //#ifdef  _DEBUG_NPC_
 //			Mem_Read(&ExpLen,Addr,1);
 //#else
+#if USE_16BIT_CMD == 1u
 	    ExpLen = *(CDV_INT16U*)(SCRIPT_GETADDR(Addr));
 //#endif	
 			ExpLen = ExpLen - 12;
@@ -198,6 +208,22 @@ RET_STATUS Log_If(CDV_INT08U *Rbuf, CDV_INT16U rxLen,CMD_ARG *arg){
 			//Mem_Read(Calcu,Addr+11,ExpLen);
 			Mem_Read_Ptr((void**)(&Calcu),Addr+11+1/*16bit*/);
 
+#else
+        ExpLen = *(CDV_INT08U*)(SCRIPT_GETADDR(Addr));
+			ExpLen = ExpLen - 12;
+			
+			//Mem_Read(Jump,Addr+11+ExpLen,2);
+			
+	    JumpCmd = *(CDV_INT16U*)(SCRIPT_GETADDR(Addr+11+ExpLen));
+			
+//			Mem_Read_Ptr(&Jump,Addr+11+ExpLen);
+
+//			JumpCmd = CalculateForAll(Jump,0,2);
+			ASSERT(JumpCmd < ((DEBUG_SCRIPT*)(arg->ptrWorker))->cmdNum);
+
+			//Mem_Read(Calcu,Addr+11,ExpLen);
+			Mem_Read_Ptr((void**)(&Calcu),Addr+11);
+#endif
 			if(Result(Calcu,ExpLen,arg)){
 				
 				return OPT_SUCCESS;

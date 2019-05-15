@@ -140,14 +140,14 @@ void http_server_serve(
 		) 
 {
 	//CPU_SR_ALLOC();
-	struct pbuf *q;
+	struct pbuf *q = NULL;
 	u32 data_len = 0;
 	
-  struct netbuf *inbuf;
+  struct netbuf *inbuf = NULL;
   err_t recv_err, err;
-  char* buf;
+  char* buf = NULL;
   u16_t buflen;
-  struct fs_file * file;
+  struct fs_file * file = NULL;
 	
 #if ENABLE_MULTI_TCP
 	CDV_LIST* connect = connected_list->head->next;
@@ -258,13 +258,17 @@ void http_server_serve(
 			}
 			else/* if(recv_err == ERR_CLSD) */ //关闭连接
 			{
-				switch(g_cdvStat){
-					case CDV_RECV:
-						if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
-							g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
-						
-						break;
-				}
+//				switch(g_cdvStat){
+//					case CDV_RECV:
+//						if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
+//							g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
+//						//g_olCache.arg = NULL;
+//						break;
+//				}
+				if(g_cdvStat==CDV_RECV) {
+//						if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
+//							g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
+				} else {
 	#if ENABLE_MULTI_TCP
 				/* Close the connection (server closes in HTTP) */
 				netconn_close(conn);
@@ -278,19 +282,23 @@ void http_server_serve(
 				netbuf_delete(inbuf);
 				break;
 	#endif
+			  }
 			}
 			
 			/* Delete the buffer (netconn_recv gives us ownership,
 			so we have to make sure to deallocate the buffer) */
 			netbuf_delete(inbuf);
 			
-		}
+		}//if(conn)
+		
 #if ENABLE_MULTI_TCP
-	  if (connect->tail == connect->next || connect->tail == connect) {
-			connect = connect->head->next;
-		} else {
-			connect = connect->next;
-		}
+		if(g_cdvStat!=CDV_RECV) {
+			if (connect->tail == connect->next || connect->tail == connect) {
+				connect = connect->head->next;
+			} else {
+				connect = connect->next;
+			}
+	  }
 #endif
 	} // while(isLinkUp)
 	
@@ -360,6 +368,8 @@ static void netconn_server_thread(void *arg)
 { 
   struct netconn *conn, *newconn;
   err_t err, accept_err;
+	ip_addr_t ipaddr;
+	u16_t port;
 #if ENABLE_MULTI_TCP
   static char connected = 0;
 	CDV_LIST *connected_list = NULL;
@@ -390,8 +400,9 @@ static void netconn_server_thread(void *arg)
 				
         if(accept_err == ERR_OK)
         {
+					netconn_getaddr(newconn,&ipaddr,&port,0); //获取远端IP地址和端口号
 					newconn->recv_timeout = 10;  	//禁止阻塞线程 等待10ms
-					newconn->send_timeout = 10;  	//禁止阻塞线程 等待10ms
+					newconn->send_timeout = 5000;  	//禁止阻塞线程 等待10ms
           /* serve connection */
 #if ENABLE_MULTI_TCP
 					LIST_AddTail(connected_list, newconn,/* sizeof(newconn),*/ NETCONN_TAG);
@@ -650,4 +661,13 @@ RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_
 	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
 	
 	return ret;
+}
+
+u32_t GetIpFromArg(CMD_ARG *arg){  
+	ip_addr_t ipaddr = {0};
+	u16_t port = 0;
+	if(arg)
+	netconn_getaddr((struct netconn*)(arg->arg),&ipaddr,&port,0); //获取远端IP地址和端口号
+  
+	return ipaddr.addr;
 }

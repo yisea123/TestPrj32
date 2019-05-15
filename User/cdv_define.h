@@ -255,6 +255,8 @@ startup_stm32f40_41xxx.s
 	#endif
 	
 	#define USE_WORKER_DEBUG 1u
+	
+	#define USE_16BIT_CMD 0u // 支持长指令
 
 #endif
 
@@ -339,6 +341,8 @@ startup_stm32f40_41xxx.s
 #define VERSION_ADDR         0x100 
 // OTA升级地址，3个字节，如果是OTA即需要升级
 #define OTA_ADDR             VERSION_ADDR + 1
+// OTA升级的IP地址
+#define OTA_IP               OTA_ADDR + 10
 #define WORKER_NUM           SCRIP_MAX_RUN
 //#define SCRIP_NUM_RUN        0x050000                 //脚本运行数量
 //#define SCRIP_NUM_DEBUG      0x050005                   //脚本调试数量

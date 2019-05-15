@@ -604,12 +604,21 @@ void parse_task(void *p_arg)
 		if(HAVE_ONLINE_CMD) 
 		{
 			if(
-#if USE_CASCADE == 1u
+#if USE_16BIT_CMD == 1u
+  #if USE_CASCADE == 1u
 				(KFC_IC == g_olCache.buf[0] && 0x10 == g_olCache.buf[1] && CascadeGetNativeNo() == g_olCache.buf[4] || ((KFC_IC != g_olCache.buf[0] || 0x10 != g_olCache.buf[1]) && CascadeGetNativeNo() == g_olCache.buf[3] ))||
-#endif
+  #endif
 				(KFC_IC == g_olCache.buf[0] && (0x10 > g_olCache.buf[1]||0x30 == g_olCache.buf[1])) ||
 				(KFC_IC == g_olCache.buf[0] && 0x10 == g_olCache.buf[1] && 0x41 == g_olCache.buf[6]/*g_olCache.buf[5]*/)||
 			   KFC_IC != g_olCache.buf[0] ) 
+#else
+  #if USE_CASCADE == 1u
+				CascadeGetNativeNo() == g_olCache.buf[3] || 
+  #endif
+				(KFC_IC == g_olCache.buf[0] && (0x10 > g_olCache.buf[1]||0x30 == g_olCache.buf[1])) ||
+				(KFC_IC == g_olCache.buf[0] && 0x10 == g_olCache.buf[1] && 0x41 == g_olCache.buf[5])||
+			   KFC_IC != g_olCache.buf[0] ) 
+#endif
 			{
 				CMD_ARG arg;
 				CmdArgInit(&arg);

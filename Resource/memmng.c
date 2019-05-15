@@ -65,6 +65,7 @@ void *memmng_malloc(size_t size ) {
 			num = 0;
 		}
 	}
+	ASSERT(1);
 	return (void *)0;
 }
 

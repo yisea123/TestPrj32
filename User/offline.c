@@ -833,7 +833,11 @@ void Mem_ReadLine(void) {
   * @note   pos不会变
   */
 CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {	
+#if USE_16BIT_CMD == 1u
 	CDV_INT16U chNum;
+#else
+	CDV_INT08U chNum;
+#endif
 	CDV_INT16U cmdNo = 0, no;
 	CDV_INT32U addr = flashAddr;
 	while(addr - flashAddr < len-2) {
@@ -842,12 +846,18 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
 //		Mem_Read(&chNum, addr + 2, 1);
 //		Mem_Read((CDV_INT08U*)&no, addr, 2);
 //#else
+#if USE_16BIT_CMD == 1u
 	chNum = *(CDV_INT16U*)(SCRIPT_GETADDR(addr + 2));
 	//no = *(CDV_INT16U*)(SCRIPT_GETADDR(addr));//多余的
 //#endif	
 		
 		cmdNo++;
 		addr += chNum + 4 ;
+#else
+    	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));	
+		cmdNo++;
+		addr += chNum + 3 ;
+#endif
 	}
 
   return cmdNo;//返回有效命令数
@@ -864,6 +874,7 @@ CDV_INT16U Mem_TestCmdNum(CDV_INT32U flashAddr , CDV_INT16U len) {
   * @note   
   */
 CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
+#if USE_16BIT_CMD == 1u
 	CDV_INT16U chNum;
 	CDV_INT32U addr = flashAddr; 
 //#ifdef  _DEBUG_NPC_
@@ -874,6 +885,18 @@ CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
 	addr += chNum + 4 ;
 //addr += chNum + 3 ;
 	return addr;
+#else
+	CDV_INT08U chNum;
+	CDV_INT32U addr = flashAddr; 
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
+	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+//#endif	
+	addr += chNum + 3 ;
+
+	return addr;
+#endif
 }
 
 /**
@@ -887,6 +910,7 @@ CDV_INT32U Mem_GetNextCmdPos(CDV_INT32U flashAddr) {
   * @note   
   */
 CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
+#if USE_16BIT_CMD == 1u
 	CDV_INT16U chNum;
 	CDV_INT16U cmdNo = 0;
 	CDV_INT32U addr = startPos;
@@ -900,7 +924,21 @@ CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
 		addr += chNum + 4 ;
 		cmdNo++;
 	}
+#else
+	CDV_INT08U chNum;
+	CDV_INT16U cmdNo = 0;
+	CDV_INT32U addr = startPos;
 	
+	while(addr < currentPos) {
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
+	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+//#endif	
+		addr += chNum + 3 ;
+		cmdNo++;
+	}
+#endif
 	if (addr == currentPos) {
 		return cmdNo;
 	} else {
@@ -921,6 +959,7 @@ CDV_INT16U Mem_GetNoFromPos(CDV_INT32U startPos , CDV_INT32U currentPos) {
   * @note   
   */
 CDV_INT32U Mem_GetCmdPos(CDV_INT16U no , CDV_INT16U cmdNum , CDV_INT32U flashAddr) {
+#if USE_16BIT_CMD == 1u
 	CDV_INT16U chNum;
 	CDV_INT16U cmdNo = 0;
 	CDV_INT32U addr = flashAddr;
@@ -941,6 +980,28 @@ CDV_INT32U Mem_GetCmdPos(CDV_INT16U no , CDV_INT16U cmdNum , CDV_INT32U flashAdd
 		
 		cmdNo++;
 	}
+	#else
+	CDV_INT08U chNum;
+	CDV_INT16U cmdNo = 0;
+	CDV_INT32U addr = flashAddr;
+	
+	if(0 == cmdNum) {
+		return addr;
+	}
+	
+	while(cmdNo < cmdNum && no != cmdNo) {
+//#ifdef  _DEBUG_NPC_
+//	Mem_Read(&chNum, addr + 2, 1);
+//#else
+	chNum = *(CDV_INT08U*)(SCRIPT_GETADDR(addr + 2));
+//#endif	
+		{
+		  addr += chNum + 3 ;
+		}
+		
+		cmdNo++;
+	}
+	#endif
 	
 	if (no == cmdNo) {
 		return addr;

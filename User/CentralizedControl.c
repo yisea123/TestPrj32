@@ -278,12 +278,21 @@ void CentralizedControl_OTA(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 {
 	CDV_INT08C* fields = "OTA";
 	CDV_INT08U sndBuf[6] = {0xF3,0x04,0,0,0,0};
+	u32_t ip = 0;
 	
 	switch(buf[3]) {
 		case 0x00://Éý
 			sndBuf[2] = 0x00;
 		  sndBuf[3] = 0x00;
 			SPI_Flash_Write((CDV_INT08U*)fields, OTA_ADDR, 3);
+		
+			if(arg->uart == TCP_COM) {
+		    ip = GetIpFromArg(arg);
+			
+		  }
+		
+		  SPI_Flash_Write((CDV_INT08U*)(&ip), OTA_IP, 4);
+			
 		  ResRequest(sndBuf , 4, 0,0,arg, RC_CRC);
 			DoResRequest(arg);
 		  //AddTx(sndBuf,4,arg->uart);
@@ -292,7 +301,7 @@ void CentralizedControl_OTA(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
 			break;
 		case 0x01://²é
 			sndBuf[2] = 0x00;
-		  sndBuf[3] = 0x00;
+		  sndBuf[3] = 0x01;
 		  ResRequest(sndBuf , 4, 0,0,arg, RC_CRC);
 			break;
 		default:

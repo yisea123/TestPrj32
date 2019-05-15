@@ -86,13 +86,13 @@ void PeriphDriverInit(void)
   Fpga_Config_Init();
 #endif
 
-  mymem_init(SRAMCCM); 	//初始化CCM内存池
   USART_Configuration();
 
 #if USE_MEMMNG == 1u
 	
 	memmng_init();
 #endif
+  mymem_init(SRAMCCM); 	//初始化CCM内存池
 #if USE_COUNTER == 1u
   Counter_init();
 #endif

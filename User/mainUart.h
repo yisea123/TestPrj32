@@ -44,8 +44,13 @@ void FpgaRecvCtl(void);
 #define MAX_SELF_ADD(a,max) (a) = ((a)<(max)-1)?1+(a):0
 #define MAX_SELF_SUB(a,max) (a) = ((a)==0)?(max)-1:(a)-1
 
-#define USART_RX_QUEUE_LENGTH 3     /*串口接收队列长度*/
+#if USE_MEMMNG == 1u
+#define USART_RX_QUEUE_LENGTH 2     /*串口接收队列长度*/
 #define USART_RX_BUF_LENGTH 500    /*串口接收长度*/
+#else
+#define USART_RX_QUEUE_LENGTH 3     /*串口接收队列长度*/
+#define USART_RX_BUF_LENGTH 300    /*串口接收长度*/
+#endif
 #define USART_RX_QUEUE_SELF_ADD do{\
 	if(0 == g_uartRx.QUEUE.rxLen[g_uartRx.rxPos])break;\
 	(g_uartRx.doPos!=MAX_VAL_ADD(g_uartRx.rxPos,USART_RX_QUEUE_LENGTH))?MAX_SELF_ADD(g_uartRx.rxPos,USART_RX_QUEUE_LENGTH):NULL;\

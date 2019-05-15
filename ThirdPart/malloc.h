@@ -46,6 +46,9 @@
 //MAX 256B
 #define CCM_CASCADE_MODBUS    CCM_UNIVERSALSCOM_CNT - 0x100
 
+
+#include "cdv_define.h"
+
 //定义三个内存池
 #define SRAMIN 	0  //内部内存池
 #define SRAMEX 	1  //外部内存池
@@ -66,7 +69,11 @@
 
 //mem3内存参数设定,mem3处于CCM,用于管理CCM(特别注意,这部分SRAM,近CPU可以访问)
 #define MEM3_BLOCK_SIZE	32  			//内存块大小为32字节
+#if USE_MEMMNG == 1u
 #define MEM3_MAX_SIZE		60*1024//		32*1024 	//最大管理内存 32k
+#else
+#define MEM3_MAX_SIZE		32*1024 	//最大管理内存 32k
+#endif
 #define MEM3_ALLOC_TABLE_SIZE MEM3_MAX_SIZE/MEM3_BLOCK_SIZE  //内存表大小1024
 
 //内存管理控制器

@@ -1,5 +1,4 @@
 #include "malloc.h"
-#include "cdv_define.h"
 //////////////////////////////////////////////////////////////////////////////////	 
 //本程序只供学习使用，未经作者许可，不得用于其它任何用途
 //ALIENTEK STM32F407开发板
@@ -22,7 +21,7 @@ __align(4) u8 mem3base[MEM3_MAX_SIZE] CCM_MEM3BASE;//__attribute__((at(0x1000000
 #if USE_MEMMNG == 1u
 void* user_mem_ptr_base = NULL;
 #else
-__align(4) u8 usermem[CCM_USERMEMSIZE] CCM_MEM3MAPBASE;//__attribute__((at(0x10000000))); //内部CMM内存池
+__align(4) u8 usermem[CCM_USERMEMSIZE] CCM_USERMEMBASE;//CCM_MEM3MAPBASE;//__attribute__((at(0x10000000))); //内部CMM内存池
 #endif
 
 //内存管理表
@@ -69,9 +68,11 @@ void mymemset(void*s,u8 c,u32 count)
 //memx:所属内存块
 void mymem_init(u8 memx)
 {
+#if USE_MEMMNG == 1u
 	if(user_mem_ptr_base == NULL) {
 		NEWCH(user_mem_ptr_base, CCM_USERMEMSIZE);
 	}
+	#endif
 	mymemset(mallco_dev.memmap[memx],0,memtblsize[memx]*2); //内存状态表清零
 	mymemset(mallco_dev.membase[memx], 0,memsize[memx]);	//内存池所有数据清零  
 	mallco_dev.memrdy[memx]=1;								//内存管理初始化OK  

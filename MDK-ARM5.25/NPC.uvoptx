@@ -163,7 +163,7 @@
           <Type>0</Type>
           <LineNumber>434</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134352574</Address>
+          <Address>134352518</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -173,6 +173,38 @@
           <Filename>..\User\cdv_config.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\NPC\../User/cdv_config.c\434</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>122</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134476070</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\ThirdPart\malloc.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../ThirdPart/malloc.c\122</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>624</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134349734</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\User\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../User/main.c\624</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -341,6 +373,11 @@
           <WinNumber>1</WinNumber>
           <ItemText>g_olCache.buf</ItemText>
         </Ww>
+        <Ww>
+          <count>33</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>connect</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -413,12 +450,22 @@
           <WinNumber>2</WinNumber>
           <ItemText>lwipx</ItemText>
         </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>conn</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>connected_list</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>rxBuf</ItemText>
+          <ItemText>mem_mapbase</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
@@ -1991,7 +2038,7 @@
 
   <Group>
     <GroupName>LWIP</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1999,7 +2046,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>120</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\lwip-1.4.1\port\STM32F4x7\UCOSIII\ethernetif.c</PathWithFileName>

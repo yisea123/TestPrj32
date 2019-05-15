@@ -322,7 +322,8 @@ void CDVInfoSend(CDV_INT08U uartNo) {
   * @note   
   */
 void CDVUsartSend(CDV_INT08U uartNo) {
-	char tmp[USART_RX_BUF_LENGTH]={0};
+	char *tmp=NULL;//[USART_RX_BUF_LENGTH]={0};
+	NEWCH(tmp,USART_RX_BUF_LENGTH );
 	int i, j;
 	for (i = 0; i < USART_RX_QUEUE_LENGTH; i++)
 	{
@@ -340,6 +341,7 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 	memset(tmp, 0, USART_RX_BUF_LENGTH);
 	sprintf(tmp + 3*j , "doPos:%d\r\nrxPos:%d\r\n" , g_uartRx.doPos, g_uartRx.rxPos);
 	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	DELETE(tmp);
 }
 /**
   * @brief  分析联机、调试命令并操作
@@ -703,7 +705,13 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 //			if(g_scriptInfo.no >= SRP_NUM_RUN)
 //				return;
 		  
-		  ManagerControl(WORKER_STOP);
+		  //ManagerControl(WORKER_STOP);
+		#if USE_WORKER_DEBUG == 1u
+		AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
+		#endif
+		
+		AllWorkerCtrl(WORKER_STOP);
+		
 			
 			g_scriptInfo.addr = __LINE_ADDR;
 //			nameLen = rxBuf[5];//脚本名称长度
@@ -1690,12 +1698,14 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 	//CDV_INT32U cnt = 1 ;
 	CDV_INT32U lastRxPos = 0;
 	CDV_INT32U startTime ,endTime , time;
+	CDV_INT32U time1 ,time2;
 	if(0 == addr || 0 == len)
 		return;
 	ScriptRecvInit(addr , len);
 	OS_TaskSuspend((OS_TCB*)&CdvRefreshTaskTCB,&err);
 	
 	//startTime = GetCdvTimeTick();
+	time1 = GetCdvTimeTick();
 	
 	while(1) {//检测是否用户开启了FPGA程序下载到flash的拨码开关
 		//  ASSERT(g_scriptRecv.doPos < QUE_NUM);
@@ -1725,7 +1735,7 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 				if (time >  5000)
 					break;
 			}
-		} else if( 0 == start){
+		} else if( 0 == start){ // 一个数据都没接到
 			if(0 !=g_scriptRecv.len[g_scriptRecv.rxPos]) {
 				start = 1;
 				//startTime = GetCdvTimeTick();
@@ -1734,6 +1744,9 @@ void ScriptRecvCtl(CDV_INT32U addr , CDV_INT32U len) {
 //		    time = CalcTimeMS(endTime , startTime);
 //				if (time >  10000)
 //					break;
+		    time2 = CalcTimeMS(GetCdvTimeTick() , time1);
+				if (time2 >  5000) // 超过5S没有数据，直接退出
+					break;
 			}
 		}
 	}
@@ -1778,10 +1791,10 @@ void ScriptCrcChk(CDV_INT32U addr , CDV_INT32U len, CMD_ARG *arg) {
 #if USE_EXTI_POWER_OFF == 1u
 		FlashBak_BackUp();
 #endif
-		ResetCdv();
 	} else {
 		ModbusRequestPlus(65,02,arg);
 	}
+		ResetCdv();
 }
 
 

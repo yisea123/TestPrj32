@@ -285,7 +285,11 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg)
 			switch (buf[1]) {
 				case 0x10:                                               /*原下发指令*/
 					//ret = NPC1Parse(buf + 4, len - 4, arg);
+				#if USE_16BIT_CMD == 1u
 				  ret = NPC1Parse(buf + 5, len - 5, arg);//剩余长度16bit
+				#else
+				  ret = NPC1Parse(buf + 4, len - 4, arg);
+				#endif
 					break;
 				case 0x11:                                               /*新下发指令:通用串口*/
 					ret = NPC2Parse(buf + 3, len - 3, arg);
