@@ -406,7 +406,7 @@ RET_STATUS CmdParse(CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg)
 		{
 			if (arg->hostid == buf[0])
 			{
-				ModbusParse(buf, len, arg->uart);
+				ModbusParse(buf, len, arg);
 			}			
 			break;
 		}

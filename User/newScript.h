@@ -64,7 +64,7 @@ CDV_INT32U GetResAddr0(const CDV_INT08U resType, const CDV_INT08U resNo, const C
 RET_STATUS GetLineInfo(const CDV_INT08U no);
 
 
-void Flash_Send(const CDV_INT32U addr , const CDV_INT32U len, CDV_INT08U uartNo);
+void Flash_Send(const CDV_INT32U addr , const CDV_INT32U len, CMD_ARG *arg);
 RET_STATUS GetLineVersion(CDV_INT08U** buf, CDV_INT32U *len);
 RET_STATUS GetYYCVersion(CDV_INT08U** buf, CDV_INT32U *len);
 #endif

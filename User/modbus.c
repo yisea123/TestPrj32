@@ -49,7 +49,7 @@ MODBUS_Input_Register g_modbusInReg={0};
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U i, len ;
 	CDV_INT16U addr, num, numCh;
@@ -60,10 +60,10 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	num = (rxBuf[4]<<8) + rxBuf[5];
 	
 	if(0x0001 >num || num> 0x07D0){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > (COIL_CHN<<3) || addr + num > (COIL_CHN<<3)) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -89,7 +89,7 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
 	if(/*sf != 0 && */i!= 0)
 		txBuf[3+i-1] &= (0xFF>>(8 - (0 ==(num & 0x07)?8:(num & 0x07))));// ²¹0
 	
-  AddTx(txBuf , len, uartNo);
+  AddTxPlus(txBuf , len, arg);
 	DELETE(txBuf);
 	return 0;
 }
@@ -106,7 +106,7 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U i, len ;
 	CDV_INT16U addr, num, numCh;
@@ -117,10 +117,10 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´
 	num = (rxBuf[4]<<8) + rxBuf[5];//¶ÁiÊýÁ¿
 	
 	if(0x0001 >num || num> 0x07D0){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > (INCOIL_CHN<<3) || addr + num > (INCOIL_CHN<<3)) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -148,7 +148,7 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´
 	if(/*sf != 0 &&*/ i!= 0)
 		txBuf[3+i-1] &= (0xFF>>(8 - (0 ==(num & 0x07)?8:(num & 0x07))));// ²¹0
 	
-  AddTx(txBuf , len, uartNo);	
+  AddTxPlus(txBuf , len, arg);	
 	DELETE(txBuf);
 	return 0;
 }
@@ -165,7 +165,7 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U i, len ;
 	CDV_INT16U addr, num;
@@ -176,10 +176,10 @@ int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»
 	num = (rxBuf[4]<<8) + rxBuf[5];
 	
 	if(0x0001 >num || num> 0x007D){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > REG_N || addr + num > REG_N) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -195,7 +195,7 @@ int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»
 		txBuf[3 +(i<<1)+ 1] = LOW16U(MODBUS_REG_ADDR(addr + i));
 	}
 	
-  AddTx(txBuf , len, uartNo);
+  AddTxPlus(txBuf , len, arg);
   DELETE(txBuf);
 	return 0;	
 }
@@ -212,7 +212,7 @@ int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U i, len ;
 	CDV_INT16U addr, num;
@@ -223,10 +223,10 @@ int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡
 	num = (rxBuf[4]<<8) + rxBuf[5];
 	
 	if(0x0001 >num || num> 0x007D){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > INREG_N || addr + num > INREG_N) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -242,7 +242,7 @@ int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡
 		txBuf[3 +(i<<1)+ 1] = LOW16U(MODBUS_INREG_ADDR(addr + i));
 	}
 	
-  AddTx(txBuf , len, uartNo);
+  AddTxPlus(txBuf , len, arg);
 	DELETE(txBuf);
 	return 0;	
 }
@@ -259,7 +259,7 @@ int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	//CDV_INT08U len ;
 	CDV_INT16U addr, num;
@@ -271,10 +271,10 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì
 //	sta = (addr >> 3) /*+ 3*/;//¶ÁÏßÈ¦µÄµÚ¼¸×Ö½Ú 0->*
 //	sf = addr & 0x07;//¶ÁÏßÈ¦µÄµÚ¼¸Î» 9->0
 	if(addr > (COIL_CHN<<3) ) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}else if(num != 0x0000 && num != 0xFF00) {
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	}
 //	len = rxLen;//tx×Ü³¤¶È=rx Ô­ÑùÓ¦´ð
@@ -316,7 +316,7 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì
 		}
 //	}
 	
-	AddTx(rxBuf , rxLen, uartNo);
+	AddTxPlus(rxBuf , rxLen, arg);
 //	AddTx(txBuf , len, uartNo);
 //	DELETE(txBuf);
 	return 0;	
@@ -335,7 +335,7 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U addr, num;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
@@ -343,7 +343,7 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î
 	num = (rxBuf[4]<<8) + rxBuf[5];
 	
 	if(addr > REG_N ) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 //	else if(num < 0x0000 || num > 0xFFFF) {
@@ -353,7 +353,7 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î
 	
 	MODBUS_REG_ADDR(addr) = num;
 	
-  AddTx(rxBuf , rxLen, uartNo);
+  AddTxPlus(rxBuf , rxLen, arg);
 
 #if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
@@ -373,7 +373,7 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
+int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 	
 	CDV_INT16U i;
 	CDV_INT16U addr, num, numCh;
@@ -389,10 +389,10 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
 	numCh = end - sta;//¼ä¸ôÊý
 	
 	if(0x0001 >num || num> 0x07B0 ||((num>>3)+(num&0x07?1:0)) != rxBuf[6]){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > (COIL_CHN<<3) || addr + num > (COIL_CHN<<3)) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -423,7 +423,7 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
 	{
 		OWrite(i, BIT_0);
 	}
-  AddTx(rxBuf , 6, uartNo);		
+  AddTxPlus(rxBuf , 6, arg);		
   return 0;	
 }
 			
@@ -439,7 +439,7 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//»ñÈ¡Î»×´Ì¬
+int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
 	CDV_INT16U i;
 	CDV_INT16U addr, num , numCh , data;
@@ -449,10 +449,10 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//
 	numCh = rxBuf[6];
 	
 	if(0x0001 >num || num> 0x007B ||numCh != num*2){
-		ModbusRequest(rxBuf[1] , 3, uartNo);
+		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	} else if(addr > REG_N || addr + num > REG_N) {
-		ModbusRequest(rxBuf[1] , 2, uartNo);
+		ModbusRequest(rxBuf[1] , 2, arg);
 		return 2;
 	}
 	
@@ -465,7 +465,7 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//
 		MODBUS_REG_ADDR(addr+i) = data;
 	}
 	
-	AddTx(rxBuf , 6/*rxLen*/, uartNo);
+	AddTxPlus(rxBuf , 6/*rxLen*/, arg);
 #if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
 	ValToFlash((addr>>1), (num>>1));
 #endif
@@ -484,28 +484,28 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo){//
   * @note   RecvParseÖÐ
   */
 
-CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo){	
+CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg/*, CDV_INT08U uartNo*/){	
 
 //	OS_ERR err;
 	int ret = 0;
 	switch(rxBuf[1]){ //ÃüÁîÂëÉ¸Ñ¡
 		case 1://¶ÁÏßÈ¦
-			ret = ReadCoil(rxBuf,rxLen, uartNo);
+			ret = ReadCoil(rxBuf,rxLen, arg);
 			break;
 		case 2://¶ÁÊäÈëÏßÈ¦
-			ret = ReadInCoil(rxBuf,rxLen, uartNo);
+			ret = ReadInCoil(rxBuf,rxLen, arg);
 			break;
 		case 3://¶Á¼Ä´æÆ÷
-			ret = ReadRegister(rxBuf,rxLen, uartNo);
+			ret = ReadRegister(rxBuf,rxLen, arg);
 			break;
 		case 4://¶ÁÊäÈë¼Ä´æÆ÷
-			ret = ReadInRegister(rxBuf,rxLen, uartNo);
+			ret = ReadInRegister(rxBuf,rxLen, arg);
 			break;
 		case 5://Ð´µ¥ÏßÈ¦
-			ret = WriteCoil(rxBuf,rxLen, uartNo);
+			ret = WriteCoil(rxBuf,rxLen, arg);
 			break;
 		case 6://Ô¤ÖÃµ¥¼Ä´æÆ÷
-			ret = WriteRegister(rxBuf,rxLen, uartNo);
+			ret = WriteRegister(rxBuf,rxLen, arg);
 			break;
 		case 7://¶ÁÈ¡Òì³£×´Ì¬
 			break;
@@ -520,10 +520,10 @@ CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo){
 		case 12://¶ÁÈ¡Í¨ÐÅÊÂ¼þ¼ÇÂ¼
 			break;
 		case 15://Ð´¶àÏßÈ¦
-			ret = WriteMultiCoil(rxBuf,rxLen, uartNo);
+			ret = WriteMultiCoil(rxBuf,rxLen, arg);
 			break;
 		case 16://Ô¤ÖÃ¶à¼Ä´æÆ÷
-			ret = WriteMultiRegister(rxBuf,rxLen, uartNo);
+			ret = WriteMultiRegister(rxBuf,rxLen, arg);
 			break;
 		case 17://±¨¸æ´Ó»ú±êÖ¾
 			break;
@@ -534,7 +534,7 @@ CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo){
 		case 0xfe://×Ô¶¨Òå¶Á
 			break;
 		default: //ÃüÁîÂëÎÞÐ§²»Ó¦´ð
-			ModbusRequest(rxBuf[1], 1, uartNo);
+			ModbusRequest(rxBuf[1], 1, arg);
 			break;
 	}
 	

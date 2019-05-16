@@ -38,11 +38,12 @@
 extern CDV_LIST *g_connected;
 #endif
 u32_t GetIpFromArg(CMD_ARG *arg);
-void EthInfoSend(CDV_INT08U uartNo);
+void EthInfoSend(CMD_ARG *arg);
 u8 tcp_server_init(void);			//TCP服务器初始化(创建TCP服务器线程)
 RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CMD_ARG *arg);
 RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
 RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_INT08U* exBuf, CDV_INT16U exLen);
+RET_STATUS TCP_ServerSendExPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_INT08U* exBuf, CDV_INT16U exLen, CMD_ARG *arg);
 //#endif
 #endif
 

@@ -142,7 +142,7 @@ u8 udpecho_init(void)
 
 //static unsigned short port;
 /*-----------------------------------------------------------------------------------*/
-void udpecho_find( CDV_INT08U uartNo)
+void udpecho_find(CMD_ARG *arg)
 {
   err_t err, recv_err;
 	struct netconn *conn = NULL;
@@ -218,7 +218,7 @@ void udpecho_find( CDV_INT08U uartNo)
   {
   }
 	
-	AddTxNoCrc((CDV_INT08U*)buffer, buffer_pointer,uartNo);
+	AddTxNoCrcPlus((CDV_INT08U*)buffer, buffer_pointer,arg);
 	DELETE(buffer);
   netbuf_delete(sbuf);
 }

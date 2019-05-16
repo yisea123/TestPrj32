@@ -934,7 +934,7 @@ CDV_INT32S CalculateForAll(CDV_INT08U* buf,CDV_INT32S addr,CDV_INT32S lenth)
 	return x;
 }
 
-/** @brief  资源反馈(旧版)。
+/** @brief  资源反馈(旧版)。快点弃用
   * @param  rxBuf     原始字符串
   *         rxLen     ↑长度
 	*         para      附加参数字符串
@@ -1138,7 +1138,7 @@ RET_STATUS DoSpecRequest(CMD_ARG *arg)	{
 		return OPT_FAILURE;
 	}
 
-	AddTx(arg->specbuf , arg->speclen , arg->uart);
+	AddTxPlus(arg->specbuf , arg->speclen , arg);
 	DELETE(arg->specbuf);
 	arg->speclen = 0;
 	

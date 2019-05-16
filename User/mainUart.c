@@ -231,7 +231,7 @@ extern	CDV_INT08U slaveTableLen;
   *
   * @note   
   */
-void CDVInfoSend(CDV_INT08U uartNo) {
+void CDVInfoSend(CMD_ARG *arg) {
 	CDV_INT08U i , no;
 	char tmp[50]={0};
 #ifdef __ENABLE_RTC
@@ -241,9 +241,9 @@ void CDVInfoSend(CDV_INT08U uartNo) {
 	#endif
 	
 	
-	AddTxNoCrc(
+	AddTxNoCrcPlus(
 	#define INFO_STR "\r\n"
-	INFO_STR, strlen(INFO_STR), uartNo);
+	INFO_STR, strlen(INFO_STR), arg);
 //	sprintf(tmp , "%s\r\n%s%d %d\r\nwifi link:%x\r\n" 
 //	,(CDV_INT08U*)cdv_error[g_cdvStat] 
 //	,"start/stop:" 
@@ -255,14 +255,14 @@ void CDVInfoSend(CDV_INT08U uartNo) {
 	sprintf(tmp , "%s\r\n" 
 	,(CDV_INT08U*)cdv_error[g_cdvStat] 
 	);
-	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 #if USE_CASCADE == 1u
 	//if(slaveTableLen)
 	{
 		sprintf(tmp , "本机id:%d\r\n" 
 		,CascadeGetNativeNo()
 		);
-		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 	}
 #endif
 	if(g_line.init)
@@ -273,12 +273,12 @@ void CDVInfoSend(CDV_INT08U uartNo) {
 	{
 		sprintf(tmp , "生产线初始化失败\r\n" );
 	}
-	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 	
 	for(i = 0; i < WORKER_NUM ; i++) {
 		if (IsTaskExist(WorkerTaskTCB[i])) {
 			sprintf(tmp,"thread%d-worker%d:step:%d exitStep:%d status:%s\r\n", i, g_threadInfo[i].which, g_threadInfo[i].step, g_threadInfo[i].exitStep, WorkerStatusName[g_threadInfo[i].status]);
-	        AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	        AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 		}
 
 	}
@@ -321,7 +321,7 @@ void CDVInfoSend(CDV_INT08U uartNo) {
   *
   * @note   
   */
-void CDVUsartSend(CDV_INT08U uartNo) {
+void CDVUsartSend( CMD_ARG *arg) {
 	char *tmp=NULL;//[USART_RX_BUF_LENGTH]={0};
 	NEWCH(tmp,USART_RX_BUF_LENGTH );
 	int i, j;
@@ -334,13 +334,13 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 			sprintf(tmp + 3*j , "%x " , g_uartRx.QUEUE.rxBuf[i][j]);
 		}
 		
-		AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
-		AddTxNoCrc("\r\n", 2, uartNo);
+		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
+		AddTxNoCrcPlus("\r\n", 2, arg);
 	}
 	
 	memset(tmp, 0, USART_RX_BUF_LENGTH);
 	sprintf(tmp + 3*j , "doPos:%d\r\nrxPos:%d\r\n" , g_uartRx.doPos, g_uartRx.rxPos);
-	AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+	AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 	DELETE(tmp);
 }
 /**
@@ -356,7 +356,7 @@ void CDVUsartSend(CDV_INT08U uartNo) {
 //不能使用addtx等，因如果workermanage先申请了锁，会导致死锁
   */
 
-RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, void *arg)
+RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, void *conn)
 {
 	vu32 local_start = 0;
 	vu32 local_clk = 0;
@@ -388,21 +388,26 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 //		}	
 //		/*************************************************************/
 //		else 
-		if(0 == OnlineCmdCache(rxBuf , rxLen-2, uartNo, arg)) {
+		if(0 == OnlineCmdCache(rxBuf , rxLen-2, uartNo, conn)) {
 			//ChangeCdvStat(rxBuf , rxLen, uartNo);
 			ret = OPT_FAILURE;
   	}
 	} 
 	else/* if (MAIN_COM == uartNo)*/
-	{//判断是否AT指令
+	{
+		CMD_ARG arg;
+		CmdArgInit(&arg);
+		arg.uart = uartNo;
+		arg.arg = conn;
+		//判断是否AT指令
 		//AddTx(rxBuf , rxLen-2);
 		if(0 == strncmp((CDV_INT08C*)rxBuf,"CDV INF",7))//只能在UCOS线程还能调度的时候查询
 		{
 			//Log_Write("Get inf" , LOG_EVENT);
-			CDVInfoSend(uartNo);
+			CDVInfoSend(&arg);
 			
 #if USE_NPC_NET
-			EthInfoSend(uartNo);
+			EthInfoSend(&arg);
 #endif
 		}
 //		else if(0 == strncmp((CDV_INT08C*)rxBuf,"CDV TIM",7)) {//流程计时
@@ -419,7 +424,7 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 //			AddTx((CDV_INT08U*)temp, 2, uartNo);
 //		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET USART",10)){
-			CDVUsartSend(uartNo);
+			CDVUsartSend(&arg);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"LINE START",10)){
 			//AllWorkerCtrl(WORKER_LOOP);
@@ -450,11 +455,11 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 			if(RPressureCnt >= 100){
 				for(i = 0 ; i < 100 ; i++) {
 					sprintf(tmp, "%lf\r\n", RPressureData[i]);
-					AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+					AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), &arg);
 				}
 			}else{
 				sprintf(tmp, "%s\r\n", "not ready");
-				AddTxNoCrc((CDV_INT08U*)tmp, strlen(tmp), uartNo);
+				AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), &arg);
 			}
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf, "SET NET", 7)){//SET NET 192.168.1.1:60000
@@ -484,11 +489,11 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 					MemCpy(ip + 4, &port, 2);
 					i += 2;
 				  SPI_Flash_Write((CDV_INT08U *)&ip, NET_ADDR, 6);
-				  AddTxNoCrc("SUCCESS", 7, uartNo);
+				  AddTxNoCrcPlus("SUCCESS", 7, &arg);
 	        return ret;
 				}
 			}
-		  AddTxNoCrc("FAILURE", 7, uartNo);
+		  AddTxNoCrcPlus("FAILURE", 7, &arg);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf, "SET NPC", 7)){//SET NPC 0:192.168.1.1:60000
 			CDV_INT32S i = 0;
@@ -527,19 +532,19 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 					MemCpy(ip + 4, &port, 2);
 					i += 2;
 				  SPI_Flash_Write((CDV_INT08U *)&ip, NET_ADDR, 6);
-				  AddTxNoCrc("SUCCESS", 7, uartNo);
+				  AddTxNoCrcPlus("SUCCESS", 7, &arg);
 	        return ret;
 				}
 			}
-		  AddTxNoCrc("FAILURE", 7, uartNo);
+		  AddTxNoCrcPlus("FAILURE", 7, &arg);
 #if USE_NPC_NET == 1u
 		} else if (0 == strncmp((CDV_INT08C*)rxBuf, "NPC FIND", 8)) {
-			udpecho_find(uartNo);
+			udpecho_find(&arg);
 #endif
 		} else {///回复开发层
 		  //OnlineRequest(rxBuf[1], 0xFF, 0xFF, uartNo);
 	  }
-		
+		CmdArgDelete(&arg);
 	}
 //	LED3 = LED_OFF;
 	return ret;
@@ -706,11 +711,11 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 //				return;
 		  
 		  //ManagerControl(WORKER_STOP);
-		#if USE_WORKER_DEBUG == 1u
-		AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
-		#endif
-		
-		AllWorkerCtrl(WORKER_STOP);
+			#if USE_WORKER_DEBUG == 1u
+			AllDebugStateSet(DEBUG_DISABLE);//先关掉，不然退不出
+			#endif
+			
+			AllWorkerCtrl(WORKER_STOP);
 		
 			
 			g_scriptInfo.addr = __LINE_ADDR;
@@ -730,7 +735,7 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 			
 			len = rxLen;//tx总长度=rx
 			//delay_ms(900);
-			AddTx(rxBuf , len-2, arg->uart);//回复上位机，已收录到
+			AddTxPlus(rxBuf , len-2, arg);//回复上位机，已收录到
 			
 			ScriptRecvCtl(g_scriptInfo.addr , g_scriptInfo.len);
 			ScriptCrcChk(g_scriptInfo.addr , g_scriptInfo.len, arg);
@@ -766,14 +771,14 @@ void OperateScript(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 			txBuf[6] = g_scriptInfo.len >> 16;
 			txBuf[7] = g_scriptInfo.len >> 24;
 		
-			AddTx(txBuf , 8, arg->uart);
+			AddTxPlus(txBuf , 8, arg);
 			delay_ms(50);
 			
 		  g_scriptInfo.addr = __LINE_ADDR;
 			
 		  g_scriptInfo.tmpLen = 0;
 			
-			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len, arg->uart);
+			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len, arg);
 					
 			DELETE(txBuf);
 			break;		
@@ -791,7 +796,7 @@ case 0x0002://压缩包读
 			txBuf[arg->len+3] = g_scriptInfo.len >> 24;
 		  g_scriptInfo.addr = SCRIP_YYC;
 			g_scriptInfo.tmpLen = 0;
-			AddTx(txBuf , arg->len + 4, arg->uart);
+			AddTxPlus(txBuf , arg->len + 4, arg);
 			//delay_ms(50);	
 			DELETE(txBuf);
 {
@@ -807,9 +812,9 @@ case 0x0002://压缩包读
 			
 		  
 			
-			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len - 2, arg->uart);
+			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len - 2, arg);
 
-      AddTxNoCrc((CDV_INT08U*)&crc ,2 ,arg->uart );
+      AddTxNoCrcPlus((CDV_INT08U*)&crc ,2 ,arg );
 				
 			break;		
 //		case 0x0003://设置调试脚本数量
@@ -840,7 +845,7 @@ case 0x0002://压缩包读
 			if(0 >= g_scriptInfo.len)//
 				return;
 				
-			AddTx(rxBuf , rxLen-2, arg->uart);//回复上位机，已收录到
+			AddTxPlus(rxBuf , rxLen-2, arg);//回复上位机，已收录到
 			
 			ScriptRecvCtl(g_scriptInfo.addr , g_scriptInfo.len);
 			break;
@@ -855,11 +860,11 @@ case 0x0002://压缩包读
 			MemCpy(txBuf , rxBuf , 5);
 			txBuf[5] = (CDV_INT08U)(g_scriptInfo.len>>8);
 			txBuf[6] = (CDV_INT08U)(g_scriptInfo.len);
-			AddTx(txBuf , 7, arg->uart);
+			AddTxPlus(txBuf , 7, arg);
 			
 			g_scriptInfo.addr = INI_ADDR(g_scriptInfo.no);
 			
-			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len, arg->uart);
+			Flash_Send(g_scriptInfo.addr, g_scriptInfo.len, arg);
 					
 			DELETE(txBuf);
 			break;
@@ -871,7 +876,7 @@ case 0x0002://压缩包读
 //		    SPI_Flash_Write(rxBuf + 4,SCRIP_LINE_NAME,rxBuf[4] + 1);
 //			break;
 		case 0x0010://FPGA脚本下载
-			AddTx(rxBuf , rxLen-2, arg->uart);
+			AddTxPlus(rxBuf , rxLen-2, arg);
 //			switch(rxBuf[4]) {
 //				case 0:
 //			    ScriptRecvCtl(FPGA_MOTOR , FPGA_LEN);
@@ -883,10 +888,10 @@ case 0x0002://压缩包读
 //					break;
 //			}
 			ScriptRecvCtl(FPGA_MOTOR , FPGA_LEN);
-		  AddTx(rxBuf , rxLen-2, arg->uart);
+		  AddTxPlus(rxBuf , rxLen-2, arg);
 			break;
 		case 0x0011://FPGA脚本上传
-      Flash_Send(FPGA_MOTOR , FPGA_LEN, arg->uart);
+      Flash_Send(FPGA_MOTOR , FPGA_LEN, arg);
 			break;
 		case 0xFF00://RESET
 			CLI();
@@ -906,19 +911,19 @@ case 0x0002://压缩包读
   *   
   * @retval 返回值说明
   *
-  * @note   
+  * @note   没有用，请弃用
   */
-void OnlineRequest(CDV_INT08U no,CDV_INT08U res,CDV_INT08U resNo, CDV_INT08U uartNo) {
-	CDV_INT08U len , *txBuf =NULL;
-	len = 4;
-	NEW08U(txBuf , len);
-	txBuf[0] = CDV_ID;
-	txBuf[1] = no+0x80;
-	txBuf[2] = res;
-	txBuf[3] = resNo;
-	AddTx(txBuf , len , uartNo);
-	DELETE(txBuf);
-}
+//void OnlineRequest(CDV_INT08U no,CDV_INT08U res,CDV_INT08U resNo, CDV_INT08U uartNo) {
+//	CDV_INT08U len , *txBuf =NULL;
+//	len = 4;
+//	NEW08U(txBuf , len);
+//	txBuf[0] = CDV_ID;
+//	txBuf[1] = no+0x80;
+//	txBuf[2] = res;
+//	txBuf[3] = resNo;
+//	AddTx(txBuf , len , uartNo);
+//	DELETE(txBuf);
+//}
 /**
   * @brief  modbus功能码出错回复
   *         
@@ -931,7 +936,7 @@ void OnlineRequest(CDV_INT08U no,CDV_INT08U res,CDV_INT08U resNo, CDV_INT08U uar
   *
   * @note   
   */
-void ModbusRequest(CDV_INT08U no,CDV_INT08U errNo, CDV_INT08U uartNo) {
+void ModbusRequest(CDV_INT08U no,CDV_INT08U errNo, CMD_ARG *arg) {
 	CDV_INT08U len , *txBuf =NULL;
 //	OS_ERR err;
 	switch(no) {
@@ -984,7 +989,7 @@ void ModbusRequest(CDV_INT08U no,CDV_INT08U errNo, CDV_INT08U uartNo) {
 			txBuf[2] = errNo;
 			break;
 	}
-	AddTx(txBuf , len , uartNo);
+	AddTxPlus(txBuf , len , arg);
 	DELETE(txBuf);
 }
 
@@ -1278,7 +1283,7 @@ void AddTxNoCrcPlus(CDV_INT08U* txBuf, CDV_INT16U txLen, CMD_ARG *arg) {
   *   
   * @retval 返回值说明
   *
-  * @note   
+  * @note   找机会都改成 AddTxNoCrcPlus
   */
 void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 	//OS_ERR err;
@@ -1444,6 +1449,63 @@ void AddTxNoCrc(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 //}
 //	
 //}
+/** @brief  带crc发送
+  * @param  
+  * @retval 
+  * @note   arg版
+  */
+void AddTxPlus(CDV_INT08U* txBuf, CDV_INT16U txLen, CMD_ARG *arg) {
+	CDV_INT16U crc;
+	
+	CDV_INT16U txRealLen;
+	CDV_INT08U *TX_BUF= NULL;
+	CDV_INT08U TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
+	CDV_INT08U uartNo = arg->uart;
+	
+	ASSERT(txBuf && txLen);
+	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
+		return;
+
+	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
+	//crc = getCRC16(txBuf,txLen);
+	
+	
+	if(txBuf[0] != 0xF2){
+		TX_BUF = txBuf;
+	}else{//包头
+		TX_Head[5] = txLen+2;
+		txRealLen=txLen+6;
+		NEW08U(TX_BUF,txRealLen);
+		MemCpy(TX_BUF , TX_Head, 6);
+		if(txLen>0)
+		MemCpy(TX_BUF+6 , txBuf, txLen);	
+		txLen = txRealLen;
+	}
+	
+	if(TCP_COM == uartNo)
+	{
+		while (OPT_FAILURE == TCP_ServerSendExPlus(TX_BUF, txLen, (CDV_INT08U*)&crc, 2,arg));
+	}	
+	else if(MAIN_COM == uartNo) //main usart
+	{
+		while (OPT_FAILURE == MAINUSART_SendEx(TX_BUF, txLen, (CDV_INT08U*)&crc, 2));
+	}
+	else
+	{
+		USARTSend(TX_BUF, txLen, uartNo);
+		USARTSend((CDV_INT08U*)&crc, 2, uartNo);
+	}
+	
+	if(txBuf[0] == 0xF2)
+	{
+		DELETE(TX_BUF);
+	}
+}
+/** @brief  带crc发送
+  * @param  
+  * @retval 
+  * @note   普通版
+  */
 void AddTx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 	CDV_INT16U crc;
 	
@@ -1491,64 +1553,64 @@ void AddTx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U uartNo) {
 		DELETE(TX_BUF);
 	}
 }
-void AddTx111(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
-	CDV_INT16U crc;
-	
-	ASSERT(txBuf && txLen);
-	if(NULL == txBuf || 0 == txLen)
-		return;
+//void AddTx111(CDV_INT08U* txBuf, CDV_INT08U txLen, CDV_INT08U uartNo) {
+//	CDV_INT16U crc;
+//	
+//	ASSERT(txBuf && txLen);
+//	if(NULL == txBuf || 0 == txLen)
+//		return;
 
-	//getCRC16(txBuf,txLen);
-	//crc_ccitt(txBuf,txLen,0xffff);
-	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
-	if(TCP_COM == uartNo)
-	{
-//		while (OPT_FAILURE == TCP_ServerSend(txBuf, txLen));
-//		while (OPT_FAILURE == TCP_ServerSend((CDV_INT08U*)&crc, 2));
-		while (OPT_FAILURE == TCP_ServerSendEx(txBuf, txLen, (CDV_INT08U*)&crc, 2));
-	}	
-//	else if(0xFF == uartNo)
+//	//getCRC16(txBuf,txLen);
+//	//crc_ccitt(txBuf,txLen,0xffff);
+//	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
+//	if(TCP_COM == uartNo)
 //	{
-//		Cascade_Slave_Write(txBuf, txLen);
-//	}
-	else if(MAIN_COM == uartNo) //main usart
-	{
-//		while (OPT_FAILURE == MAINUSART_Send(txBuf, txLen));
-//		while (OPT_FAILURE == MAINUSART_Send((CDV_INT08U*)&crc, 2));
-		while (OPT_FAILURE == MAINUSART_SendEx(txBuf, txLen, (CDV_INT08U*)&crc, 2));
-		
-		
-	}
-	else
-	{
-		USARTSend(txBuf, txLen, uartNo);
-		USARTSend((CDV_INT08U*)&crc, 2, uartNo);
-	}
-//	
-//	while(!USART_CAN_DO) {//这句是因为连续add显示变量会死机而添加的
-//		//OSTimeDlyHMSM(0,0,0,20,OS_OPT_TIME_HMSM_STRICT,&err); //延时
-//		return;
-//	}
-//	
-//	OSSemPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
-//	if(err == OS_ERR_TIMEOUT)
-//		return;
-//	if(USART_CAN_DO){
+////		while (OPT_FAILURE == TCP_ServerSend(txBuf, txLen));
+////		while (OPT_FAILURE == TCP_ServerSend((CDV_INT08U*)&crc, 2));
+//		while (OPT_FAILURE == TCP_ServerSendEx(txBuf, txLen, (CDV_INT08U*)&crc, 2));
+//	}	
+////	else if(0xFF == uartNo)
+////	{
+////		Cascade_Slave_Write(txBuf, txLen);
+////	}
+//	else if(MAIN_COM == uartNo) //main usart
+//	{
+////		while (OPT_FAILURE == MAINUSART_Send(txBuf, txLen));
+////		while (OPT_FAILURE == MAINUSART_Send((CDV_INT08U*)&crc, 2));
+//		while (OPT_FAILURE == MAINUSART_SendEx(txBuf, txLen, (CDV_INT08U*)&crc, 2));
 //		
-//		USART_TX_ADD_WITH_LEN(len);//开辟空间	
-//		memcpy(USART_TX_BUF_ADDR, txBuf , txLen);		
-//		//RequestAdd(USART_TX_BUF_ADDR, len);
-//		memcpy(USART_TX_BUF_ADDR + txLen, &crc, 2);
-//		USART_TX_QUEUE_SELF_ADD;			
 //		
-//	//} else {
-//		//OSTimeDlyHMSM(0,0,0,USART_SEND_GAP,OS_OPT_TIME_HMSM_STRICT,&err); //延时
 //	}
-//	OSSemPost (&TX_SEM,OS_OPT_POST_1,&err);
-//	//OSTimeDlyHMSM(0,0,0,USART_SEND_GAP,OS_OPT_TIME_HMSM_STRICT,&err); //延时//防止8个工人一起发送//这句是因为连续add显示变量会死机而添加的
-//	OSTaskResume((OS_TCB*)&UsartSendTaskTCB,&err);
-	
-}
+//	else
+//	{
+//		USARTSend(txBuf, txLen, uartNo);
+//		USARTSend((CDV_INT08U*)&crc, 2, uartNo);
+//	}
+////	
+////	while(!USART_CAN_DO) {//这句是因为连续add显示变量会死机而添加的
+////		//OSTimeDlyHMSM(0,0,0,20,OS_OPT_TIME_HMSM_STRICT,&err); //延时
+////		return;
+////	}
+////	
+////	OSSemPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+////	if(err == OS_ERR_TIMEOUT)
+////		return;
+////	if(USART_CAN_DO){
+////		
+////		USART_TX_ADD_WITH_LEN(len);//开辟空间	
+////		memcpy(USART_TX_BUF_ADDR, txBuf , txLen);		
+////		//RequestAdd(USART_TX_BUF_ADDR, len);
+////		memcpy(USART_TX_BUF_ADDR + txLen, &crc, 2);
+////		USART_TX_QUEUE_SELF_ADD;			
+////		
+////	//} else {
+////		//OSTimeDlyHMSM(0,0,0,USART_SEND_GAP,OS_OPT_TIME_HMSM_STRICT,&err); //延时
+////	}
+////	OSSemPost (&TX_SEM,OS_OPT_POST_1,&err);
+////	//OSTimeDlyHMSM(0,0,0,USART_SEND_GAP,OS_OPT_TIME_HMSM_STRICT,&err); //延时//防止8个工人一起发送//这句是因为连续add显示变量会死机而添加的
+////	OSTaskResume((OS_TCB*)&UsartSendTaskTCB,&err);
+//	
+//}
 
 
 ///**

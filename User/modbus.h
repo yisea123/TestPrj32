@@ -443,7 +443,7 @@ extern MODBUS_Input_Coil g_modbusInCoil;
 
 
 //CDV_INT16U getCRC16(CDV_INT08U *ptr,CDV_INT16U len) ;
-CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo);
+CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg/*, CDV_INT08U uartNo*/);
 //void RequestAdd(CDV_INT08U* rxBuf,CDV_INT08U txLen);
 
  /************************************************************

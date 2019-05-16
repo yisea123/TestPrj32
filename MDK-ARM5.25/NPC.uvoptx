@@ -119,10 +119,6 @@
       <TargetDriverDllRegistry>
         <SetRegEntry>
           <Number>0</Number>
-          <Key>DLGUARM</Key>
-        </SetRegEntry>
-        <SetRegEntry>
-          <Number>0</Number>
           <Key>PWSTATINFO</Key>
           <Name>200,50,700</Name>
         </SetRegEntry>
@@ -179,7 +175,7 @@
           <Type>0</Type>
           <LineNumber>122</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134476070</Address>
+          <Address>134476414</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -189,22 +185,6 @@
           <Filename>..\ThirdPart\malloc.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\NPC\../ThirdPart/malloc.c\122</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>624</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134349734</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\User\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\NPC\../User/main.c\624</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -2502,7 +2482,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>158</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\lwip-1.4.1\prj\web_server_demo\httpd_cgi_ssi.c</PathWithFileName>
