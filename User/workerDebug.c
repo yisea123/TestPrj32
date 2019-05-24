@@ -82,11 +82,14 @@
   */
   CDV_INT08S AddDebugPos(DEBUG_CTRL* debug, CDV_INT16U pos) {
 		OS_ERR err;
+	  DEBUG_POINT debugPoint;
 		CDV_INT08S ret = 0;
 		CDV_INT32U i;
 		ASSERT(debug);
 		ASSERT(debug->point);
-		DEBUG_POINT debugPoint = {pos,0,0};
+		debugPoint.pos = pos;
+		debugPoint.buf = 0;
+		debugPoint.len = 0;
 		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		
 		for(i = 0; i < debug->point->len; i++) {
@@ -162,12 +165,18 @@
   CDV_INT08S modifyDebugPoint(DEBUG_CTRL* debug, CDV_INT32U no, CDV_INT16U pos) {
 		OS_ERR err;
 		CDV_INT08S ret;
+	  DEBUG_POINT debugPoint;
 		ASSERT(debug);
 		ASSERT(debug->point);
 //		if(no >= debug->point->len)
 //			return -1;
 //		
-		DEBUG_POINT debugPoint = {pos,0,0};
+		
+		
+		
+		debugPoint.pos = pos;
+		debugPoint.buf = 0;
+		debugPoint.len = 0;
 		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		ret = ArrayModify(debug->point, no, &debugPoint);
 		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
@@ -207,11 +216,12 @@
   */
   CDV_INT08S QueryDebugPointPos(DEBUG_CTRL* debug, CDV_INT32U no, CDV_INT16U *pos) {
 		OS_ERR err;
+	  DEBUG_POINT *debugPoint;
 		ASSERT(debug && pos);
 		ASSERT(debug->point);
 
 		OSSemPend(&DEBUG_SEM, 0, OS_OPT_PEND_BLOCKING, 0, &err);
-		DEBUG_POINT *debugPoint = ArrayGet(debug->point, no);
+		debugPoint = ArrayGet(debug->point, no);
 		OSSemPost(&DEBUG_SEM, OS_OPT_POST_1, &err);
 		
 		if(debugPoint) {

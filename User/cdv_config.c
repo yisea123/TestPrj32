@@ -91,6 +91,7 @@ void PeriphDriverInit(void)
 #if USE_MEMMNG == 1u
 	
 	memmng_init();
+	
 #endif
   mymem_init(SRAMCCM); 	//³õÊ¼»¯CCMÄÚ´æ³Ø
 #if USE_COUNTER == 1u

@@ -322,9 +322,9 @@ void CDVInfoSend(CMD_ARG *arg) {
   * @note   
   */
 void CDVUsartSend( CMD_ARG *arg) {
+	int i, j;
 	char *tmp=NULL;//[USART_RX_BUF_LENGTH]={0};
 	NEWCH(tmp,USART_RX_BUF_LENGTH );
-	int i, j;
 	for (i = 0; i < USART_RX_QUEUE_LENGTH; i++)
 	{
 		memset(tmp, 0, USART_RX_BUF_LENGTH);

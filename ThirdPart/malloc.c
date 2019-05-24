@@ -66,15 +66,19 @@ void mymemset(void*s,u8 c,u32 count)
 
 //内存管理初始化  
 //memx:所属内存块
+//u8 *ppppptr = NULL;
 void mymem_init(u8 memx)
 {
 #if USE_MEMMNG == 1u
 	if(user_mem_ptr_base == NULL) {
 		NEWCH(user_mem_ptr_base, CCM_USERMEMSIZE);
 	}
-	#endif
-	mymemset(mallco_dev.memmap[memx],0,memtblsize[memx]*2); //内存状态表清零
-	mymemset(mallco_dev.membase[memx], 0,memsize[memx]);	//内存池所有数据清零  
+#endif
+	
+	//NEWCH(ppppptr, 307200);
+	
+	mymemset(mallco_dev.memmap[memx], 0, memtblsize[memx]*2); //内存状态表清零
+	mymemset(mallco_dev.membase[memx], 0, memsize[memx]);	//内存池所有数据清零  
 	mallco_dev.memrdy[memx]=1;								//内存管理初始化OK  
 }
 
