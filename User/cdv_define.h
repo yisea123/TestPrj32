@@ -138,9 +138,14 @@ void CmdArgDelete(CMD_ARG *arg);
 
 
 int ArithmeticEx(const char* inexp, const short expLen, CMD_ARG *arg);
+
+#include "cdv_opt.h"
+#if 0
 /*
  *CDV外设相关定义
  */
+
+#include "cdv_opt.h"
 //#define JBJDZ 0
 #define CDV_ID 1
 #define APP_ID 0xCD
@@ -208,7 +213,9 @@ startup_stm32f40_41xxx.s
 
   #define MAIN_COM 4//MainUsart//
 	
-	#define USE_NPC_NET  0u
+	#undef ENABLE_FPGA_DOWN
+	
+	#define USE_NPC_NET  1u
 
   #define USE_CASCADE  1u
 	
@@ -383,6 +390,8 @@ startup_stm32f40_41xxx.s
 //#define PVD_ADDR              CHECK_VERION_ADDR1+100   //PVD保存地址，长度未知
 
 #define LOG_INF_ADDR          0x600000                  //log信息存储地址
+#endif
+
 #include "cdv_include.h"    /*放文件头会导致定义不能用在别的h文件中*/
 
 //#define NEW08U(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (CDV_INT08U*)malloc(sizeof(CDV_INT08U)*(len));} if(NULL == (A)) {NewError();}

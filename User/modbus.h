@@ -19,6 +19,8 @@
 #ifndef  _MODBUS_
 #define  _MODBUS_
 
+#include "cdv_opt.h"
+
 
 #define MODBUS_ADDR 0x10
 /*
@@ -29,8 +31,15 @@
  //modbus各缓存的数组大小
 #define COIL_CHN		32
 #define INCOIL_CHN	32
-#define REG_N				1000//640
+// 注意修改 var.h中的变量数不能超过HALF_REG_N
+// HALF_REG_N 为 REG_N 一半
+#if _NPC_VERSION_ == 1u || _NPC_VERSION_ == 2u
+#define REG_N				800
 #define HALF_REG_N	400
+#elif _NPC_VERSION_ == 3u
+#define REG_N				1000//640
+#define HALF_REG_N	500
+#endif
 #define INREG_N			32
 
  /*只读线圈*/
@@ -252,7 +261,7 @@ typedef union
 		{
 			CDV_WORD valL;                               /*!< word:     80~9f  变量                           */
 			CDV_WORD valH;
-		} var[500];
+		} var[HALF_REG_N];
   } TYPE;                                          /*!< Structure used for resource  access             */
   CDV_WORD reg[REG_N];                           /*!< Type      used for word access                  */
 } MODBUS_Register;

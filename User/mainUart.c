@@ -406,7 +406,7 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 			//Log_Write("Get inf" , LOG_EVENT);
 			CDVInfoSend(&arg);
 			
-#if USE_NPC_NET
+#if USE_NPC_NET == 1u
 			EthInfoSend(&arg);
 #endif
 		}

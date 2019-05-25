@@ -128,7 +128,7 @@ int main(void){
 	INTX_ENABLE();                                 //开中断	
 	
 	
-#if USE_NPC_NET
+#if USE_NPC_NET == 1u
 	NPC_PRINT("net init start\r\n");
 //	if(!lwip_comm_init()) 		//lwip初始化
 //	{
@@ -994,7 +994,7 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 
 		
 
-#if USE_NPC_NET
+#if USE_NPC_NET == 1u
   Eth_Link_query();
 //#else
 //	OS_TaskSuspend((OS_TCB*)&WorkerManageTaskTCB,&err);

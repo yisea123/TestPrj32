@@ -23,8 +23,13 @@
 
 #include "cdv_include.h"    
 
-
+#if _NPC_VERSION_ == 1u || _NPC_VERSION_ == 2u
+#define CDV_VAR_NUM 390//290
+#elif _NPC_VERSION_ == 3u
 #define CDV_VAR_NUM 490//390//290
+#endif
+
+
 #define VAR_ADDR(A) (VAL_STADDR + 4 * (A))
 
 

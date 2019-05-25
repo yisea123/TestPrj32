@@ -2,8 +2,8 @@
 #define __ADC_H	
 #include "cdv_include.h"  
 //#include "sys.h" 
-#define BUFFX_LEN 200
-#define BUFFV_LEN 200
+#define BUFFX_LEN 100
+#define BUFFV_LEN 100
 
 #if _NPC_VERSION_ == 1u
 #define adc1_value_lens   100
@@ -14,11 +14,11 @@
 #define  M  1
 #define  Adc_no  3
 #elif _NPC_VERSION_ == 2u
-#define adc1_value_lens   100
-#define adc2_value_lens   100
-#define adc3_value_lens   100
-#define adc4_value_lens   100
-#define  N  100
+#define adc1_value_lens   50
+#define adc2_value_lens   50
+#define adc3_value_lens   50
+#define adc4_value_lens   50
+#define  N  50
 #define  M  2
 #define  Adc_no  4
 #elif _NPC_VERSION_ == 3u
