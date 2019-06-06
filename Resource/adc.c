@@ -1493,7 +1493,7 @@ u16 Get_Ad_value(u8 no)   //气压值
 	double sum=0;
 	double vol;
 
-	vol = Grubbs(adc_par[no].buf,100);      //滤波
+	vol = Grubbs(adc_par[no].buf,N);      //滤波
 	vol = (vol -(float)adc_par[no].Zero)/4095*3.3;  
 	vol = vol*((float)adc_par[no].Slope/1000*adc_par[no].Ad_Coeff1);
 	Ad_value = vol* adc_par[no].Ad_Coeff2;
@@ -1505,7 +1505,7 @@ s32 Get_Read_AD(u8 no)   //电压值
 {
 	s32 tmp;
   float Pressure_AD;
-	Pressure_AD = Grubbs(adc_par[no].buf,100);
+	Pressure_AD = Grubbs(adc_par[no].buf,N);
 	//Pressure_AD = Pressure_AD*adc_par[no].fen_ya_value;
 #if _NPC_VERSION_ == 1u
 	if(0==no)

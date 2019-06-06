@@ -146,9 +146,9 @@ void lwip_comm_default_ip_set(__lwip_dev *lwipx)
 	lwipx->netmask[2]=255;
 	lwipx->netmask[3]=0;
 	//默认网关:192.168.1.1
-	lwipx->gateway[0]=192;	
-	lwipx->gateway[1]=168;
-	lwipx->gateway[2]=1;
+	lwipx->gateway[0]=lwipx->ip[0];	
+	lwipx->gateway[1]=lwipx->ip[1];
+	lwipx->gateway[2]=lwipx->ip[2];
 	lwipx->gateway[3]=1;	
 	lwipx->dhcpstatus=0;//没有DHCP	
 } 
