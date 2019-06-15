@@ -73,7 +73,7 @@ lwipopts.h
 startup_stm32f40_41xxx.s
 	Heap_Size       EQU     0x00000200
 */
-#define _NPC_VERSION_ 2u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
+#define _NPC_VERSION_ 3u //cdv 版本1u 老版本，应该已经失效了；2u 2.2硬件版本；3u 2.3硬件版本
 
 
 #if _NPC_VERSION_ == 1u
