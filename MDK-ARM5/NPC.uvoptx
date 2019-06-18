@@ -156,6 +156,22 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>815</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134491886</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\lwip-1.4.1\src\core\tcp.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../lwip-1.4.1/src/core/tcp.c\815</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
           <LineNumber>741</LineNumber>
           <EnabledFlag>1</EnabledFlag>
           <Address>134360026</Address>
@@ -170,7 +186,7 @@
           <Expression>\\NPC\../User/mainUart.c\741</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>1850</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -186,7 +202,7 @@
           <Expression>\\NPC\../User/mainUart.c\1850</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>1857</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -202,7 +218,7 @@
           <Expression>\\NPC\../User/mainUart.c\1857</Expression>
         </Bp>
         <Bp>
-          <Number>3</Number>
+          <Number>4</Number>
           <Type>0</Type>
           <LineNumber>213</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -338,6 +354,21 @@
           <count>23</count>
           <WinNumber>1</WinNumber>
           <ItemText>connect</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_var[2],0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>25</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_var[1],0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>26</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>g_var[0],0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -1082,7 +1113,7 @@
 
   <Group>
     <GroupName>Config</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1338,7 +1369,7 @@
 
   <Group>
     <GroupName>Libraries</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2042,7 +2073,7 @@
 
   <Group>
     <GroupName>LWIP</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -2050,7 +2081,7 @@
       <GroupNumber>9</GroupNumber>
       <FileNumber>119</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>..\lwip-1.4.1\port\STM32F4x7\UCOSIII\ethernetif.c</PathWithFileName>
