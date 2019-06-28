@@ -255,6 +255,11 @@ void http_server_serve(
 	//			{
 	//				break;
 	//			}
+				if(conn->state == NETCONN_WRITE) { // 不马上关闭conn
+
+				} else {
+					//break;
+				}
 			}
 			else/* if(recv_err == ERR_CLSD) */ //关闭连接
 			{
@@ -265,7 +270,7 @@ void http_server_serve(
 //						//g_olCache.arg = NULL;
 //						break;
 //				}
-				if(g_cdvStat==CDV_RECV) { // 不马上关闭conn
+				if(g_cdvStat==CDV_RECV ) { // 不马上关闭conn
 //						if(g_scriptRecv.tmpLen == 0 && TCP_COM == g_olCache.uart)
 //							g_scriptRecv.len[g_scriptRecv.rxPos] += 1;
 				} else {
