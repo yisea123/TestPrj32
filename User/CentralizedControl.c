@@ -178,7 +178,7 @@ RET_STATUS CentralizedControl_QueryDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_
   *
   * @note   
   */
-RET_STATUS CentralizedControl_SetDevData(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg)
+RET_STATUS CentralizedControl_SetDevData(CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg)
 {
 	CDV_INT16U varNum = *(CDV_INT16U*)(buf + 2);
 	CDV_INT16U crc = 0xFFFF;
