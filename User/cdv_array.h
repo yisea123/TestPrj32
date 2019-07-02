@@ -46,6 +46,7 @@ struct LIST_T {
 	void* data;           // 元素数据
 	CDV_INT32U size;    // 元素bytes // 对于head 是数量
 	CDV_INT32U tag;     // 用户自定义标签，可用与识别data类型，0和0xFFFFFFFF无法使用，为head和tail标签
+	CDV_INT32U time;    // 时间计数
 };
 
 typedef struct LIST_T CDV_LIST;

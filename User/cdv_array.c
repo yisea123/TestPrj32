@@ -348,6 +348,7 @@ CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, CDV_INT32U t
 	add->prev = last;
 	add->next = tail;
 	add->tag  = tag;
+	add->time = GetCdvTimeTick();
 	
 	last->next = add;
 	

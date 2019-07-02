@@ -242,6 +242,7 @@ void http_server_serve(
 	//								}
 	//							}
 								RecvParse(tcp_server_recvbuf,data_len, TCP_COM, conn);
+								connect->time = GetCdvTimeTick();
 							}
 							break;
 					}
@@ -257,8 +258,24 @@ void http_server_serve(
 	//			}
 				if(conn->state == NETCONN_WRITE) { // 不马上关闭conn
 
-				} else {
+				} else if(g_cdvStat!=CDV_RECV && CalcTimeMS(GetCdvTimeTick() , connect->time) < 5000) { // 不马上关闭conn
+
+					
+				}else{
 					//break;
+						#if ENABLE_MULTI_TCP
+									/* Close the connection (server closes in HTTP) */
+									netconn_close(conn);
+									
+									/* delete connection */
+									netconn_delete(conn);
+									
+									if (connect->head != connect && connect->tail != connect) 
+										connect = LIST_Remove(connect);
+						#else
+									netbuf_delete(inbuf);
+									break;
+						#endif
 				}
 			}
 			else/* if(recv_err == ERR_CLSD) */ //关闭连接
