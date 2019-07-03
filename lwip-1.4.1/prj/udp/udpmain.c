@@ -150,11 +150,16 @@ void udpecho_find(CMD_ARG *arg)
   struct ip_addr *addr = NULL;
   unsigned short port;
   char* buf = NULL, *outBuf = NULL;
-	char * buffer = NULL, buffer_pointer = 0;
+	char * buffer = NULL;
+	u16_t buffer_pointer = 0;
   u16_t buflen = 0;
 	struct netbuf *sbuf = netbuf_new();
   conn = netconn_new(NETCONN_UDP);
+	#if _NPC_VERSION_ == 3u
+	#define FIND_BUFFER_LEN 1000
+	#else
 	#define FIND_BUFFER_LEN 200
+	#endif
 	NEWCH(buffer, FIND_BUFFER_LEN);
 	
 	
@@ -162,7 +167,8 @@ void udpecho_find(CMD_ARG *arg)
   {
 		
     err = netconn_bind(conn, IP_ADDR_ANY, 101);
-		conn->recv_timeout = 1000;  	//½ûÖ¹×èÈûÏß³Ì µÈ´ı1000ms
+		conn->recv_timeout = 10;  	//½ûÖ¹×èÈûÏß³Ì µÈ´ı1000ms
+		u32 tim = 0;
 		
     if (err == ERR_OK)
 		{
@@ -197,8 +203,10 @@ void udpecho_find(CMD_ARG *arg)
 					}while(-1 !=netbuf_next(rbuf));
 					
 					netbuf_delete(rbuf);
+					
+					tim = 0;
         }
-				else if(recv_err == ERR_TIMEOUT)
+				else if(recv_err == ERR_TIMEOUT && ++tim>100)
 				{
 					break;
 				}
