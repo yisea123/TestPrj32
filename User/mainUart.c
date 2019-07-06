@@ -259,8 +259,8 @@ void CDVInfoSend(CMD_ARG *arg) {
 #if USE_CASCADE == 1u
 	//if(slaveTableLen)
 	{
-		sprintf(tmp , "云字id:%d\r\n" 
-		,CascadeGetNativeNo()
+		sprintf(tmp , "云字id:%d\r\nversion:%d.%d.%d.%d\r\n" 
+		,CascadeGetNativeNo(),version[1],version[2],version[3],version[4]
 		);
 		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 	}
