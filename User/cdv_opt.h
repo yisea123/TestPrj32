@@ -153,6 +153,8 @@ startup_stm32f40_41xxx.s
 	
 #endif
 
+
+#define DEBUG_TIME 1
 ///*配置开关*/
 //#if _NPC_VERSION_ >= 3u
 
@@ -218,7 +220,7 @@ startup_stm32f40_41xxx.s
 #endif
 #define LOG_LEN               0x100000//log长度1M
 
-#define SCRIP_MAX_RUN        16
+#define SCRIP_MAX_RUN        20//16
 //#define SCRIP_MAX_DEBUG      11
 // 下载次数 1个字节
 #define VERSION_ADDR         0x100 

@@ -259,10 +259,10 @@ RET_STATUS RunWorkerCmd(DEBUG_SCRIPT *debugWorker , CDV_INT08U loop) {
   * @retval 返回值说明
   * @note   必须在获取完工人流程后进行
   */
-#ifdef  _DEBUG_NPC_
-CDV_INT32U time[100] = {0};
+#ifdef  DEBUG_TIME
+CDV_INT32U time_worker[100] = {0};
 CDV_INT08U time_cnt = 0;
-CDV_INT08U time_which = 0;
+CDV_INT08U time_which_worker = 0;//几号工人
 CDV_INT32U time_tmp = 0;
 CDV_INT32U time_max = 100;
 #endif
@@ -292,12 +292,12 @@ void RunWorker(THREAD_INFO *pCtrl) {
 		do {
 			pCtrl->step = worker.doNo;
 
-#ifdef  _DEBUG_NPC_
+#ifdef  DEBUG_TIME
 			//流程计时start
-			if(time_which==pCtrl->which && !worker.doNo)
+			if(time_which_worker==pCtrl->which && !worker.doNo)
 			{
-				time[time_cnt] = CalcCount(GET_TICK, time_tmp);
-				if(time[time_cnt] > time_max) {//1是0.1ms
+				time_worker[time_cnt] = CalcCount(GET_TICK, time_tmp);
+				if(time_worker[time_cnt] > time_max) {//1是0.1ms
 					time_tmp = GetCdvTimeTick();
 				}
 				MAX_SELF_ADD(time_cnt, 100);

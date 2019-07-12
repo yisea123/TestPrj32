@@ -784,15 +784,17 @@ u16 i=0;
 }
 #endif
 
+	u32 ftime, time_cascade_map;
+	
 void cdv_refresh_task(void *p_arg){
 	
 #if USE_CASCADE_MAP == 1u
 //  OS_ERR err;
 //	CDV_INT08U i;
-//	u32 ftime, stime;
   u32 cnt=0;
-//  ftime = GetCdvTimeTick();
+
 	while(1)	{
+  ftime = GetCdvTimeTick();
 		////CascadeModbus_AllUpdate();
 		if(OPT_FAILURE ==CascadeModbus_Map()) {
 			if(cnt++ > 20) {
@@ -803,7 +805,10 @@ void cdv_refresh_task(void *p_arg){
 			cnt = 0;
 		}
 		
-//		stime = GetCdvTimeTick();
+		//stime = GetCdvTimeTick();
+		
+		time_cascade_map = CalcCount(GET_TICK, ftime);
+		
 //		if (500 < CalcTimeMS(stime,ftime ))
 //		{
 //			ftime = stime;

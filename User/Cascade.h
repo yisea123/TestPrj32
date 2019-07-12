@@ -72,5 +72,10 @@ RET_STATUS NPC_NETQuery(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 void GetTable(void);
 RET_STATUS CascadeSlaveParse2 (char* pBuf, CDV_INT08U len);
 //#endif
+											//
+											
+#ifdef  DEBUG_TIME
+											extern	u32 time_cascade_map;
+											#endif
 #endif
 

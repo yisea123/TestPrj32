@@ -343,6 +343,42 @@ void CDVUsartSend( CMD_ARG *arg) {
 	AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 	DELETE(tmp);
 }
+
+/**
+  * @brief  将CDV的计时通过串口发送出去
+  *  
+  * @param  void
+  *   
+  * @retval void
+  *
+  * @note   
+  */
+
+#ifdef  DEBUG_TIME
+void NPCTimeSend( CMD_ARG *arg) {
+	int i, j;
+	char *tmp=NULL;//[USART_RX_BUF_LENGTH]={0};
+	NEWCH(tmp,50 );
+
+		memset(tmp, 0, 50);
+	sprintf(tmp , "\r\ntime_cascade_map:%d00us\r\n" , time_cascade_map);
+		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
+	
+	memset(tmp, 0, 50);
+	sprintf(tmp , "\r\nwhich worker:%d\r\n" , time_which_worker);
+	AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
+	
+	for (i = 0; i < 100; i++)
+	{
+		memset(tmp, 0, 50);
+		sprintf(tmp , "%d\t%d00us\r\n" , i, time_worker[i]);
+		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
+	}
+	
+	
+	DELETE(tmp);
+}
+#endif
 /**
   * @brief  分析联机、调试命令并操作
   *  
@@ -423,7 +459,22 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 //			}
 //			AddTx((CDV_INT08U*)temp, 2, uartNo);
 //		}
-		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET USART",10)){
+#ifdef  DEBUG_TIME
+		else if(0 == strncmp((CDV_INT08C*)rxBuf,"SET TIME",8)){//设置监控的工人号 SET TIME 00
+			int i;
+			char tmp[50]={0};
+			
+			time_which_worker = atoi((CDV_INT08C*)rxBuf+9);
+			
+			sprintf(tmp, "set which worker = %d\r\n", time_which_worker);
+			AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), &arg);
+					
+		}
+		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET TIME",8)){//获得计数值
+			NPCTimeSend(&arg);
+		}
+#endif
+		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET USART",9)){
 			CDVUsartSend(&arg);
 		}
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"LINE START",10)){

@@ -81,5 +81,13 @@ RET_STATUS ToWorkerCmd(DEBUG_SCRIPT *debugWorker , CDV_INT16U cmdNo) ;
 
 void AllWorkerCtrl(const WORKER_STATUS status);
 CDV_INT32S WorkerRead(CDV_INT08U no);
+
+//time 
+
+#ifdef  DEBUG_TIME
+extern CDV_INT32U time_worker[100];
+extern CDV_INT08U time_which_worker;//º∏∫≈π§»À
+#endif
+
 #endif
 
