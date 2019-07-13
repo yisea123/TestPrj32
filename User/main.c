@@ -794,7 +794,9 @@ void cdv_refresh_task(void *p_arg){
   u32 cnt=0;
 
 	while(1)	{
+#ifdef  DEBUG_TIME
   ftime = GetCdvTimeTick();
+#endif
 		////CascadeModbus_AllUpdate();
 		if(OPT_FAILURE ==CascadeModbus_Map()) {
 			if(cnt++ > 20) {
@@ -805,10 +807,22 @@ void cdv_refresh_task(void *p_arg){
 			cnt = 0;
 		}
 		
+#ifdef  DEBUG_TIME
 		//stime = GetCdvTimeTick();
 		
 		time_cascade_map = CalcCount(GET_TICK, ftime);
 		
+		if(time_cascade_map > 1000) {
+			char tmp[50]={0};
+
+			sprintf(tmp , "cascade map timeout:%d" 
+					,time_cascade_map
+					);
+			
+			Log_Write(tmp , LOG_EVENT);
+		
+		}
+#endif
 //		if (500 < CalcTimeMS(stime,ftime ))
 //		{
 //			ftime = stime;
@@ -997,7 +1011,9 @@ void tmr1_callback(void *p_tmr, void *p_arg) {
 	}
 	
 
-		
+//		if(time_cascade_map > 1000)
+//			Log_Write("cascade map timeout" , LOG_EVENT);
+//		
 
 #if USE_NPC_NET == 1u
   Eth_Link_query();

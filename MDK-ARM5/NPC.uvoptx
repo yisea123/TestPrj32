@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>Z辈w羰?羰?趏\h</Name>
+          <Name>Z睌w\倨	\倨	趏ce</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>766</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134407794</Address>
+          <Address>134401090</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -169,6 +169,22 @@
           <Filename>..\Resource\dac.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\NPC\../Resource/dac.c\766</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>1828</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134381768</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\User\Cascade.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../User/Cascade.c\1828</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -310,7 +326,7 @@
         <Ww>
           <count>27</count>
           <WinNumber>1</WinNumber>
-          <ItemText>stime,0x0A</ItemText>
+          <ItemText>time_cascade_map,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

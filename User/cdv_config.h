@@ -44,7 +44,7 @@ void DelayUS(u32 cnt);
 void CDVParamInit(void);
 void ShutDown(void);
 
-#define _DEBUG_NPC_
+//#define _DEBUG_NPC_
 #ifdef  _DEBUG_NPC_
 
 /**

@@ -52,7 +52,8 @@ BOOL Log_Write(CDV_CHAR* buf, LOG_TYPE type);
 //void Add_Warning(CDV_INT08U* buf, CDV_INT08U len);
 //void Add_Error(CDV_INT08U* buf, CDV_INT08U len);
 //void Add_Event(CDV_INT08U* buf, CDV_INT08U len);
-
+void Log_Send(CMD_ARG *arg);
+void Log_Clear(void);
 RET_STATUS Log_Cmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
 void Log_CmdWrite(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
 #endif

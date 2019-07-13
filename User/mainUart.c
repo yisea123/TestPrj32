@@ -473,6 +473,13 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET TIME",8)){//获得计数值
 			NPCTimeSend(&arg);
 		}
+		else if(0 == strncmp((CDV_INT08C*)rxBuf,"CLEAR LOG",9)){//获得计数值
+			Log_Clear();
+			AddTxNoCrcPlus("Log Clear success\r\n", 19, &arg);
+		}
+		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET LOG",7)){//获得计数值
+			Log_Send(&arg);
+		}
 #endif
 		else if(0 == strncmp((CDV_INT08C*)rxBuf,"GET USART",9)){
 			CDVUsartSend(&arg);
