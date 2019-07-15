@@ -451,3 +451,89 @@ void com_print(const char* str)
 		USARTSend((CDV_INT08U*)str, strlen(str), MAIN_COM);
 }
 
+//============================================================ time log ============================================================
+
+#ifdef  DEBUG_TIME
+#define __TIME_LOG_SHIFT 1004//偶数
+#define __TIME_LOG_LEN   200//偶数
+
+CDV_INT32S *time_var = (CDV_INT32S*)(g_modbusReg.reg + __TIME_LOG_SHIFT);
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   记录一个值到变量 1000+的，断电保存
+  */
+void time_log_clear(void)
+{
+	int i = 0;
+	
+	time_var[ - 1] = 0;
+	
+	for (i = 0; i < __TIME_LOG_LEN; i++){
+		time_var[i] = 0;
+	}
+	
+}
+
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   记录一个值到变量 1000+的，断电保存
+  */
+void time_log(CDV_INT32S info)
+{
+	CDV_INT32S *ptr = time_var + -1;
+	
+	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
+		*ptr = 0;
+	
+	time_var[(*ptr)++] = ReadClock1s();
+	time_var[(*ptr)++] = info;
+	
+	
+	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
+		*ptr = 0;
+	
+}
+
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   发送
+  */
+void time_log_send( CMD_ARG *arg)
+{
+	CDV_INT32S ptr = time_var[ -1];
+	
+	char *tmp=NULL;//[USART_RX_BUF_LENGTH]={0};
+	
+	if(ptr < 0 || ptr >= __TIME_LOG_LEN)
+		return;
+	
+	NEWCH(tmp,50 );
+	
+	while(1) {
+		memset(tmp, 0, 50);
+		
+		
+		sprintf(tmp , "system time %ds : %d00us\r\n" ,time_var[ptr], time_var[ptr+1]);
+		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
+		
+		ptr += 2;
+		
+		if(ptr < 0 || ptr >= __TIME_LOG_LEN)
+			ptr = 0;
+		
+		if(ptr == time_var[ -1])
+			break;
+	}
+	
+	DELETE(tmp);
+	
+}
+
+	#undef __SHIFT
+#endif

@@ -813,13 +813,15 @@ void cdv_refresh_task(void *p_arg){
 		time_cascade_map = CalcCount(GET_TICK, ftime);
 		
 		if(time_cascade_map > 1000) {
-			char tmp[50]={0};
-
-			sprintf(tmp , "cascade map timeout:%d" 
-					,time_cascade_map
-					);
+			time_log(time_cascade_map);
 			
-			Log_Write(tmp , LOG_EVENT);
+//			char tmp[50]={0};
+
+//			sprintf(tmp , "cascade map timeout:%d" 
+//					,time_cascade_map
+//					);
+//			
+//			Log_Write(tmp , LOG_EVENT);
 		
 		}
 #endif

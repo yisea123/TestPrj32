@@ -31,14 +31,20 @@
  //modbus各缓存的数组大小
 #define COIL_CHN		32
 #define INCOIL_CHN	32
-// 注意修改 var.h中的变量数不能超过HALF_REG_N
+// 注意修改 var.h中的变量数不能超过HALF_REG_N,为扩展DA预留
 // HALF_REG_N 为 REG_N 一半
 #if _NPC_VERSION_ == 1u || _NPC_VERSION_ == 2u
 #define REG_N				800
 #define HALF_REG_N	400
 #elif _NPC_VERSION_ == 3u
-#define REG_N				1000//640
+
+#ifdef  DEBUG_TIME
+#define REG_N				1600//1000+500/*用于记录*///640
+#define HALF_REG_N	800//500
+#else
+#define REG_N				1000/*用于记录*///640
 #define HALF_REG_N	500
+#endif
 #endif
 #define INREG_N			32
 

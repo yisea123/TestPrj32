@@ -526,7 +526,7 @@ void USART6_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 	USART6_Send(txbuf ,txlen);
 	USART6_Receive(rxlen);
 	USART6_RxDeInit();
-	DelayTick(5);
+	//DelayTick(5);
 	OSSemPost (&COM_SEM[5],OS_OPT_POST_1,&err); 
 }
 

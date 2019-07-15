@@ -170,6 +170,9 @@ CDV_INT32S FlashBak_BackUp(void) {
 	
 	FlashBak_Unlock();
 	
+#ifdef  DEBUG_TIME
+	time_log(-1);
+#endif
 	if(0 == BAK_WRITE((CDV_INT08U *)&g_modbusReg, GetFlashBakAddr(next_bak)+4, sizeof(g_modbusReg)))
 	  BAK_WRITE((CDV_INT08U *)&flag, GetFlashBakAddr(next_bak), 4);
 	
