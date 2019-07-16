@@ -61,7 +61,7 @@ void CascadeTableSend(CDV_INT08U* buf, CDV_INT08U len,  CMD_ARG *arg);
 											CDV_INT08U* host);
 	
 	RET_STATUS CoilToCoil(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum);
-	int CoilCmp(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum);
+	int CoilCmp(CDV_INT08U* buf, CDV_INT16U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum);
 //
 CDV_INT08U PortCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo) ;
 RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg);
