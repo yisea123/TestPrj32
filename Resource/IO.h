@@ -112,7 +112,7 @@ extern  CDV_INT08U* g_i;
 
 #define CH_CDV_O(A)          g_o[A]
 
-#if 1
+#if 0
 #define SET_O(A) do{\
 	OS_ERR err;\
 	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\

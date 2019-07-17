@@ -140,6 +140,8 @@ startup_stm32f40_41xxx.s
 	#define USE_WORKER_DEBUG 1u
 	
 	#define USE_16BIT_CMD 0u // 支持长指令
+	
+	#define USE_PULSE_DRIVE 0u
 
 #endif
 

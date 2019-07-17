@@ -382,6 +382,7 @@ typedef union
 extern MODBUS_Coil g_modbusCoil;
 
 #define MODBUS_COIL_CH(A) g_modbusCoil.coilCh[(A)]
+#if 0
 #define SET_COIL_ADDR(A) do{\
 	OS_ERR err;\
 	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
@@ -396,6 +397,18 @@ extern MODBUS_Coil g_modbusCoil;
 	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
 }while(0);
 #define READ_COIL_ADDR(A) (((MODBUS_COIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))) ? 1 : 0)
+#else
+#define SET_COIL_ADDR(A) do{\
+	(MODBUS_COIL_CH((A) >> 3)) |= (0x01 <<((A) & 0x07));\
+}while(0);
+
+#define RESET_COIL_ADDR(A) do{\
+	(MODBUS_COIL_CH((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
+}while(0);
+#define READ_COIL_ADDR(A) (((MODBUS_COIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))) ? 1 : 0)
+
+#endif
+
 /*modbus输入线圈结构体*/
 typedef union
 {
