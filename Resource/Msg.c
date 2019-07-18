@@ -115,7 +115,7 @@ RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 	no   =  *(CDV_INT32U*)(rxBuf);
 	opt  = rxBuf[4];
 	//type = rxBuf[2];
-  OSSemPend(&MSG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+  OSMutexPend(&MSG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	switch(opt) {
 		case 0x00:/*发送*/
 			MsgSend(no);
@@ -133,7 +133,7 @@ RET_STATUS MsgCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 			break;
 		
 	}
-	OSSemPost (&MSG_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MSG_SEM,OS_OPT_POST_NO_SCHED,&err);
 //	if(OPT_FAILURE == ret) {
 //		OSTimeDlyHMSM(0,0,0,1,OS_OPT_TIME_HMSM_STRICT,&err);   //延时 5ms
 //	}

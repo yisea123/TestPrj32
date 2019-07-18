@@ -94,6 +94,12 @@ typedef enum
 }RET_STATUS;
 
 
+typedef enum {
+	BUF_NONE = 0,
+	BUF_NEW,
+	
+}BUF_OPT;
+
 #include "stdio.h"
 #include "stdint.h"
 

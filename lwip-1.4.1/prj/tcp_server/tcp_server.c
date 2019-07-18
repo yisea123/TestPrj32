@@ -628,7 +628,7 @@ RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
 	OS_ERR os_err;
   //判断上一次命令是否发送完成
 	RET_STATUS ret = OPT_SUCCESS;
-  OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
+  OSMutexPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
 //	NEW08U(tcp_server_sendbuf, NumByteToWrite);
 //	memcpy(tcp_server_sendbuf, pBuffer, NumByteToWrite);
 	//下面顺序不要改动
@@ -646,7 +646,7 @@ RET_STATUS TCP_ServerSend(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite){
 		}
 	}
 	///////////////////////////////////
-	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
+	OSMutexPost (&TCP_TX_SEM,OS_OPT_POST_NO_SCHED,&os_err);
 	return ret;
 }
 
@@ -664,7 +664,7 @@ RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CM
   //判断上一次命令是否发送完成
 	RET_STATUS ret = OPT_SUCCESS;
 	ASSERT(arg);
-  OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
+  OSMutexPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
 	
   if(arg->arg)
 	  err = netconn_write(arg->arg , pBuffer, NumByteToWrite/*strlen((char*)tcp_server_sendbuf)*/, NETCONN_COPY); //发送tcp_server_sendbuf中的数据
@@ -677,7 +677,7 @@ RET_STATUS TCP_ServerSendPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CM
 		}
 	}
 	
-	OSSemPost(&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
+	OSMutexPost(&TCP_TX_SEM,OS_OPT_POST_NO_SCHED,&os_err);
 	return ret;
 }
 
@@ -694,7 +694,7 @@ RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_
 	CDV_INT16U sendLen = NumByteToWrite + exLen;
   //判断上一次命令是否发送完成
 	RET_STATUS ret = OPT_SUCCESS;
-  OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
+  OSMutexPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
 	NEW08U(sendBuf, sendLen);
 	MemCpy(sendBuf, pBuffer, NumByteToWrite);
 	MemCpy(sendBuf + NumByteToWrite, exBuf, exLen);
@@ -710,7 +710,7 @@ RET_STATUS TCP_ServerSendEx(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, CDV_
 	if (err != ERR_OK)
 		ret = OPT_FAILURE;
 	///////////////////////////////////
-	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
+	OSMutexPost (&TCP_TX_SEM,OS_OPT_POST_NO_SCHED,&os_err);
 	
 	return ret;
 }
@@ -728,7 +728,7 @@ RET_STATUS TCP_ServerSendExPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, 
   //判断上一次命令是否发送完成
 	RET_STATUS ret = OPT_SUCCESS;
 	ASSERT(arg);
-  OSSemPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
+  OSMutexPend(&TCP_TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &os_err); //请求信号量
 	NEW08U(sendBuf, sendLen);
 	MemCpy(sendBuf, pBuffer, NumByteToWrite);
 	MemCpy(sendBuf + NumByteToWrite, exBuf, exLen);
@@ -744,7 +744,7 @@ RET_STATUS TCP_ServerSendExPlus(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite, 
 	if (err != ERR_OK)
 		ret = OPT_FAILURE;
 	///////////////////////////////////
-	OSSemPost (&TCP_TX_SEM,OS_OPT_POST_1,&os_err);
+	OSMutexPost (&TCP_TX_SEM,OS_OPT_POST_NO_SCHED,&os_err);
 	
 	return ret;
 }

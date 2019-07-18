@@ -1235,7 +1235,7 @@ RET_STATUS MAINUSART_Send(CDV_INT08U* txBuf, CDV_INT16U txLen){
 		return OPT_FAILURE;
 	}
 
-	OSSemPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	OSMutexPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	if(err == OS_ERR_TIMEOUT)
 		return OPT_FAILURE;
 	
@@ -1245,7 +1245,7 @@ RET_STATUS MAINUSART_Send(CDV_INT08U* txBuf, CDV_INT16U txLen){
 		USART_TX_QUEUE_SELF_ADD;			
 	}
 	
-	OSSemPost (&TX_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&TX_SEM,OS_OPT_POST_NO_SCHED,&err);
 	OSTaskResume((OS_TCB*)&UsartSendTaskTCB,&err);
 	
 	return OPT_SUCCESS;
@@ -1264,7 +1264,7 @@ RET_STATUS MAINUSART_SendEx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U* exB
 		return OPT_FAILURE;
 	}
 
-	OSSemPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	OSMutexPend(&TX_SEM , 2 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	if(err == OS_ERR_TIMEOUT)
 		return OPT_FAILURE;
 	
@@ -1275,7 +1275,7 @@ RET_STATUS MAINUSART_SendEx(CDV_INT08U* txBuf, CDV_INT16U txLen, CDV_INT08U* exB
 		USART_TX_QUEUE_SELF_ADD;			
 	}
 	
-	OSSemPost (&TX_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&TX_SEM,OS_OPT_POST_NO_SCHED,&err);
 	OSTaskResume((OS_TCB*)&UsartSendTaskTCB,&err);
 	
 	return OPT_SUCCESS;

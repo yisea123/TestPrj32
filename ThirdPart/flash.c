@@ -123,7 +123,7 @@ void SPI_Flash_Read(u8* pBuffer,u32 ReadAddr,u16 NumByteToRead)
 { 
  	u16 i;    		
   OS_ERR err;	
-  OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+  OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	SPEED_FLASH;
 	FLASH_EN;                            //使能器件  
   
@@ -137,7 +137,7 @@ void SPI_Flash_Read(u8* pBuffer,u32 ReadAddr,u16 NumByteToRead)
 	}
 	FLASH_DS;                            //取消片选   
 	SPEED_FPGA;
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 }  
 //读取SPI FLASH  
 //在指定地址开始读取指定长度的数据
@@ -226,7 +226,7 @@ void SPI_Flash_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 	if(g_noWrite)
 		return;
 	
-	OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	//PWR_PVDCmd(DISABLE);
 	SPEED_FLASH;
 	//OSSemPend(&WORKER_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
@@ -267,7 +267,7 @@ void SPI_Flash_Write(u8* pBuffer,u32 WriteAddr,u16 NumByteToWrite)
 	//OSSemPost (&WORKER_SEM,OS_OPT_POST_1,&err);
 	SPEED_FPGA;
 	//PWR_PVDCmd(ENABLE);
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 }
 //写SPI FLASH  
 //在指定地址开始写入指定长度的数据

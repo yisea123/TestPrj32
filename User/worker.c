@@ -512,7 +512,7 @@ RET_STATUS WorkerControl(const CDV_INT08U no, const WORKER_STATUS status) {
 	if (status >= WORKER_MAX_STATUS)
 		return OPT_FAILURE;
 	
-	OSSemPend(&WORKER_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+	OSMutexPend(&WORKER_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	
 	for( i = 0; i < WORKER_MAX_NUM; i++)                                    /*判断工人是否已经运行*/
 	{
@@ -554,7 +554,7 @@ RET_STATUS WorkerControl(const CDV_INT08U no, const WORKER_STATUS status) {
 			break;
 	}
   
-  OSSemPost (&WORKER_SEM,OS_OPT_POST_1,&err);
+  OSMutexPost (&WORKER_SEM,OS_OPT_POST_NO_SCHED,&err);
 	return ret;
 }
 /** @brief  重启所有工人

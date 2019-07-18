@@ -455,12 +455,12 @@ u8 USART1_Receive(u8 *len)
 void USART1_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&COM_SEM[0],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&COM_SEM[0],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	USART1_RxInit(rxbuf ,rxbufLen);
 	USART1_Send(txbuf ,txlen);
 	USART1_Receive(rxlen);
 	USART1_RxDeInit();
-	OSSemPost (&COM_SEM[0],OS_OPT_POST_1,&err); 
+	OSMutexPost (&COM_SEM[0],OS_OPT_POST_NO_SCHED,&err); 
 }
 
 void DMA2_Stream7_IRQHandler(void)

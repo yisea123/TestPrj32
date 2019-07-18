@@ -283,11 +283,11 @@ u8 USART2_Receive(u8 *len)
 void USART2_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&COM_SEM[1],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&COM_SEM[1],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	USART2_RxInit(rxbuf ,rxbufLen);
 	USART2_Send(txbuf ,txlen);
 	USART2_Receive(rxlen);
 	USART2_RxDeInit();
-	OSSemPost (&COM_SEM[1],OS_OPT_POST_1,&err); 
+	OSMutexPost (&COM_SEM[1],OS_OPT_POST_NO_SCHED,&err); 
 }
 

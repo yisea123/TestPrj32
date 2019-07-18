@@ -149,7 +149,7 @@ void NewMemory(void **p , size_t size ) {
 	OS_ERR err;	
 	if(0 == size)
 		return;
-	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	OSMutexPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	if(*p!=NULL) { 
 #if USE_MEMMNG == 1u
       memmng_free(*p);
@@ -164,7 +164,7 @@ void NewMemory(void **p , size_t size ) {
 #else
     *p = (malloc(size));
 #endif
-	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MEM_SEM,OS_OPT_POST_NO_SCHED,&err);
     if(NULL == *p) 
     {
       NewError();
@@ -182,13 +182,13 @@ void ReNewMemory(void **p , size_t size ) {
 	if(0 == size)
 		return;
 	
-	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	OSMutexPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 #if USE_MEMMNG == 1u
   *p = (memmng_realloc(*p ,size));
 #else
   *p = (realloc(*p ,size));
 #endif
-	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MEM_SEM,OS_OPT_POST_NO_SCHED,&err);
 	
 	if(NULL == *p) 
 	{
@@ -203,7 +203,7 @@ void ReNewMemory(void **p , size_t size ) {
   */
 void DelMemory(void **p) {
 	OS_ERR err;	
-	OSSemPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+	OSMutexPend(&MEM_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 	
 	if(*p!=NULL) { 
 #if USE_MEMMNG == 1u
@@ -214,7 +214,7 @@ void DelMemory(void **p) {
     *p = NULL;
   }
 	
-	OSSemPost (&MEM_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MEM_SEM,OS_OPT_POST_NO_SCHED,&err);
 }
 		
 /** @brief  

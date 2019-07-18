@@ -2339,7 +2339,7 @@ void AllMotorCTL(CDV_INT08U ctl) {
 	  
 //	if (0 == ctl)
 //  	all_motor_ctl = 0;
-	OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	for(i = 0; i < 8 ; i++) {
 		if(1 != READ_CDV_DIP(i>>1))//判断配置的是不是电机
 		  continue;
@@ -2358,7 +2358,7 @@ void AllMotorCTL(CDV_INT08U ctl) {
 			}
 		}
 	}
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 	if (1 == ctl)
   	all_motor_ctl = 0;
 }

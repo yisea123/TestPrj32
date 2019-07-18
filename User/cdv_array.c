@@ -337,7 +337,7 @@ CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, CDV_INT32U t
 	NEWCH(add,sizeof(CDV_LIST));
 	head = elm->head;
 	tail = elm->tail;
-  OSSemPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+  OSMutexPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	last = tail->prev;
 	/*NEWCH(add->data , size);*/
 	/*MemCpy(add->data, data, size);*/
@@ -355,7 +355,7 @@ CDV_LIST* LIST_AddTail(CDV_LIST *elm, void *data/* , size_t size*/, CDV_INT32U t
 	tail->prev = add;
 
 	head->size++;
-  OSSemPost (&LIST_SEM,OS_OPT_POST_1,&err);
+  OSMutexPost (&LIST_SEM,OS_OPT_POST_NO_SCHED,&err);
 	return add;
 }
 
@@ -371,7 +371,7 @@ CDV_LIST* LIST_AddHead(CDV_LIST *elm, void *data ,/* size_t size, */CDV_INT32U t
 	NEWCH(add,sizeof(CDV_LIST));
 	head = elm->head;
 	tail = elm->tail;
-	OSSemPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+	OSMutexPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	first = head->next;
 	/*NEWCH(add->data , size);
 	MemCpy(add->data, data, size);*/
@@ -388,7 +388,7 @@ CDV_LIST* LIST_AddHead(CDV_LIST *elm, void *data ,/* size_t size, */CDV_INT32U t
 	head->next = add;
 	
 	head->size++;
-	OSSemPost (&LIST_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&LIST_SEM,OS_OPT_POST_NO_SCHED,&err);
 	return add;
 }
 
@@ -405,7 +405,7 @@ CDV_LIST* LIST_Insert(CDV_LIST *elm, void *data ,/* size_t size,*/ CDV_INT32U ta
 	NEWCH(insert,sizeof(CDV_LIST));
 	head = elm->head;
 	tail = elm->tail;
-	OSSemPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+	OSMutexPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	prev = elm->prev;
 	/*NEWCH(insert->data , size);
 	MemCpy(insert->data, data, size);
@@ -421,7 +421,7 @@ CDV_LIST* LIST_Insert(CDV_LIST *elm, void *data ,/* size_t size,*/ CDV_INT32U ta
 	prev->next = insert;
 	
 	head->size++;
-	OSSemPost (&LIST_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&LIST_SEM,OS_OPT_POST_NO_SCHED,&err);
 	return insert;
 }
 
@@ -437,13 +437,13 @@ CDV_LIST* LIST_Remove(CDV_LIST *elm) {
 		LIST_RemoveAll(elm);
 		return NULL;
 	}
-	OSSemPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+	OSMutexPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	//DELETE(elm->data);
 	DELETE(elm);
 	prev->next = next;
 	next->prev = prev;
 	prev->head->size--;
-	OSSemPost (&LIST_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&LIST_SEM,OS_OPT_POST_NO_SCHED,&err);
 	return next;
 }
 
@@ -457,7 +457,7 @@ void LIST_RemoveAll(CDV_LIST *elm) {
 	ASSERT(elm);
 	deling = elm->head;
 	tail = elm->tail;
-	OSSemPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+	OSMutexPend(&LIST_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 	while (--num) { 
 		//DELETE(deling->data);
 		deling = deling->next;
@@ -469,7 +469,7 @@ void LIST_RemoveAll(CDV_LIST *elm) {
 			break;
 		}
 	}
-	OSSemPost (&LIST_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&LIST_SEM,OS_OPT_POST_NO_SCHED,&err);
 	ASSERT(1 == num);
 	
 }

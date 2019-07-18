@@ -23,7 +23,7 @@
 	
 	#if USE_WORKER_DEBUG == 1u
 	
-	OS_SEM DEBUG_SEM;
+	OS_MUTEX DEBUG_SEM;
 	
 /** @brief  初始化调试控制打开
   * @param  
@@ -63,7 +63,7 @@
 		CDV_INT32U i;
 		BOOL ret = FALSE;
 		ASSERT(debug && debug->point);
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		for(i = 0; i < debug->point->len; i++) {
 		  DEBUG_POINT* debugPoint = (DEBUG_POINT*)ArrayGet(debug->point, i);
 			if(pos == debugPoint->pos) {
@@ -71,7 +71,7 @@
 				break;
 			}
 		}
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return ret;
 	}
 	
@@ -90,7 +90,7 @@
 		debugPoint.pos = pos;
 		debugPoint.buf = 0;
 		debugPoint.len = 0;
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		
 		for(i = 0; i < debug->point->len; i++) {
 		  DEBUG_POINT* debugPoint = (DEBUG_POINT*)ArrayGet(debug->point, i);
@@ -105,7 +105,7 @@
 		  ret = ArrayAdd(debug->point, &debugPoint);
 		else
 			ret = 0;
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return ret;
 	}
 	
@@ -122,9 +122,9 @@
 //		if(no >= debug->point->len)
 //			return -1;
 				
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		ret = ArrayDelete(debug->point, no);
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return ret;
 	}
 	
@@ -141,7 +141,7 @@
 		ASSERT(debug->point);
 //		if(no >= debug->point->len)
 //			return -1;
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		
 		for(i = 0; i < debug->point->len; i++) {
 		  DEBUG_POINT* debugPoint = (DEBUG_POINT*)ArrayGet(debug->point, i);
@@ -151,7 +151,7 @@
 			}
 		}
 		
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return ret;
 	}
 	
@@ -177,9 +177,9 @@
 		debugPoint.pos = pos;
 		debugPoint.buf = 0;
 		debugPoint.len = 0;
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		ret = ArrayModify(debug->point, no, &debugPoint);
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return ret ;
 	}
 	
@@ -193,9 +193,9 @@
 		ASSERT(debug);
 		if(!debug->point)
 			return 0;
-		OSSemPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
+		OSMutexPend(&DEBUG_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err);
 		ClearArray(debug->point);
-		OSSemPost (&DEBUG_SEM,OS_OPT_POST_1,&err);
+		OSMutexPost (&DEBUG_SEM,OS_OPT_POST_NO_SCHED,&err);
 		return 0;
 	}
 /** @brief  查询断点数量
@@ -220,9 +220,9 @@
 		ASSERT(debug && pos);
 		ASSERT(debug->point);
 
-		OSSemPend(&DEBUG_SEM, 0, OS_OPT_PEND_BLOCKING, 0, &err);
+		OSMutexPend(&DEBUG_SEM, 0, OS_OPT_PEND_BLOCKING, 0, &err);
 		debugPoint = ArrayGet(debug->point, no);
-		OSSemPost(&DEBUG_SEM, OS_OPT_POST_1, &err);
+		OSMutexPost(&DEBUG_SEM, OS_OPT_POST_NO_SCHED, &err);
 		
 		if(debugPoint) {
 			*pos = debugPoint->pos ;
@@ -245,7 +245,7 @@
 		ASSERT(debug->point);
 		
 
-		OSSemPend(&DEBUG_SEM, 0, OS_OPT_PEND_BLOCKING, 0, &err);
+		OSMutexPend(&DEBUG_SEM, 0, OS_OPT_PEND_BLOCKING, 0, &err);
 		num = QueryDebugPointNum(debug);
 		if(num) {
 			NEWCH(*pos, num * sizeof(CDV_INT16U));
@@ -255,7 +255,7 @@
 				MemCpy(*pos+i*sizeof(CDV_INT16U), &debugPoint->pos, sizeof(CDV_INT16U));
 			}
 		}
-		OSSemPost(&DEBUG_SEM, OS_OPT_POST_1, &err);
+		OSMutexPost(&DEBUG_SEM, OS_OPT_POST_NO_SCHED, &err);
 		
 		return num;
 	}

@@ -112,18 +112,30 @@ extern  CDV_INT08U* g_i;
 
 #define CH_CDV_O(A)          g_o[A]
 
-#if 0
+#if 1
+//#define SET_O(A) do{\
+//	OS_ERR err;\
+//	OSMutexPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+//	(CH_CDV_O((A) >> 3)) |= (0x01 <<((A) & 0x07));\
+//	OSMutexPost (&COIL_SEM,OS_OPT_POST_NO_SCHED,&err);\
+//}while(0);
+//#define RESET_O(A) do{\
+//	OS_ERR err;\
+//	OSMutexPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+//	(CH_CDV_O((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
+//	OSMutexPost (&COIL_SEM,OS_OPT_POST_NO_SCHED,&err);\
+//}while(0);
 #define SET_O(A) do{\
-	OS_ERR err;\
-	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+	CPU_SR_ALLOC();\
+	CPU_CRITICAL_ENTER();\
 	(CH_CDV_O((A) >> 3)) |= (0x01 <<((A) & 0x07));\
-	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
+	OS_CRITICAL_EXIT_NO_SCHED();\
 }while(0);
 #define RESET_O(A) do{\
-	OS_ERR err;\
-	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+	CPU_SR_ALLOC();\
+	CPU_CRITICAL_ENTER();\
 	(CH_CDV_O((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
-	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
+	OS_CRITICAL_EXIT_NO_SCHED();\
 }while(0);
 #define READ_O(A) (((CH_CDV_O((A) >> 3)) & (0x01 <<((A) & 0x07)))? 1 :0)
 #else
@@ -149,7 +161,7 @@ extern  CDV_INT08U g_dip;
  
 //Ìø±ä»º´æ
 extern CDV_INT08U g_pluse[COIL_CHN];
-extern OS_SEM PLUSE_SEM;
+extern OS_MUTEX PLUSE_SEM;
 #define CH_PLUSE_I(A)          g_pluse[A]
 
 

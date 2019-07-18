@@ -307,10 +307,10 @@ u8 UART5_Receive(u8 *len)
 void UART5_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&COM_SEM[4],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&COM_SEM[4],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	UART5_RxInit(rxbuf ,rxbufLen);
 	UART5_Send(txbuf ,txlen);
 	UART5_Receive(rxlen);
 	UART5_RxDeInit();
-	OSSemPost (&COM_SEM[4],OS_OPT_POST_1,&err); 
+	OSMutexPost (&COM_SEM[4],OS_OPT_POST_NO_SCHED,&err); 
 }

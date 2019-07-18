@@ -135,6 +135,8 @@ startup_stm32f40_41xxx.s
 	
 		#define USE_CASCADE_MAP 1u
 		
+		#define USE_CASCADE_STATIC 1u // ¾²Ì¬ÄÚ´æ·ÖÅä
+		
 	#endif
 	
 	#define USE_WORKER_DEBUG 1u

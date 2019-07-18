@@ -177,7 +177,7 @@ void FpgaCS(CDV_INT08U no)
 void FpgaTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U* pRxBuf, CDV_INT16U rxByte, CDV_INT08U no)   
 {
   OS_ERR err;
-	OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	FpgaCS(no);
 	
 	if(pTxBuf && txByte) {
@@ -188,7 +188,7 @@ void FpgaTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U* pRxBuf, CDV_INT16
 	  Fpga_Rx(pRxBuf, rxByte);
 	}
 	FPGA_DS;
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 }
 
 /*************************************************************/

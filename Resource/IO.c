@@ -36,7 +36,7 @@ CDV_INT08U g_otmp[30] = {0};
 //void IParWrite(CDV_INT32U no , CDV_INT16U flag , CDV_INT08U* buf);
 //void IParRead(CDV_INT32U no , CDV_INT16U flag , CDV_INT08U* buf , CDV_INT08U* len);
 
-OS_SEM PLUSE_SEM;
+OS_MUTEX PLUSE_SEM;
 CDV_INT08U g_pluse[COIL_CHN];
 
 /*GPIO设置*/
@@ -1591,7 +1591,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 			}
 			break;
 		case 0x07:/*跳变等待*/
-			OSSemPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+			OSMutexPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 			ret = OPT_FAILURE;
 			bit = READ_PLUSE_I(no);
 			if(bit != IRead(no))
@@ -1610,13 +1610,13 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 					ret = OPT_SUCCESS;
 				}
 			}
-			OSSemPost (&PLUSE_SEM,OS_OPT_POST_1,&err);
+			OSMutexPost (&PLUSE_SEM,OS_OPT_POST_NO_SCHED,&err);
 // 		    bit = IRead(no);
 // 		    while(bit == IRead(no)  && ( CDV_STOP != g_cdvStat))
 // 					delay_ms(1);
 			break;
 		case 0x08:/*上跳变等待*/
-			OSSemPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+			OSMutexPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 			ret = OPT_FAILURE;
 			bit = READ_PLUSE_I(no);
 			if(bit != IRead(no))
@@ -1635,7 +1635,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 					}
 				}
 			}
-			OSSemPost (&PLUSE_SEM,OS_OPT_POST_1,&err);
+			OSMutexPost (&PLUSE_SEM,OS_OPT_POST_NO_SCHED,&err);
 				
 // 		    while(BIT_0 != IRead(no)  && ( CDV_STOP != g_cdvStat))
 // 					delay_ms(1);
@@ -1643,7 +1643,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 // 					delay_ms(1);
 			break;
 		case 0x09:/*下跳变等待*/
-			OSSemPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
+			OSMutexPend(&PLUSE_SEM , 0 , OS_OPT_PEND_BLOCKING , 0 , &err); //请求信号量
 			ret = OPT_FAILURE;
 			bit = READ_PLUSE_I(no);
 			if(bit != IRead(no))
@@ -1662,7 +1662,7 @@ RET_STATUS ICmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 					}
 				}
 			}
-			OSSemPost (&PLUSE_SEM,OS_OPT_POST_1,&err);
+			OSMutexPost (&PLUSE_SEM,OS_OPT_POST_NO_SCHED,&err);
 // 		    while(BIT_1 != IRead(no)  && ( CDV_STOP != g_cdvStat))
 // 					delay_ms(1);
 // 		    while(BIT_0 != IRead(no)  && ( CDV_STOP != g_cdvStat))

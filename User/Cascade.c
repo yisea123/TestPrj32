@@ -30,8 +30,12 @@
 #elif _NPC_VERSION_ == 3u
 	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 12/*迭代小版本*/};
 #endif
-
-
+	
+#if USE_CASCADE_STATIC == 1u
+	#define CASCADE_BUF_MAX_LEN 256
+	CDV_INT08U* cascade_cmd_buf = NULL; // 用于命令的静态buf，不动态分配
+	CDV_INT08U* cascade_tmp_buf = NULL;
+#endif
 	
   //开启主级联口
 	#define	CASCADE_EN 			CASCADE_CS_EN;FPGA1_CS_DS;FPGA2_CS_DS;FLASH_CS_DS;
@@ -49,8 +53,8 @@
   OLCMD_CACHE g_portCmdCache = {NULL , 0  , 0 , 0 , NULL};
 	
 	#define CASCADE_BUF_LEN 255
-	//u8 g_cascadeBuf[CASCADE_BUF_LEN];//UserMemPtr(CCM_CASCADE_MODBUS);
-	u8 *g_cascadeBuf = NULL;
+	//u8 cascade_recv_buf[CASCADE_BUF_LEN];//UserMemPtr(CCM_CASCADE_MODBUS);
+	u8 *cascade_recv_buf = NULL;
 	
 	#if USE_OVERLAP
 	MODBUS_Coil *g_coilCascade = NULL;
@@ -300,7 +304,7 @@ void CascadeMasterTR2(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBu
 {
   OS_ERR err;	
 	u8 i,dat;
-	OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	SPEED_CASCADE;
 	
 	if(pTxBuf && txByte) {
@@ -321,7 +325,7 @@ void CascadeMasterTR2(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBu
 //	
 //	CASCADE_CS_DS;
 	SPEED_FPGA;
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 }
 
 /** @brief  主机发送接收接口，用于加入信号量 ，CRC校验版本
@@ -341,7 +345,7 @@ void CascadeMasterTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBuf
   CDV_INT08U* sbuf = NULL;
 	OS_ERR err;	
 	
-	OSSemPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&MOTO_SEM,0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
   SPEED_CASCADE;
 	slen = txByte + 2 ;
 	NEW08U(sbuf, slen);//最后是crc
@@ -406,7 +410,7 @@ void CascadeMasterTR(CDV_INT08U* pTxBuf, CDV_INT16U txByte, CDV_INT08U** ppRxBuf
 		}
 	}while(1);
 	SPEED_FPGA;
-	OSSemPost (&MOTO_SEM,OS_OPT_POST_1,&err);
+	OSMutexPost (&MOTO_SEM,OS_OPT_POST_NO_SCHED,&err);
 }
 
 	///////////////////////////////////////////////////////
@@ -1340,11 +1344,18 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT16U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 	CDV_INT08U coil_sf = coiladdr & 0x07;
 	CDV_INT08U coil_numCh = (tonum - 8 + coil_sf + 7) / 8 + (coil_sf ? 1 :0);//标准长度，sf = 0
 	int ret = 0,i = 0;
+	
+#if USE_CASCADE_STATIC == 1u
+	CDV_INT08U *tmp_buf = cascade_tmp_buf;
+#else
 	CDV_INT08U* tmp_buf = NULL;
+#endif
 	
 	ASSERT(buf  && coil);
 	
+#if USE_CASCADE_STATIC == 0u
 	NEWCH(tmp_buf, coil_numCh);
+#endif
 	
 	MemCpy(tmp_buf, coil + coil_sta_ch, coil_numCh);
 
@@ -1359,8 +1370,10 @@ int CoilCmp(CDV_INT08U* buf, CDV_INT16U bufaddr, CDV_INT08U* coil, CDV_INT16U co
 //	if(0 == strncmp((CDV_INT08C*)tmp_buf, (CDV_INT08C*)(coil + coil_sta_ch), coil_numCh)) {
 //		ret = 0;
 //	}
-	
+
+#if USE_CASCADE_STATIC == 0u
 	DELETE(tmp_buf);
+#endif
 	return ret;
 }
 
@@ -1394,20 +1407,28 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadReg2(CDV_INT08U* pBuffer, CDV_INT16U startaddr, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
-	  CDV_INT08U* cmdBuf = NULL;
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,opt);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToReg2(recvBuf, recvLen, pReg, startaddr);
 		}
+		#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
+		#endif
 		return ret;
 	}
 /** @brief  读取从机的寄存器到本机
@@ -1421,15 +1442,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadReg(CDV_INT08U* pBuffer, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
 	  CDV_INT08U* cmdBuf = NULL;
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadRegisterCmd(id, addr, num, &cmdBuf, &cmdLen,BUF_NEW);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,BUF_NEW);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToReg(recvBuf, recvLen, pReg);
@@ -1448,20 +1469,28 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadInReg2(CDV_INT08U* pBuffer, CDV_INT16U startaddr, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
-	  CDV_INT08U* cmdBuf = NULL;
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pInReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,opt);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToInReg2(recvBuf, recvLen, pInReg, startaddr);
 		}
+		#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
+		#endif
 		return ret;
 	}
 /** @brief  读取从机的只读寄存器到本机
@@ -1475,15 +1504,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadInReg(CDV_INT08U* pBuffer, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
 	  CDV_INT08U* cmdBuf = NULL;
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U* pInReg = (CDV_INT16U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen,BUF_NEW);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,BUF_NEW);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToInReg(recvBuf, recvLen, pInReg);
@@ -1502,20 +1531,28 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadCoil2(CDV_INT08U* pBuffer, CDV_INT16U startaddr, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
-	  CDV_INT08U* cmdBuf = NULL;
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,opt);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToCoil3(recvBuf, recvLen, pCoil, startaddr, num);
 		}
+		#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
+		#endif
 		return ret;
 	}
 /** @brief  读取从机的线圈到本机
@@ -1529,15 +1566,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadCoil(CDV_INT08U* pBuffer, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
 	  CDV_INT08U* cmdBuf = NULL;
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadCoilCmd(id, addr, num, &cmdBuf, &cmdLen,BUF_NEW);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,BUF_NEW);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToCoil(recvBuf, recvLen, pCoil);
@@ -1557,20 +1594,28 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadInCoil2(CDV_INT08U* pBuffer, CDV_INT16U startaddr, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
-	  CDV_INT08U* cmdBuf = NULL;
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pInCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,opt);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToInCoil3(recvBuf, recvLen, pInCoil, startaddr, num);
 		}
+#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
+#endif
 		return ret;
 	}
 /** @brief  读取从机的只读线圈到本机
@@ -1584,15 +1629,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   */
 
 	RET_STATUS CascadeModbus_ReadInCoil(CDV_INT08U* pBuffer, const CDV_INT08U id, const CDV_INT16U addr, const CDV_INT16U num, const CDV_INT08U uart) {
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
 	  CDV_INT08U* cmdBuf = NULL;
 	  CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvLen = 0;
 		CDV_INT08U* pInCoil = (CDV_INT08U*)pBuffer;
 		RET_STATUS ret;
 		ASSERT(recvBuf&&pBuffer);
-		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen);
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart);
+		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen,BUF_NEW);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, uart,BUF_NEW);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = BufToInCoil(recvBuf, recvLen, pInCoil);
@@ -1607,7 +1652,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		CDV_INT08U id;
 		CDV_INT08U* cmdBuf = NULL;
 	  CDV_INT08U  cmdLen = 0;
-		CDV_INT08U* recvBuf = g_cascadeBuf;//UserMemPtr(CCM_CASCADE_MODBUS);
+		CDV_INT08U* recvBuf = cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
 		CDV_INT08U recvLen = 0;
 		CDV_INT16U p_val[6];
 		CDV_INT08U p_coil[2];
@@ -1615,11 +1660,11 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		MemCpy(p_coil,gp_coil,2);
 		MemCpy(p_val,gp_val,12);
 		
-		WriteMultiRegisterCmd(2, 0x10, 6, (CDV_INT08U*)p_val, &cmdBuf, &cmdLen);
-		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART);
+		WriteMultiRegisterCmd(2, 0x10, 6, (CDV_INT08U*)p_val, &cmdBuf, &cmdLen,BUF_NEW);
+		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NEW);
 		delay_ms(10);
-		WriteMultiCoilCmd(3, 0, 10, (CDV_INT08U*)p_coil, &cmdBuf, &cmdLen);
-		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART);
+		WriteMultiCoilCmd(3, 0, 10, (CDV_INT08U*)p_coil, &cmdBuf, &cmdLen,BUF_NEW);
+		UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NEW);
 		delay_ms(10);
 		DELETE(cmdBuf);
 		
@@ -1741,8 +1786,14 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 			
 		}
 		
-		NEWCH(g_cascadeBuf, CASCADE_BUF_LEN);
-
+		NEWCH(cascade_recv_buf, CASCADE_BUF_LEN);
+		
+#if USE_CASCADE_STATIC == 1u
+		NEWCH(cascade_cmd_buf, CASCADE_BUF_MAX_LEN);
+		NEWCH(cascade_tmp_buf, CASCADE_BUF_MAX_LEN);
+#endif
+		
+		
 #if USE_OVERLAP
 	  NEWCH(g_coilCascade, sizeof(MODBUS_Coil));
 	  NEWCH(g_regCascade, sizeof(MODBUS_Register));
@@ -1773,23 +1824,29 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 
 	RET_STATUS CascadeOverlapOWrite(CDV_INT08U host, CDV_INT16U remoteaddr, CDV_INT32U num, CDV_INT08U* coilVal) { 
 		RET_STATUS ret =OPT_SUCCESS;
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
 		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 		CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvBuf[20] = {0};
 		CDV_INT08U  recvLen = 0;
 		
-		WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen);
+		WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen,opt);
     
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART,opt);
 		
 		if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = OPT_SUCCESS;
 		} else {
 			ret = OPT_FAILURE;
 		}
-	  
+#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
-		
+#endif
 		return ret;
 	}
 	/**
@@ -1804,24 +1861,30 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 
 	RET_STATUS CascadeOverlapDAWrite(CDV_INT08U host, CDV_INT16U remoteaddr, CDV_INT32U num, CDV_INT08U* regVal) { 
 		RET_STATUS ret =OPT_SUCCESS;
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
 		CDV_INT08U* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
 		CDV_INT08U  cmdLen = 0;
 		CDV_INT08U recvBuf[100] = {0};
 		CDV_INT08U  recvLen = 0;
 		
-		WriteMultiRegisterCmd(host, remoteaddr, num, regVal, &cmdBuf, &cmdLen);
+		WriteMultiRegisterCmd(host, remoteaddr, num, regVal, &cmdBuf, &cmdLen,opt);
 		//WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen);
     
-		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 100, &recvLen, CASCADE_USART);
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 100, &recvLen, CASCADE_USART,opt);
 		
 		if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
 			ret = OPT_SUCCESS;
 		} else {
 			ret = OPT_FAILURE;
 		}
-	  
+#if USE_CASCADE_STATIC == 0u
 		DELETE(cmdBuf);
-		
+#endif
 		return ret;
 	}
 	
@@ -1840,6 +1903,9 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		CDV_INT08U i;
 		RET_STATUS ret = OPT_SUCCESS;
 		struct CASCADE_MAP* map = CascadeMap;
+#if USE_CASCADE_STATIC == 1u
+		CDV_INT08U *tmp_buf = cascade_tmp_buf;
+#endif
 		//ASSERT(map);
 		//ASSERT(g_coilCascade);//此函数无条件执行，不需要
 		
@@ -1855,11 +1921,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #if USE_OVERLAP
 				  ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 				  if(OPT_SUCCESS == ret && CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
-						CDV_INT08U *tmp_coil_val = NULL;
-						NEWCH(tmp_coil_val, map[i].remotenum / 8 + 3);
-						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_coil_val, 0, map[i].remotenum);
-						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_coil_val);
-						DELETE(tmp_coil_val);
+#if USE_CASCADE_STATIC == 0u			
+					  CDV_INT08U *tmp_buf = NULL;
+						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
+#endif
+						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_buf, 0, map[i].remotenum);
+						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
+#if USE_CASCADE_STATIC == 0u
+					  DELETE(tmp_buf);
+#endif
 					}
 #else
 					ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
@@ -1869,11 +1939,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #if USE_OVERLAP
 				  ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_regCascade->reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 				  if(OPT_SUCCESS == ret && RegCmp(g_regCascade->reg, map[i].localaddr, g_modbusReg.reg, map[i].localaddr, map[i].remotenum)) {
-						CDV_INT08U *tmp_reg_val = NULL;
-						NEWCH(tmp_reg_val, 2*map[i].remotenum);
-						MemCpy(tmp_reg_val, g_modbusReg.reg + map[i].localaddr, 2*map[i].remotenum);
-						ret = CascadeOverlapDAWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_reg_val);
-						DELETE(tmp_reg_val);
+#if USE_CASCADE_STATIC == 0u	
+						CDV_INT08U *tmp_buf = NULL;
+						NEWCH(tmp_buf, 2*map[i].remotenum);
+#endif
+						MemCpy(tmp_buf, g_modbusReg.reg + map[i].localaddr, 2*map[i].remotenum);
+						ret = CascadeOverlapDAWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
+#if USE_CASCADE_STATIC == 0u	
+						DELETE(tmp_buf);
+#endif
 					}
 #else
 					ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
@@ -2234,7 +2308,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #else
 					WriteMultiCoilCmd(host, remoteaddr, 1, &coil, &cmdBuf, &cmdLen);
 
-					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART);
+					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 20, &recvLen, CASCADE_USART,BUF_NEW);
 												
 					if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
 					  ret = OPT_SUCCESS;
@@ -2312,7 +2386,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 					g_modbusReg.reg[localaddr] = reg;
 #else
 					WriteMultiRegisterCmd(host, remoteaddr, 1, (CDV_INT08U*)&reg, &cmdBuf, &cmdLen);
-					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 30, &recvLen, CASCADE_USART);
+					ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, 30, &recvLen, CASCADE_USART,BUF_NEW);
 				  
 					if(OPT_SUCCESS == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
 						ret = OPT_SUCCESS;

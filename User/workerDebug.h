@@ -54,7 +54,7 @@ CDV_INT08S DebugClose(DEBUG_CTRL* debug);
 void AllDebugStateSet(DEBUG_STATE state);
 RET_STATUS WorkerDebugParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 
-	extern OS_SEM DEBUG_SEM;
+	extern OS_MUTEX DEBUG_SEM;
 #endif
 #endif
 

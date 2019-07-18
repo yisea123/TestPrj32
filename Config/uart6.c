@@ -521,12 +521,12 @@ u8 USART6_Receive(u8 *len)
 void USART6_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u8 rxbufLen,u8* rxlen)
 {
 	OS_ERR err;
-	OSSemPend(&COM_SEM[5],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
+	OSMutexPend(&COM_SEM[5],0,OS_OPT_PEND_BLOCKING,0,&err); //请求信号量
 	USART6_RxInit(rxbuf ,rxbufLen);
 	USART6_Send(txbuf ,txlen);
 	USART6_Receive(rxlen);
 	USART6_RxDeInit();
 	//DelayTick(5);
-	OSSemPost (&COM_SEM[5],OS_OPT_POST_1,&err); 
+	OSMutexPost (&COM_SEM[5],OS_OPT_POST_NO_SCHED,&err); 
 }
 

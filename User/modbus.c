@@ -22,6 +22,8 @@
 	
 	#include "modbus.h"
 
+
+
 MODBUS_Coil g_modbusCoil={0};
 MODBUS_Input_Coil g_modbusInCoil={0};
 MODBUS_Register g_modbusReg={0};
@@ -608,7 +610,7 @@ CDV_INT08U* Endian_TF(CDV_INT08U* buf, const u16 num, const u16 size)
   * @note   外部调用负责清理cmdBuf
   */
 void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -616,6 +618,7 @@ void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
 	ASSERT(NULL != cmdLen);
 	
 	*cmdLen = 6;
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x06;
@@ -635,7 +638,7 @@ void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
   * @note   外部调用负责清理cmdBuf
   */
 void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -645,6 +648,7 @@ void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	ASSERT(0x7D >= num);
 	
 	*cmdLen = 7 + (num << 1);
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x10;
@@ -666,7 +670,7 @@ void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @note   外部调用负责清理cmdBuf
   */
 void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -674,6 +678,7 @@ void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	ASSERT(0x7D >= num);
 	
 	*cmdLen = 6;
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x03;
@@ -692,7 +697,7 @@ void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @note   外部调用负责清理cmdBuf
   */
 void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -700,6 +705,7 @@ void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	ASSERT(0x7D >= num);
 	
 	*cmdLen = 6;
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x04;
@@ -718,13 +724,14 @@ void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @note   外部调用负责清理cmdBuf
   */
 void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	
 	*cmdLen = 6;
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x05;
@@ -743,13 +750,14 @@ void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
   * @note   外部调用负责清理cmdBuf
   */
 void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen) {
+     CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag) {
 	CDV_INT16U numCh = (num>>3)+((num & 0x07)?1:0);
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	
 	*cmdLen = numCh + 7;
+			 if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x0F;
@@ -771,7 +779,7 @@ void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @note   外部调用负责清理cmdBuf
   */
 void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -779,6 +787,7 @@ void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	ASSERT(0x7D0 >= num);
 	
 	*cmdLen = 6;
+	if(BUF_NEW == flag)
 	NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x02;
@@ -797,7 +806,7 @@ void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @note   外部调用负责清理cmdBuf
   */
 void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen)
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -805,7 +814,8 @@ void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
 	ASSERT(0x7D0 >= num);
 	
 	*cmdLen = 6;
-	NEW08U(*cmdBuf, *cmdLen);
+	if(BUF_NEW == flag)
+	  NEW08U(*cmdBuf, *cmdLen);
 	(*cmdBuf)[0] = dev;
 	(*cmdBuf)[1] = 0x01;
 	(*cmdBuf)[2] = (addr>>8) & 0xff;

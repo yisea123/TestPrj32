@@ -194,9 +194,9 @@ void start_task(void *p_arg){
 	OSSchedRoundRobinCfg(DEF_ENABLED, 5, &err);//使能时间片轮转调度功能,时间片长度为 1 个系统时钟节拍
 	#endif
 	//创建信号量							
-	OSSemCreate ((OS_SEM* )&TX_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&TX_SEM, //指向信号量
 								(CPU_CHAR* )"TX_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
 													
 //	OSSemCreate ((OS_SEM* )&VAL_SEM, //指向信号量
@@ -207,25 +207,25 @@ void start_task(void *p_arg){
 //								(CPU_CHAR* )"SPI_SEM", //信号量名字
 //								(OS_SEM_CTR )1, //信号量值为 1
 //								(OS_ERR* )&err);
-	OSSemCreate ((OS_SEM* )&WORKER_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&WORKER_SEM, //指向信号量
 								(CPU_CHAR* )"WORKER_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
-	OSSemCreate ((OS_SEM* )&MOTO_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&MOTO_SEM, //指向信号量
 								(CPU_CHAR* )"MOTO_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
-	OSSemCreate ((OS_SEM* )&MEM_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&MEM_SEM, //指向信号量
 								(CPU_CHAR* )"MEM_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
-	OSSemCreate ((OS_SEM* )&MSG_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&MSG_SEM, //指向信号量
 								(CPU_CHAR* )"MSG_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
-  OSSemCreate ((OS_SEM* )&LIST_SEM, //指向信号量
+  OSMutexCreate ((OS_MUTEX* )&LIST_SEM, //指向信号量
 								(CPU_CHAR* )"LIST_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
 //	OSSemCreate ((OS_SEM* )&WIFI_SEM, //指向信号量
 //								(CPU_CHAR* )"WIFI_SEM", //信号量名字
@@ -241,34 +241,34 @@ void start_task(void *p_arg){
 //								(OS_SEM_CTR )1, //信号量值为 1
 //								(OS_ERR* )&err);		
 								
-	OSSemCreate ((OS_SEM* )&COIL_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&COIL_SEM, //指向信号量
 								(CPU_CHAR* )"COIL_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);			
 	
 	for (i = 0; i < 6; i++) {
 		char buf[10];
 		sprintf(buf, "COM_SEM%d", i);
-	  OSSemCreate ((OS_SEM* )&COM_SEM[i], //指向信号量
+	  OSMutexCreate ((OS_MUTEX* )&COM_SEM[i], //指向信号量
 									(CPU_CHAR* )buf, //信号量名字
-									(OS_SEM_CTR )1, //信号量值为 1
+									//(OS_SEM_CTR )1, //信号量值为 1
 									(OS_ERR* )&err);		
 	}
 
-	OSSemCreate ((OS_SEM* )&TCP_TX_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&TCP_TX_SEM, //指向信号量
 								(CPU_CHAR* )"TCP_TX_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);		
 //创建信号量							
-	OSSemCreate ((OS_SEM* )&PLUSE_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&PLUSE_SEM, //指向信号量
 								(CPU_CHAR* )"PLUSE_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
 
 #if USE_WORKER_DEBUG == 1u
-	OSSemCreate ((OS_SEM* )&DEBUG_SEM, //指向信号量
+	OSMutexCreate ((OS_MUTEX* )&DEBUG_SEM, //指向信号量
 								(CPU_CHAR* )"DEBUG_SEM", //信号量名字
-								(OS_SEM_CTR )1, //信号量值为 1
+								//(OS_SEM_CTR )1, //信号量值为 1
 								(OS_ERR* )&err);
 #endif
 	/*FPGA程序接收下载控制*/

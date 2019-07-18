@@ -113,7 +113,7 @@ RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
   *
   * @note   
   */
-RET_STATUS UniSerialSendCRC(const u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8* rxLen , const CDV_INT08U uart)
+RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8* rxLen , const CDV_INT08U uart,BUF_OPT opt)
 {
 	OS_ERR err;
 	CDV_INT32S val = 0;
@@ -130,17 +130,23 @@ RET_STATUS UniSerialSendCRC(const u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufL
 	if((NULL == txBuf) || (0 == txLen) || (NULL == rxBuf) || (0 == rxbufLen) || (NULL == rxLen))
 		return OPT_FAILURE;
 	
-	NEW08U(sendBuf, txLen + 2);
+	if(BUF_NEW == opt) {
+	  NEW08U(sendBuf, txLen + 2);
+	  MemCpy(sendBuf, txBuf, txLen);
+	} else {
+		sendBuf = txBuf;
+	}
 	
-	MemCpy(sendBuf, txBuf, txLen);
 	
 	data=getCRC16(sendBuf,txLen);
 	sendBuf[txLen]=data & 0x00ff;
   sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
 	USARTTR(sendBuf ,txLen + 2 ,rxBuf ,rxbufLen , rxLen , uart);
 	
-	DELETE(sendBuf);
-
+	if(BUF_NEW == opt) {
+	  DELETE(sendBuf);
+	}
+	
 	if(*rxLen > 2) {
 		data=getCRC16(rxBuf,*rxLen-2);
 		if((rxBuf[*rxLen-2]==(data & 0x00ff))
@@ -372,16 +378,16 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 	
 	switch(fc) {
 		case 0x10:                        /*write multi reg*/
-			WriteMultiRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			WriteMultiRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			break;
 		case 0x06:                        /*write reg*/
-			WriteRegisterCmd(devAddr, regPos, *(CDV_INT16U*)p_val, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			WriteRegisterCmd(devAddr, regPos, *(CDV_INT16U*)p_val, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			break;
 		case 0x03:                        /*read reg*/
-			ReadRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			ReadRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			//读到变量且接收成功
 			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x03 == recv_buf[1]) {
 				ret = ReadRegReqToVar(recv_buf, recv_len, 0, ftmp2);
@@ -389,8 +395,8 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 			}
 			break;
 		case 0x04:                        /*read inreg*/
-			ReadInRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			ReadInRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			//读到变量且接收成功
 			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x04 == recv_buf[1]) {
 				ret = ReadInRegReqToVar(recv_buf, recv_len, 0, ftmp2);
@@ -398,15 +404,15 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 			}
 			break;
 		case 0x05:                        /*write coil*/
-			WriteCoilCmd(devAddr, regPos, *p_val, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			WriteCoilCmd(devAddr, regPos, *p_val, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 		
 //		if(cmdBuf[2] == 0x02 && cmdBuf[3] == 0x0F)
 //			break;
 			break;
 		case 0x02:                        /*read incoil*/
-			ReadInCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			ReadInCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			//读到变量且接收成功
 			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x02 == recv_buf[1]) {
 				ret = ReadInCoilReqToVar(recv_buf, recv_len, 0, ftmp2);
@@ -414,8 +420,8 @@ RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart
 			}
 			break;
 		case 0x01:                        /*read coil*/
-			ReadCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
+			ReadCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
+			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
 			//读到变量且接收成功
 			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x01 == recv_buf[1]) {
 				ret = ReadCoilReqToVar(recv_buf, recv_len, 0, ftmp2);

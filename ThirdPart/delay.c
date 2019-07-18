@@ -51,7 +51,7 @@ u32 cdvEndTime[CDV_TIME_NUM];
 //u32 Sys_time_50ms = 0;	//系统计时1s自增
 //u8 ValveAdjust_Flag = 0;
 u32 GetCdvTimeTick(void) {
-	return cdvTimeTick;
+	return cdvTimeTick;//OSTimeGet()
 }
 
 void SetCdvTimeTick(u32 timeTick) {

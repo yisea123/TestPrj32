@@ -255,7 +255,11 @@
 #define ENDIAN_TF16U(A)    ((((CDV_INT16U)(A) & 0xff00) >> 8) | \
                               (((CDV_INT16U)(A) & 0x00ff) << 8))
 #define ENDIAN_TF(A,N)   
-															
+												
+
+
+
+
 #include "cdv_include.h"
 //#pragma pack(1)
 /*modbus寄存器结构体*/
@@ -382,20 +386,33 @@ typedef union
 extern MODBUS_Coil g_modbusCoil;
 
 #define MODBUS_COIL_CH(A) g_modbusCoil.coilCh[(A)]
-#if 0
+#if 1
 #define SET_COIL_ADDR(A) do{\
-	OS_ERR err;\
-	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+	CPU_SR_ALLOC();\
+	CPU_CRITICAL_ENTER();\
 	(MODBUS_COIL_CH((A) >> 3)) |= (0x01 <<((A) & 0x07));\
-	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
+	OS_CRITICAL_EXIT_NO_SCHED();\
 }while(0);
 
 #define RESET_COIL_ADDR(A) do{\
-	OS_ERR err;\
-	OSSemPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+	CPU_SR_ALLOC();\
+	CPU_CRITICAL_ENTER();\
 	(MODBUS_COIL_CH((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
-	OSSemPost (&COIL_SEM,OS_OPT_POST_1,&err);\
+	OS_CRITICAL_EXIT_NO_SCHED();\
 }while(0);
+//#define SET_COIL_ADDR(A) do{\
+//	OS_ERR err;\
+//	OSMutexPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+//	(MODBUS_COIL_CH((A) >> 3)) |= (0x01 <<((A) & 0x07));\
+//	OSMutexPost (&COIL_SEM,OS_OPT_POST_NO_SCHED,&err);\
+//}while(0);
+
+//#define RESET_COIL_ADDR(A) do{\
+//	OS_ERR err;\
+//	OSMutexPend(&COIL_SEM,0,OS_OPT_PEND_BLOCKING,0,&err);\
+//	(MODBUS_COIL_CH((A) >> 3)) &= (0xFF ^(0x01 <<((A) & 0x07)));\
+//	OSMutexPost (&COIL_SEM,OS_OPT_POST_NO_SCHED,&err);\
+//}while(0);
 #define READ_COIL_ADDR(A) (((MODBUS_COIL_CH((A) >> 3)) & (0x01 <<((A) & 0x07))) ? 1 : 0)
 #else
 #define SET_COIL_ADDR(A) do{\
@@ -478,21 +495,21 @@ CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg/*, CDV_
 	********************串口发送函数*****************************
 	************************************************************/
 void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
 void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen);
+     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag);
  /************************************************************
 	********************串口接收解析函数*************************
 	************************************************************/
