@@ -28,7 +28,7 @@
 #elif _NPC_VERSION_ == 2u
 	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 2/*硬件驱动版本*/, 19/*迭代小版本*/};
 #elif _NPC_VERSION_ == 3u
-	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 12/*迭代小版本*/};
+	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 13/*迭代小版本*/};
 #endif
 	
 #if USE_CASCADE_STATIC == 1u
@@ -2470,8 +2470,8 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg) {
 		RET_STATUS ret = OPT_SUCCESS;
 		
-	u32 gstartTime ,gendTime , gtime;
-		gstartTime = GetCdvTimeTick();
+	//u32 gstartTime ,gendTime , gtime;
+	//	gstartTime = GetCdvTimeTick();
 		switch(buf[6]) {
 			case 0x00:/*主轴命令*/
 				
@@ -2501,8 +2501,8 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 				ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
 			}
 		}
-		gendTime = GetCdvTimeTick();
-		gtime = CalcCount(gendTime , gstartTime);
+		//gendTime = GetCdvTimeTick();
+		//gtime = CalcCount(gendTime , gstartTime);
 		return ret;
 	}
 

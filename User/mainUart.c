@@ -506,10 +506,10 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 			RTC_Set_Time(atoi((CDV_INT08C*)rxBuf+8),atoi((CDV_INT08C*)rxBuf+11),atoi((CDV_INT08C*)rxBuf+14),RTC_H12_AM);	//设置时间
 #endif
 		}
-		else if(0 == strncmp((CDV_INT08C*)rxBuf, "START TEST", 10)){//SETTIME 00 00 00
+		else if(0 == strncmp((CDV_INT08C*)rxBuf, "START TEST", 10)){//测试比例阀？
 			RPressureCnt = 0;
 		}
-		else if(0 == strncmp((CDV_INT08C*)rxBuf, "GET TEST", 8)){//SETTIME 00 00 00
+		else if(0 == strncmp((CDV_INT08C*)rxBuf, "GET TEST", 8)){//测试比例阀？
 			int i;
 			char tmp[50]={0};
 			if(RPressureCnt >= 100){
@@ -601,6 +601,16 @@ RET_STATUS RecvParse(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CDV_INT08U uartNo, voi
 		} else if (0 == strncmp((CDV_INT08C*)rxBuf, "NPC FIND", 8)) {
 			udpecho_find(&arg);
 #endif
+		}	else if(0 == strncmp((CDV_INT08C*)rxBuf,"MEM INF",7)){//查看内存使用
+			int used, perused;
+			char tmp[50]={0};
+			
+			used = memmng_used();
+		  perused = memmng_perused();
+			
+			sprintf(tmp, "used %d\r\nperused %d\%%\r\n", used, perused);
+			AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), &arg);
+					
 		} else {///回复开发层
 		  //OnlineRequest(rxBuf[1], 0xFF, 0xFF, uartNo);
 	  }
