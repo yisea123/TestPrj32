@@ -127,7 +127,7 @@ startup_stm32f40_41xxx.s
 	
 	#define USE_COUNTER 0u //使用计数器 
 	
-	#define USE_NPC_NET  0u
+	#define USE_NPC_NET  1u
 	
   #define USE_CASCADE  1u
 	

@@ -50,7 +50,7 @@ void time_log(CDV_INT32S info);
 void time_log_send( CMD_ARG *arg);
 #endif
 
-//#define _DEBUG_NPC_
+#define _DEBUG_NPC_
 #ifdef  _DEBUG_NPC_
 
 /**

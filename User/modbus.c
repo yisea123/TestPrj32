@@ -613,7 +613,7 @@ void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	
 	ASSERT(NULL != cmdLen);
 	
@@ -641,7 +641,7 @@ void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	
 	ASSERT(NULL != cmdLen);
 	ASSERT(NULL != regVal);
@@ -673,7 +673,7 @@ void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	ASSERT(0x7D >= num);
 	
@@ -700,7 +700,7 @@ void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	ASSERT(0x7D >= num);
 	
@@ -727,7 +727,7 @@ void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	
 	*cmdLen = 6;
@@ -753,7 +753,7 @@ void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag) {
 	CDV_INT16U numCh = (num>>3)+((num & 0x07)?1:0);
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	
 	*cmdLen = numCh + 7;
@@ -782,7 +782,7 @@ void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	ASSERT(0x7D0 >= num);
 	
@@ -809,7 +809,7 @@ void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
      CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
-	ASSERT(NULL == *cmdBuf);
+	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
 	ASSERT(0x7D0 >= num);
 	
