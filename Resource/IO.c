@@ -472,8 +472,11 @@ void NPC2_3_GpioConfig(void){
 	GPIO_Init(GPIOB, &GPIO_InitStructure);	
 #endif
 	//
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_8 
-															| GPIO_Pin_13;
+	GPIO_InitStructure.GPIO_Pin = 
+#if USE_PULSE_DRIVE == 0u
+	                            GPIO_Pin_8 | 
+#endif
+															GPIO_Pin_13;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 	//
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2 
@@ -489,8 +492,11 @@ void NPC2_3_GpioConfig(void){
 	GPIO_Init(GPIOG, &GPIO_InitStructure);
 	
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_13 
-															| GPIO_Pin_14  
-															| GPIO_Pin_15;
+															| GPIO_Pin_14
+#if USE_PULSE_DRIVE == 0u															
+															| GPIO_Pin_15
+#endif
+															;
 	GPIO_Init(GPIOH, &GPIO_InitStructure);
 	
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_7

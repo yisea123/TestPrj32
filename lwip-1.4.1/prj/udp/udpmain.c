@@ -165,10 +165,10 @@ void udpecho_find(CMD_ARG *arg)
 	
   if (conn!= NULL)
   {
-		
+		u32 tim = 0;
     err = netconn_bind(conn, IP_ADDR_ANY, 101);
 		conn->recv_timeout = 10;  	//½ûÖ¹×èÈûÏß³Ì µÈ´ı1000ms
-		u32 tim = 0;
+		
 		
     if (err == ERR_OK)
 		{

@@ -72,11 +72,37 @@ typedef struct
 #else
  #define CDV_I_NUM 20
 #endif
-#if USE_EXTI_POWER_OFF == 0u
- #define CDV_O_NUM 22
-#else
- #define CDV_O_NUM 21
+//#if USE_EXTI_POWER_OFF == 0u
+// #define CDV_O_NUM 22
+//#else
+// #define CDV_O_NUM 21
+//#endif
+//typedef enum {
+//	CDV_O_NUM_BASE = 18,
+//#define CDV_O_DEF(name)  CDV_O_NUM_##name,
+//#if USE_EXTI_POWER_OFF == 0u
+//  CDV_O_DEF(EXTI_POWER_OFF)
+//#endif
+//#if USE_PULSE_DRIVE == 0u
+//  CDV_O_DEF(PULSE_DRIVE_1)
+//	CDV_O_DEF(PULSE_DRIVE_2)
+//#endif
+//#undef CDV_O_DEF
+//  CDV_O_NUM
+//} CDV_O_NUM_T;
+
+typedef enum {
+	CDV_O_NUM_BASE = 22-
+#if USE_EXTI_POWER_OFF == 1u
+  1-
 #endif
+#if USE_PULSE_DRIVE == 1u
+  2-
+#endif
+	1,
+  CDV_O_NUM
+} CDV_O_NUM_T;
+
  #define CDV_DIP_NUM 3
 #endif
 
