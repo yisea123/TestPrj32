@@ -784,7 +784,7 @@ u16 i=0;
 }
 #endif
 
-	u32 ftime, time_cascade_map;
+	u32 ftime_cascade_map, time_cascade_map;
 	
 void cdv_refresh_task(void *p_arg){
 	
@@ -795,7 +795,7 @@ void cdv_refresh_task(void *p_arg){
 
 	while(1)	{
 #ifdef  DEBUG_TIME
-  ftime = GetCdvTimeTick();
+  ftime_cascade_map = GetCdvTimeTick();
 #endif
 		////CascadeModbus_AllUpdate();
 		if(OPT_FAILURE ==CascadeModbus_Map()) {
@@ -810,7 +810,7 @@ void cdv_refresh_task(void *p_arg){
 #ifdef  DEBUG_TIME
 		//stime = GetCdvTimeTick();
 		
-		time_cascade_map = CalcCount(GET_TICK, ftime);
+		time_cascade_map = CalcCount(GET_TICK, ftime_cascade_map);
 		
 		if(time_cascade_map > 1000) {
 			time_log(time_cascade_map);
@@ -834,6 +834,7 @@ void cdv_refresh_task(void *p_arg){
 #endif
 }
 
+	u32 ftime_local_map, time_local_map;
 /*本机外设刷新任务*/
 void worker_manage_task(void *p_arg){
 	
@@ -841,7 +842,9 @@ void worker_manage_task(void *p_arg){
   //刷新
 
 	while (1) {
-			
+#ifdef  DEBUG_TIME
+  ftime_local_map = GetCdvTimeTick();
+#endif
 		int i=0;
 		
 		IReadAllFilter(5, 10); //IReadAll();
@@ -898,6 +901,25 @@ void worker_manage_task(void *p_arg){
 //#endif
 		
     TaskSched();
+		
+#ifdef  DEBUG_TIME
+		//stime = GetCdvTimeTick();
+		
+		time_local_map = CalcCount(GET_TICK, ftime_local_map);
+		
+		if(time_local_map > 1000) {
+			time_log(time_local_map);
+			
+//			char tmp[50]={0};
+
+//			sprintf(tmp , "cascade map timeout:%d" 
+//					,time_cascade_map
+//					);
+//			
+//			Log_Write(tmp , LOG_EVENT);
+		
+		}
+#endif
 	}
 }
 

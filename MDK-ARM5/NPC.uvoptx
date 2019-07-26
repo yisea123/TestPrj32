@@ -120,7 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>Z毕w??趏?</Name>
+          <Name>Z?w躍?躍?趏kk</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -159,7 +159,7 @@
           <Type>0</Type>
           <LineNumber>816</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134349670</Address>
+          <Address>134349712</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -175,7 +175,7 @@
           <Type>0</Type>
           <LineNumber>435</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134352552</Address>
+          <Address>134352604</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -185,6 +185,22 @@
           <Filename>..\User\cdv_config.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\NPC\../User/cdv_config.c\435</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>911</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134349630</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\User\main.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\\../User/main.c\911</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -342,6 +358,11 @@
           <count>30</count>
           <WinNumber>1</WinNumber>
           <ItemText>onon2</ItemText>
+        </Ww>
+        <Ww>
+          <count>31</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>time_local_map,0x0A</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

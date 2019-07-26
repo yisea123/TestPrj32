@@ -90,7 +90,7 @@ void TIM8_PWM_Init(u32 arr,u32 psc)
   TIM_BDTRInitStruct.TIM_BreakPolarity = TIM_BreakPolarity_Low;
   TIM_BDTRInitStruct.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable;//TIM_AutomaticOutput_Disable;
  TIM_BDTRConfig(TIM8, &TIM_BDTRInitStruct);
- //初始化TIM14 Channel1 PWM模式
+ //初始化 Channel3 PWM模式
  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式2
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
  TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;//互补输出
@@ -100,13 +100,14 @@ void TIM8_PWM_Init(u32 arr,u32 psc)
   TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset; //互补输出空闲状态为0
   TIM_OCInitStructure.TIM_Pulse = arr/2;;
   //OCX就是channelx
-  TIM_OC2Init(TIM8, &TIM_OCInitStructure); //根据T指定的参数初始化外设TIM1 4OC1
- TIM_OC2PreloadConfig(TIM8, TIM_OCPreload_Enable); //使能TIM14在CCR1上的预装载寄存器
+  TIM_OC3Init(TIM8, &TIM_OCInitStructure); //根据T指定的参数初始化外设TIM1 4OC1
+ TIM_OC3PreloadConfig(TIM8, TIM_OCPreload_Enable); //使能TIM14在CCR1上的预装载寄存器
   TIM_ARRPreloadConfig(TIM8,ENABLE);//ARPE使能 自动重载
- TIM_Cmd(TIM8, ENABLE); //使能TIM14
+ TIM_ITConfig(TIM3, TIM_IT_CC3, ENABLE);//使能中断，中断事件为定时器工薪事件
+  	TIM_Cmd(TIM8, ENABLE); //使能TIM14
  TIM_CtrlPWMOutputs(TIM8, ENABLE); //设置PMW主输出//原子例程没有
-
-   TIM_SetCompare1(TIM8,arr/2);//设置占空比？
+//TIM_CCxCmd  TIM_CCxNCmd 
+   TIM_SetCompare3(TIM8,arr/2);//设置占空比？
 }  
 
 /**
@@ -117,7 +118,8 @@ void TIM8_PWM_Init(u32 arr,u32 psc)
 void TIM8_IRQHandler(void)
 {
 	OSIntEnter();    //进入中断
-	if(TIM_GetITStatus(TIM8,TIM_IT_Update)==SET) //溢出中断
+	//if(TIM_GetITStatus(TIM8,TIM_IT_Update)==SET) //溢出中断
+		if(TIM_GetITStatus(TIM8,TIM_IT_CC3)==SET) //溢出中断
 	{
 		TIM_ClearITPendingBit(TIM8,TIM_IT_Update);  //清除中断标志位
 		
