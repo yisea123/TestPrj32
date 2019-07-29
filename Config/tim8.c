@@ -115,7 +115,21 @@ void TIM8_PWM_Init(u32 arr,u32 psc)
   * @param  None
   * @retval None
   */ 
-void TIM8_IRQHandler(void)
+void TIM8_UP_TIM13_IRQHandler(void)
+{
+	OSIntEnter();    //进入中断
+	//if(TIM_GetITStatus(TIM8,TIM_IT_Update)==SET) //溢出中断
+		if(TIM_GetITStatus(TIM8,TIM_IT_CC3)==SET) //溢出中断
+	{
+		TIM_ClearITPendingBit(TIM8,TIM_IT_Update);  //清除中断标志位
+		
+		
+	}
+	
+	
+	OSIntExit();    	//退出中断
+}
+void TIM8_CC_IRQHandler(void)
 {
 	OSIntEnter();    //进入中断
 	//if(TIM_GetITStatus(TIM8,TIM_IT_Update)==SET) //溢出中断
