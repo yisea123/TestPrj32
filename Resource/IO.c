@@ -1467,11 +1467,11 @@ void OWrite(CDV_INT32U no , IO_VAL ioVal) {
 		default:
 			break;
 	}
-	
+#if !USE_OVERLAP
 	if(no < CDV_O_NUM) {
 		GPIO_WriteBit(g_cdvO[no].port , g_cdvO[no].pin, val);
 	}
-	
+#endif
 }
 //下面的函数，对于CDV_O_NUM以上的O无反应，因为我们的研磨机需要用到O来作为标记使用，开发层故意设置了100多的O，所以可以编译进来。所以这里要放宽限制条件了
 //void OWrite(CDV_INT32U no , IO_VAL ioVal) {
@@ -1738,6 +1738,14 @@ RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 //			}
 			bit = (ArithmeticEx((char*)rxBuf + 6, rxLen - 6, arg)) ? BIT_1 : BIT_0;
 			OWrite(no, bit);
+		
+		// TEST 记录O2操作置位的情况
+		if((no == 0 || no == 1) && bit == BIT_0)
+		  time_log_anything(
+				-1*((DEBUG_SCRIPT*)(arg->ptrWorker))->which,
+		    -1*((DEBUG_SCRIPT*)(arg->ptrWorker))->doNo
+		    );
+		
 			break;
 		case 0x01:/*等待*/
 			num = ArithmeticEx((char*)rxBuf + 6, rxLen - 6, arg);

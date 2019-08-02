@@ -47,6 +47,7 @@ void ShutDown(void);
 #ifdef  DEBUG_TIME
 void time_log_clear(void);
 void time_log(CDV_INT32S info);
+void time_log_anything(CDV_INT32S info1,CDV_INT32S info2);
 void time_log_send( CMD_ARG *arg);
 #endif
 
@@ -59,9 +60,10 @@ void time_log_send( CMD_ARG *arg);
   * @retval None
   */
   #define ASSERT(expr) ((expr) ? (void)0 : assert((uint8_t *)__FILE__, (uint8_t *)__FUNCTION__, __LINE__))
+	#define ASSERT_PLUS(expr, str, len, arg) ((expr) ? (void)0 : assert_plus((uint8_t *)__FILE__, (uint8_t *)__FUNCTION__, __LINE__, str, len, arg))
 /* Exported functions ------------------------------------------------------- */
   void assert(uint8_t* file, uint8_t* function, uint32_t line);
-	
+	void assert_plus(uint8_t* file, uint8_t* function, uint32_t line, char* str, int len, CMD_ARG *arg);
 	#define NPC_PRINT(str) com_print(str)
 	void com_print(const char* str);
 #else

@@ -1274,9 +1274,12 @@ RET_STATUS CoilToCoil(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV
 	CDV_INT08U* pCoil = (CDV_INT08U*)(buf + buf_sta_ch);
 	RET_STATUS ret = OPT_FAILURE;
 	CDV_INT16U buf_end_num;
+	CPU_SR_ALLOC();
 	
 	ASSERT(buf  && coil);
 
+	CPU_CRITICAL_ENTER();
+	
 	if(buf_sf) {//存在sf，特殊处理第一个字节中的数据
 		if(8-buf_sf>num)//判断数量是不是很少
 			i = (0xFF>>(8-(buf_sf+num)));
@@ -1328,6 +1331,9 @@ RET_STATUS CoilToCoil(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV
 		  coil[coil_sta_ch+i+1] = secondCh;
 		}
 	}
+	
+	OS_CRITICAL_EXIT_NO_SCHED();
+	
 	//////////////////
 	
 	ret = OPT_SUCCESS;
@@ -1925,6 +1931,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 					  CDV_INT08U *tmp_buf = NULL;
 						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
 #endif
+					ASSERT(map[i].localaddr > CDV_O_NUM);
 						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_buf, 0, map[i].remotenum);
 						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
 #if USE_CASCADE_STATIC == 0u

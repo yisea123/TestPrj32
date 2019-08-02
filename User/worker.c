@@ -439,6 +439,10 @@ void RunWorker(THREAD_INFO *pCtrl) {
 	}
 
 runworker_exit:
+	
+//	ASSERT_PLUS(0, "i assert occer !",16,&arg);
+		
+	
 	CmdArgDelete(&arg);
 	
 #if USE_WORKER_DEBUG == 1u

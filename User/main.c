@@ -848,7 +848,9 @@ void worker_manage_task(void *p_arg){
 		int i=0;
 		
 		IReadAllFilter(5, 10); //IReadAll();
-
+#if USE_OVERLAP
+		OWriteAll();
+#endif
 		//OReadAll();
 #if ENABLE_FPGA_DOWN
 		ExIReadAll();

@@ -440,7 +440,49 @@ void assert(uint8_t* file, uint8_t* function, uint32_t line)
 	
 	__enable_irq();
 }
-
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   
+  */
+void assert_plus(uint8_t* file, uint8_t* function, uint32_t line, char* str, int len, CMD_ARG *arg)
+{ 
+	#define NUM_ASSERT 200
+  char tmp[NUM_ASSERT]={0};
+	char loop = 1;
+	
+	__disable_irq();   // 关闭总中断
+	
+	g_cdvStat = CDV_ASSERT;
+	
+	sprintf(tmp , "npc assert occur! file:%s\r\nfunction:%s\r\nline:%d\r\n" 
+	,file 
+	,function
+	,line
+	);
+	
+	if(arg && arg->ptrWorker) {
+		sprintf(tmp + strlen(tmp), "worker:%d , line:%d\r\n" 
+		,((DEBUG_SCRIPT*)(arg->ptrWorker))->which
+		,((DEBUG_SCRIPT*)(arg->ptrWorker))->doNo
+		);
+	}
+	
+	
+	if(len && str)
+	  if(strlen(tmp)+len < NUM_ASSERT) {
+		  MemCpy(tmp+strlen(tmp),str,len);
+			MemCpy(tmp+strlen(tmp)+len,"\r\n",2);
+		}
+	
+  while (loop)
+  {
+		USARTSend((CDV_INT08U*)tmp, strlen(tmp), MAIN_COM);
+		DelayUS(5000000);
+  }
+	
+	__enable_irq();
+}
 /** @brief  
   * @param  
   * @retval 
@@ -480,11 +522,18 @@ void time_log_clear(void)
 /** @brief  
   * @param  
   * @retval 
-  * @note   记录一个值到变量 1000+的，断电保存
+  * @note   记录一个值到变量 1000+的，断电保存，自动记录时间
   */
 void time_log(CDV_INT32S info)
 {
-	CDV_INT32S *ptr = time_var + -1;
+	CPU_SR_ALLOC();
+	CDV_INT32S *ptr = NULL;
+	
+	CPU_CRITICAL_ENTER();
+	
+	ptr = time_var + -1;
+	
+	//CDV_INT32S *ptr = time_var + -1;
 	
 	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
 		*ptr = 0;
@@ -496,6 +545,34 @@ void time_log(CDV_INT32S info)
 	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
 		*ptr = 0;
 	
+	OS_CRITICAL_EXIT_NO_SCHED();
+}
+
+/** @brief  
+  * @param  
+  * @retval 
+  * @note   记录一个值到变量 1000+的，断电保存，自动记录时间
+  */
+void time_log_anything(CDV_INT32S info1,CDV_INT32S info2)
+{
+	CPU_SR_ALLOC();
+	CDV_INT32S *ptr = NULL;
+	
+	CPU_CRITICAL_ENTER();
+	
+	ptr = time_var + -1;
+	
+	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
+		*ptr = 0;
+	
+	time_var[(*ptr)++] = info1;
+	time_var[(*ptr)++] = info2;
+	
+	
+	if(*ptr < 0 || *ptr >= __TIME_LOG_LEN)
+		*ptr = 0;
+	
+	OS_CRITICAL_EXIT_NO_SCHED();
 }
 
 
@@ -518,8 +595,11 @@ void time_log_send( CMD_ARG *arg)
 	while(1) {
 		memset(tmp, 0, 50);
 		
-		
-		sprintf(tmp , "system time %ds : %d00us\r\n" ,time_var[ptr], time_var[ptr+1]);
+		if(time_var[ptr] > 0) {
+		  sprintf(tmp , "system time %ds : %d00us\r\n" ,time_var[ptr], time_var[ptr+1]);
+		} else {
+			sprintf(tmp , "info1:%d info2:%d\r\n" ,-1*time_var[ptr], -1*time_var[ptr+1]);
+		}
 		AddTxNoCrcPlus((CDV_INT08U*)tmp, strlen(tmp), arg);
 		
 		ptr += 2;

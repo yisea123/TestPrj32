@@ -120,6 +120,8 @@ void DMA_Enable(DMA_Stream_TypeDef *DMA_Streamx,CDV_INT16U ndtr)
 	DMA_Cmd(DMA_Streamx, DISABLE);                      //关闭DMA传输 
 	while(DMA_GetCmdStatus(DMA_Streamx) != DISABLE);
 //	if(DMA_GetCmdStatus(DMA_Streamx) != DISABLE){return 0;}	//确保DMA可以被设置  
+	//DMA_ClearITPendingBit(DMAy_Streamx, DMA_IT_TCIF2 | DMA_IT_HTIF2 | DMA_IT_TEIF2 | DMA_IT_DMEIF2 | DMA_IT_FEIF2);
+    
 		
 	DMA_SetCurrDataCounter(DMA_Streamx,ndtr);          //数据传输量  
  
