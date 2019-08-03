@@ -17,6 +17,9 @@ __INLINE static void ConfigInit(void) {
 
 u8 send_buf[] = {0x02, 0x02, 0x00, 0x00, 0x00, 0x0E, 0xF9, 0xFD};
 
+	
+
+
 int main (void) {
 	static u32 led_ticks = 0;
 	//static u8* send_buf = NULL;
@@ -40,9 +43,11 @@ int main (void) {
 			//LED3 =~LED3;
 			led_ticks = sys_ticks;
 		}
-		
+		// USART1
+		USARTRT(CmdParse , 1);
 		// USART2
 		USARTTR(send_buf,8,recv_buf,&recv_len,2);
+		
 		
   }
 }

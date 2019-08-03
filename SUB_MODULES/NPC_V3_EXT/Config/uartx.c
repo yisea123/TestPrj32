@@ -175,9 +175,9 @@ void USART_Configuration(void){
 //				p_UartSet[i](115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //		}
 //	}
-//  USART1_Configuration(460800, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+  USART1_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 	USART2_Configuration(921600, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
-//	USART3_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+//	USART3_Configuration(460800, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART4_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART5_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	USART6_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
@@ -274,6 +274,35 @@ int USARTTR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen ,u8 no) {
 		return -1;
 	return p_UartTR[no-1](txbuf, txlen , rxbuf , rxlen);
 }
+
+/////////////////RT
+int USART_RTNull(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )){return 0;}
+int (*p_UartRT[])(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) =
+{
+	USART1_RT,
+	USART_RTNull,
+	USART_RTNull,
+	USART_RTNull,
+	USART_RTNull,
+	USART_RTNull,
+
+};
+
+//typedef int (*FUN_CMD)(u8 *,u16  ,u8* ,u16* );
+/**
+  * @brief  串口接收发送主函数
+  * @param  
+  * @retval void
+  * @note   串口接收发送统一入口
+  */
+int USARTRT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* ),u8 no) {
+	ASSERT(0 < no && 6 >= no);
+	if(!p_UartRT[no - 1])
+		return -1;
+	return p_UartRT[no-1](p_cmd);
+}
+
+
 /*统一中断处理*/
 void USARTx_IRQHandler(USART_TypeDef* USARTx, u8 uartNo)
 {

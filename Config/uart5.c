@@ -21,8 +21,17 @@
 	
 	#include "uart5.h"
 
+	#define RECV_MSG_NUM 1
+	OS_Q uart5_msg;
+	
 #define EN_UART5_RX 1
 #define EN_UART5_485 0
+
+#if _NPC_VERSION_ == 3u
+  #define EN_USART5_DMA 1u
+	#define EN_USART5_TCIF 1u
+#endif
+
 
 //485模式控制
 #if EN_UART5_485
@@ -48,16 +57,39 @@ u8 *g_pUart5RxBuf = UART5_RX_BUF;
 u8 g_Uart5BufLen = BUF_LEN;
 u8 g_Uart5RxLen = 0;
 
+/**
+  *UART5dma接收使能
+  */
+void DMA_usart5RecvEnable(CDV_INT32U mar,CDV_INT16U ndtr){
+	DMA_MemoryTargetConfig(DMA1_Stream0,mar,DMA_Memory_0);
+	DMA_Enable(DMA1_Stream0,ndtr);    //开始一次DMA传输！	  
+}
+
+
 void UART5_RxInit(u8* buf ,u8 len)
 {
+#if EN_USART5_DMA
+	OS_ERR err;
+	USART_DMACmd(UART5,USART_DMAReq_Rx,DISABLE);
+#else
 	USART_ITConfig(UART5, USART_IT_RXNE, DISABLE);//开启相关中断
+#endif
+	
 	//NEW08U(g_pUart5RxBuf,len);
 	g_pUart5RxBuf = buf;
 	g_Uart5BufLen = len;
 	g_Uart5RxLen = 0;
 	
-	if(NULL !=buf && 0 < len)
+	if(NULL !=buf && 0 < len){
+#if EN_USART5_DMA
+		DMA_usart5RecvEnable((CDV_INT32U)buf, len);
+		USART_DMACmd(UART5,USART_DMAReq_Rx,ENABLE);
+		OSQFlush(&uart5_msg, &err);
+#else
 		USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启相关中断
+#endif
+	}
+		
 	
 }
 
@@ -74,6 +106,7 @@ void UART5_RxDeInit(void)
   */
 void UART5_IRQHandler(void)
 {            
+	OS_ERR err;
 #if 5 == MAIN_COM
 	CDV_INT08U Res;
 	OS_ERR err;
@@ -109,6 +142,38 @@ void UART5_IRQHandler(void)
 	
 	u8 res;
 	OSIntEnter();
+#if EN_USART5_DMA
+	if(USART_GetITStatus(UART5, USART_IT_IDLE) != RESET)  
+	{  
+			UART5->SR;  
+			UART5->DR; //清USART_IT_IDLE标志  
+			//关闭DMA  
+			DMA_Cmd(DMA1_Stream0,DISABLE);  
+			//清除标志位  
+			DMA_ClearFlag(DMA1_Stream0,DMA_FLAG_TCIF0);  
+
+			//获得接收帧帧长  
+			g_Uart5RxLen = g_Uart5BufLen - DMA_GetCurrDataCounter(DMA1_Stream0);  
+		  OSQPost(&uart5_msg, &g_Uart5RxLen, 1, OS_OPT_POST_FIFO, &err);
+			if(g_Uart5RxLen == 0){
+			} else {
+			}
+	}
+#if EN_USART5_TCIF
+	if(USART_GetITStatus(UART5, USART_IT_TC) != RESET)  
+	{ 
+		USART_ITConfig(UART5,USART_IT_TC,DISABLE);  
+		UART5_TX_DISABLE;
+	}
+#endif
+//	if(USART_GetITStatus(USART1, USART_IT_TXE) == RESET)  
+//    {  
+//        /* 关闭发送完成中断  */ 
+//        USART_ITConfig(USART1,USART_IT_TC,DISABLE);  
+//        /* 发送完成  */
+//       // UART1_Use_DMA_Tx_Flag = 0;  
+//    }    
+#else		
 	if(USART_GetITStatus(UART5, USART_IT_RXNE) != RESET)//接收到数据
 	{
 	  res =USART_ReceiveData(UART5);//;读取接收到的数据USART3->DR
@@ -120,9 +185,25 @@ void UART5_IRQHandler(void)
 			g_Uart5RxLen = 0;
 		
 	}
+#endif
   OSIntExit();
 #endif
 } 
+
+void DMA1_Stream7_IRQHandler(void) {
+	 if(DMA_GetITStatus(DMA1_Stream7,DMA_IT_TCIF7) != RESET)   
+    {  
+        /* 清除标志位 */
+        DMA_ClearFlag(DMA1_Stream7,DMA_FLAG_TCIF7);  
+        /* 关闭DMA */
+        DMA_Cmd(DMA1_Stream7,DISABLE);
+        /* 打开发送完成中断,确保最后一个字节发送成功 */
+        USART_ITConfig(UART5,USART_IT_TC,ENABLE);  
+			
+    }  
+	
+}
+
 /**
   *UART5设置
   */
@@ -130,6 +211,12 @@ void UART5_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
   GPIO_InitTypeDef GPIO_InitStructure;
 	USART_InitTypeDef USART_InitStructure;
 	NVIC_InitTypeDef NVIC_InitStructure;
+		
+#if EN_USART5_DMA
+  OS_ERR err;
+	OSQCreate(&uart5_msg, "uart5_msg", RECV_MSG_NUM, &err);
+#endif
+	
 	/*usart1配置*/
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD|RCC_AHB1Periph_GPIOC,ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5,ENABLE);
@@ -179,7 +266,7 @@ void UART5_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	USART_ClearFlag(UART5, USART_FLAG_TC);
 	//使能串口读
 #if EN_UART5_RX	
-	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启相关中断
+	//USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);//开启相关中断
 
 	//Usart1 NVIC 配置
 	NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;//串口1中断通道
@@ -191,8 +278,20 @@ void UART5_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 #endif
   UART5_TX_DISABLE;
   DMA_Config(DMA1_Stream7,DMA_Channel_4,(u32)&UART5->DR,(u32)0,0);
+#if EN_USART5_TCIF
+	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream7_IRQn;//串口1中断通道
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
+	DMA_ITConfig(DMA1_Stream7, DMA_IT_TC, ENABLE);  // 打开dam tc中断，用于判断dma传输结束
+#endif
 	USART_DMACmd(UART5,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送  
-
+#if EN_USART5_DMA
+	USART_ITConfig(UART5, USART_IT_IDLE, ENABLE);
+	DMA_ConfigDir(DMA1_Stream0,DMA_Channel_4,(u32)&UART5->DR,(u32)0,0,DMA_DIR_PeripheralToMemory);
+	USART_DMACmd(UART5,USART_DMAReq_Rx,ENABLE);
+#endif 
 }
 /**
   *UART5发送
@@ -213,12 +312,16 @@ void DMA_usart5Send(CDV_INT32U mar,CDV_INT16U ndtr){
 	
 	DMA_Enable(DMA1_Stream7,ndtr);    //开始一次DMA传输！	  
   
+	#if EN_USART5_TCIF
+	while(USART_GetFlagStatus(UART5,USART_FLAG_TC)==RESET) {TaskSched();};
+#else
 	while(DMA_GetFlagStatus(DMA1_Stream7,DMA_FLAG_TCIF7)==RESET) {};	
 	while(USART_GetFlagStatus(UART5,USART_FLAG_TC)==RESET) {};
 //	DMA_ClearFlag(DMA1_Stream7,DMA_FLAG_TCIF7);
 //	USART_ClearFlag(UART5, USART_FLAG_TC);
 	
 	UART5_TX_DISABLE;
+		#endif
 #if EN_UART5_485
 	OSSchedUnlock(&err);
 #endif
@@ -253,12 +356,30 @@ u8 UART5_Receive(u8 *len)
 {
 	u8 preCnt = 0;
 	u32 startTime ,endTime , time;
-	
+	#if EN_USART5_DMA
+  OS_ERR err;
+	OS_MSG_SIZE size;
+	u8* ptr;
+#endif	
 	if(NULL == len) {
 		
 		return 0;
 	}
+	#if EN_USART5_DMA
+	ptr = OSQPend(&uart5_msg, 500, OS_OPT_PEND_BLOCKING, &size, 0, &err);
+
+	if (err != OS_ERR_NONE || *ptr == 0) {
+		UART5->SR;  
+		UART5->DR; //清USART_IT_IDLE标志  
+		//关闭DMA  
+		DMA_Cmd(DMA1_Stream0,DISABLE);  
+		//清除标志位  
+		DMA_ClearFlag(DMA1_Stream0,DMA_FLAG_TCIF0);  
+		*len = 0;
+		return 0;
+	}
 	
+#else
 	startTime = GetCdvTimeTick();
 	
 	do {
@@ -289,6 +410,7 @@ u8 UART5_Receive(u8 *len)
 	//g_Uart5BufLen = 0;//禁止接受到数组
 	
 	//*buf = g_pUart5RxBuf;
+	#endif	
 	*len = g_Uart5RxLen;
 	
 	return 1;

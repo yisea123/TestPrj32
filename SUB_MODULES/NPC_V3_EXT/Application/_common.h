@@ -93,6 +93,50 @@ void DelayUS(u32 cnt);
 	// ticks
 extern volatile uint32_t sys_ticks;
 u32 CalcCount(u32 end_count , u32 start_count);
+	
+//////////////////////////////////////queue
+/*
+ *串口queue相关定义
+ */
+#define MAX_VAL_ADD(a,max) (((a)<(max)-1)?1+(a):0)
+#define MAX_SELF_ADD(a,max) (a) = ((a)<(max)-1)?1+(a):0
+#define MAX_SELF_SUB(a,max) (a) = ((a)==0)?(max)-1:(a)-1
 
+#define QUEUE_LENGTH 3     /*串口接收队列长度*/
+#define QUEUE_BUF_LENGTH 300    /*串口接收长度*/
+
+#define QUEUE_ING_NEXT(Q) do{\
+	if(0 == Q.len[Q.ingPos])break;\
+	(Q.doPos!=MAX_VAL_ADD(Q.ingPos,QUEUE_LENGTH))?MAX_SELF_ADD(Q.ingPos,QUEUE_LENGTH):NULL;\
+	Q.len[Q.ingPos]=0;\
+}while(0);
+
+#define QUEUE_ING_ADD_CHAR(Q,ch) do{\
+	Q.buf[Q.ingPos][Q.len[Q.ingPos]]=(u8)(ch);\
+	Q.len[Q.ingPos] = Q.len[Q.ingPos]<QUEUE_BUF_LENGTH-1?1+Q.len[Q.ingPos]:QUEUE_BUF_LENGTH-1;\
+}while(0);
+
+#define QUEUE_HAD(Q)  (Q.ingPos!=Q.doPos) /*&& 0 != Q.len[Q.doPos]*/
+
+#define QUEUE_CLEAR(Q)  (Q.doPos=Q.ingPos)
+
+#define QUEUE_DO_NEXT(Q) do{\
+	(Q.ingPos!=Q.doPos) ? MAX_SELF_ADD(Q.doPos,QUEUE_LENGTH) : NULL;\
+}while(0);
+
+#define QUEUE_DO_BUF(Q) Q.buf[Q.doPos]
+
+#define QUEUE_DO_LEN(Q) Q.len[Q.doPos]
+
+#define QUEUE_ING_BUF(Q) Q.buf[Q.ingPos]
+
+#define QUEUE_ING_LEN(Q) Q.len[Q.ingPos]
+
+typedef struct {
+	u8 buf[QUEUE_LENGTH][QUEUE_BUF_LENGTH];         /*接收队列*/
+	u16 len[QUEUE_LENGTH];              /*接收长度*/	
+  u8 ingPos;              /*数组正在写入位置，ingpos+1==dopos时说明满了*/	
+	u8 doPos;              /*数组待处理位置，dopos ！= ingpos时表示有数据*/	
+} QUEUE;
 #endif
 

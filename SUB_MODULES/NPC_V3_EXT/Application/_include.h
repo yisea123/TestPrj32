@@ -21,6 +21,8 @@
 #define  __INCLUDE_
 
 #include "stm32f10x.h"   //m3
+//APP
+#include "cmdParse.h"
 //USER
 #include "_common.h" 
 #include "_typedef.h"

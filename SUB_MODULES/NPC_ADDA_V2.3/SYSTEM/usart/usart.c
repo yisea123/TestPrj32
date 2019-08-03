@@ -80,7 +80,105 @@ u8 len;
 u8 bufbuf[8]={0xA5,'C','4',4,0,0,0,'C'+'4'+4};
 u8 buf[8]={0xA5,'C','4',4,0,0,0,'C'+'4'+4};	//默认切换2状态
 u8 USART_RX_DATA1;
+//DMAx的各通道配置
+//这里的传输形式是固定的,这点要根据不同的情况来修改
+//从存储器->外设模式/8位数据宽度/存储器增量模式
+//DMA_Streamx:DMA数据流,DMA1_Stream0~7/DMA2_Stream0~7
+//chx:DMA通道选择,@ref DMA_channel DMA_Channel_0~DMA_Channel_7
+//par:外设地址
+//mar:存储器地址
+//ndtr:数据传输量  
 
+//DMA_Config(DMA2_Stream7,DMA_Channel_4,(u32)&USART1->DR,(u32)SendBuff,SEND_BUF_SIZE);//DMA2,STEAM7,CH4,外设为串口1,存储器为SendBuff,长度为:SEND_BUF_SIZE.
+//void DMA_Config1(DMA_Stream_TypeDef *DMA_Streamx,CDV_INT32U chx,CDV_INT32U par,CDV_INT32U mar,CDV_INT16U ndtr)
+//{ 
+// 
+//	DMA_InitTypeDef  DMA_InitStructure;
+//	
+//	USART_DMACmd(USART2 , USART_DMAReq_Tx, ENABLE);
+//  /* Enable USART2 DMA TX request */
+//  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+
+//  DMA_DeInit(DMA1_Channel7);
+//  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t) (&USART2->DR);//DMA外设地址
+//  DMA_InitStructure.DMA_MemoryBaseAddr =  (uint32_t)USART2_DMA_TX_Buf;//DMA 存储器0地址
+//  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+//  DMA_InitStructure.DMA_BufferSize = 0;
+//  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+//  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+//  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+//  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+//  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+//  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+//  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+//  DMA_Init(DMA1_Channel7, &DMA_InitStructure);
+//  DMA_ITConfig(DMA1_Channel7, DMA_IT_TC, ENABLE);
+//} 
+ void DMA_ConfigDir(DMA_Channel_TypeDef *DMA_Channelx,u32 par,u32 mar,u16 ndtr,u32 dir)
+{ 
+ 
+	DMA_InitTypeDef  DMA_InitStructure;
+	
+	if((u32)DMA_Channelx>(u32)DMA2)//得到当前stream是属于DMA2还是DMA1
+	{
+	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA2,ENABLE);//DMA2时钟使能 
+		
+	}else 
+	{
+	  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1,ENABLE);//DMA1时钟使能 
+	}
+  DMA_DeInit(DMA_Channelx);
+	
+	//while (DMA_GetCmdStatus(DMA_Channelx) != DISABLE){}//等待DMA可配置 
+	
+  /* 配置 DMA Stream */
+  //DMA_InitStructure.DMA_Channel = chx;  //通道选择
+  DMA_InitStructure.DMA_PeripheralBaseAddr = par;//DMA外设地址
+  //DMA_InitStructure.DMA_Memory0BaseAddr = mar;//DMA 存储器0地址
+  DMA_InitStructure.DMA_MemoryBaseAddr = mar;//DMA 存储器0地址
+  DMA_InitStructure.DMA_DIR = dir;//存储器到外设模式
+  DMA_InitStructure.DMA_BufferSize = ndtr;//数据传输量 
+  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;//外设非增量模式
+  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;//存储器增量模式
+  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;//外设数据长度:8位
+  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;//存储器数据长度:8位
+  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;// 使用普通模式 
+  DMA_InitStructure.DMA_Priority = DMA_Priority_High;//中等优先级
+  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+//  DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;         
+//  DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_Full;
+//  DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;//存储器突发单次传输
+//  DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;//外设突发单次传输
+  DMA_Init(DMA_Channelx, &DMA_InitStructure);//初始化DMA Stream
+	
+
+} 
+//开启一次DMA传输
+//DMA_Streamx:DMA数据流,DMA1_Stream0~7/DMA2_Stream0~7 
+//ndtr:数据传输量  
+void DMA_Enable(DMA_Channel_TypeDef *DMA_Channelx,u32 mar,u16 ndtr)
+{
+ 
+	DMA_Cmd(DMA_Channelx, DISABLE);                      //关闭DMA传输 
+	DMA_Channelx->CNDTR = ndtr;                          // 更新内存长度
+  DMA_Channelx->CMAR = mar;                            // 更新内存地址
+	DMA_SetCurrDataCounter(DMA_Channelx,ndtr);          //数据传输量  
+	DMA_Cmd(DMA_Channelx, ENABLE); 
+}
+
+/**
+  *USART2发送
+  */
+int DMA_usart2Send(u32 mar,u16 ndtr){
+	DMA_ClearFlag(DMA1_FLAG_TC7);
+	
+	USART_ClearFlag(USART2, USART_FLAG_TC);
+	
+	DMA_Enable(DMA1_Channel7,mar,ndtr);    //开始一次DMA传输！	  
+  
+	while(DMA_GetFlagStatus(DMA1_FLAG_TC7)==RESET) {};
+	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET){};
+} 
 //初始化IO 串口2  bound:波特率
 void uart2_init(u32 bound)
 {
@@ -124,24 +222,26 @@ void uart2_init(u32 bound)
 	USART_Init(USART2, &USART_InitStructure); //初始化串口
 	USART_ClearFlag(USART2, USART_FLAG_TC);
 	
+	DMA_ConfigDir(DMA1_Channel7,(u32)&USART2->DR,(u32)0,0, DMA_DIR_PeripheralDST);//发送DMA配置
+
 	USART_DMACmd(USART2, USART_DMAReq_Tx, ENABLE);
   /* Enable USART2 DMA TX request */
-  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
+//  RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);
 
-  DMA_DeInit(DMA1_Channel7);
-  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART2->DR);
-  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)USART2_DMA_TX_Buf;
-  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
-  DMA_InitStructure.DMA_BufferSize = 0;
-  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
-  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
-  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
-  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
-  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
-  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
-  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
-  DMA_Init(DMA1_Channel7, &DMA_InitStructure);
-  DMA_ITConfig(DMA1_Channel7, DMA_IT_TC, ENABLE);
+//  DMA_DeInit(DMA1_Channel7);
+//  DMA_InitStructure.DMA_PeripheralBaseAddr = (uint32_t)(&USART2->DR);
+//  DMA_InitStructure.DMA_MemoryBaseAddr = (uint32_t)USART2_DMA_TX_Buf;
+//  DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralDST;
+//  DMA_InitStructure.DMA_BufferSize = 0;
+//  DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+//  DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;
+//  DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+//  DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+//  DMA_InitStructure.DMA_Mode = DMA_Mode_Normal;
+//  DMA_InitStructure.DMA_Priority = DMA_Priority_VeryHigh;
+//  DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;
+//  DMA_Init(DMA1_Channel7, &DMA_InitStructure);
+//  DMA_ITConfig(DMA1_Channel7, DMA_IT_TC, ENABLE);
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
 	
@@ -469,18 +569,19 @@ void USART2_Send(u8 *buf,u16 len)
 //		cnt++;
 //	}
 	RS485_TX_EN=1;
-  for(t=0;t<len;t++)		//循环发送数据
-	{ 
-    while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET) {}; //等待发送结束
-    USART_SendData(USART2,buf[t]); //发送数据
-	}
-	t2 = u16TimeT;
-	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET) {}; //等待发送结束
-	delay_us(1);
-	t3 = t2-t1;
-	
-	time2 = u16TimeT;
-	t4 =	time2 - time1;
+	DMA_usart2Send((u32)buf,len);
+//  for(t=0;t<len;t++)		//循环发送数据
+//	{ 
+//    while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET) {}; //等待发送结束
+//    USART_SendData(USART2,buf[t]); //发送数据
+//	}
+//	t2 = u16TimeT;
+//	while(USART_GetFlagStatus(USART2,USART_FLAG_TC)==RESET) {}; //等待发送结束
+//	delay_us(1);
+//	t3 = t2-t1;
+//	
+//	time2 = u16TimeT;
+//	t4 =	time2 - time1;
 	
 	
 	RS485_TX_EN=0;	

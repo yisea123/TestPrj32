@@ -195,7 +195,7 @@ void USART_Configuration(void){
 //	USART3_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 	UART4_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART5_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
-//	USART6_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+//	USART6_Configuration(921600, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 
 }
 /**

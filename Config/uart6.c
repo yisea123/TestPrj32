@@ -22,7 +22,7 @@
 	#include "uart6.h"
 	
 	#define RECV_MSG_NUM 1
-	OS_Q Recv_Msg;
+	OS_Q uart6_msg;
 	
 #define EN_USART6_RX 1
 #define EN_USART6_485 1
@@ -90,7 +90,7 @@ void USART6_RxInit(u8* buf ,u8 len)
 #if EN_USART6_DMA
 		DMA_usart6RecvEnable((CDV_INT32U)buf, len);
 		USART_DMACmd(USART6,USART_DMAReq_Rx,ENABLE);
-		OSQFlush(&Recv_Msg, &err);
+		OSQFlush(&uart6_msg, &err);
 #else
 		USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);//开启相关中断
 #endif
@@ -136,7 +136,7 @@ void USART6_IRQHandler(void)
 
 			//获得接收帧帧长  
 			g_Uart6RxLen = g_Uart6BufLen - DMA_GetCurrDataCounter(DMA2_Stream1);  
-		  OSQPost(&Recv_Msg, &g_Uart6RxLen, 1, OS_OPT_POST_FIFO, &err);
+		  OSQPost(&uart6_msg, &g_Uart6RxLen, 1, OS_OPT_POST_FIFO, &err);
 			if(g_Uart6RxLen == 0){
 //				while (1) {
 //					gendTime = GetCdvTimeTick();
@@ -278,7 +278,7 @@ void USART6_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	
 #if EN_USART6_DMA
   OS_ERR err;
-	OSQCreate(&Recv_Msg, "Recv_Msg", RECV_MSG_NUM, &err);
+	OSQCreate(&uart6_msg, "uart6_msg", RECV_MSG_NUM, &err);
 #endif
 
 	/*usart1配置*/
@@ -441,7 +441,7 @@ u8 USART6_Receive(u8 *len)
 		return 0;
 	}
 #if EN_USART6_DMA
-	ptr = OSQPend(&Recv_Msg, 500, OS_OPT_PEND_BLOCKING, &size, 0, &err);
+	ptr = OSQPend(&uart6_msg, 500, OS_OPT_PEND_BLOCKING, &size, 0, &err);
 
 	if (err != OS_ERR_NONE || *ptr == 0) {
 		USART6->SR;  

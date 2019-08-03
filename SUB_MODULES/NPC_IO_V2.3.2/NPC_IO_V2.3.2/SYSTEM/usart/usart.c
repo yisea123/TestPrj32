@@ -234,7 +234,7 @@ void uart2_init(u32 bound)
 //	DMA_Config1(DMA1_Stream6,DMA_Channel_4,(u32)&USART2->DR,(u32)Modbus_TX_buf,Modbus_TX_len);
 //	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);  //使能串口2的DMA发送
 //DMA
-			DMA_ConfigDir(DMA1_Channel7,(u32)&USART2->DR,(u32)0,0, DMA_DIR_PeripheralDST);//发送DMA配置
+	DMA_ConfigDir(DMA1_Channel7,(u32)&USART2->DR,(u32)0,0, DMA_DIR_PeripheralDST);//发送DMA配置
 
 	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);  //使能串口1的DMA发送 
 	

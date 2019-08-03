@@ -1931,7 +1931,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 					  CDV_INT08U *tmp_buf = NULL;
 						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
 #endif
-					ASSERT(map[i].localaddr > CDV_O_NUM);
+					ASSERT(map[i].localaddr >= CDV_O_NUM);
 						CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_buf, 0, map[i].remotenum);
 						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
 #if USE_CASCADE_STATIC == 0u
@@ -1970,6 +1970,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 			if(ret == OPT_FAILURE)
 				return ret;
 			
+			//DelayTick(5);
 			delay_ms(1);
 		}
 		return ret;
