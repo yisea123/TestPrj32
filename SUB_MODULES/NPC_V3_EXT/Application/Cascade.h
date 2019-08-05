@@ -19,63 +19,55 @@
 #ifndef  _CASCADE_
 #define  _CASCADE_
 
-#include "cdv_include.h"
+#include "_include.h"
 
+#define DA_NUM  0
+#define AD_NUM  0
+#define O_NUM  0
+#define I_NUM  0
 
-#define DA_NUM  Dac_no
-#define AD_NUM  Adc_no
-#define O_NUM  CDV_O_NUM + CDV_EXO_NUM*CDV_FPGA_NUM
-#define I_NUM  CDV_I_NUM + CDV_EXI_NUM*CDV_FPGA_NUM
-
-	extern CDV_INT08U version[];
-	CDV_INT08U CascadeGetNativeNo(void);
+	extern u8 version[];
+	u8 CascadeGetNativeNo(void);
 //#if USE_CASCADE == 1u
 
-#if _NPC_VERSION_ == 1u
-#define CASCADE_USART 3
-#elif _NPC_VERSION_ == 2u
-#define CASCADE_USART 3
-#elif _NPC_VERSION_ == 3u
-#define CASCADE_USART 6
-#endif
+
+#define CASCADE_USART 2
+
 
 	
 	
-//CDV_INT08U Cascade_HaveSlaveTable(void);
-//void CascadeCombine(CDV_INT08U no);
-//void CascadeLocal(CDV_INT08U no);
-CDV_INT08U ClearPortCmdCache(void);
-RET_STATUS CascadeSlaveParse (char* pBuf, CDV_INT08U len);
-void CascadeTableSend(CDV_INT08U* buf, CDV_INT08U len,  CMD_ARG *arg);
+//u8 Cascade_HaveSlaveTable(void);
+//void CascadeCombine(u8 no);
+//void CascadeLocal(u8 no);
+u8 ClearPortCmdCache(void);
+RET_STATUS CascadeSlaveParse (char* pBuf, u8 len);
+void CascadeTableSend(u8* buf, u8 len,  CMD_ARG *arg);
 
-//RET_STATUS CascadeTranferCmd(CDV_INT08U** ppBuffer, CDV_INT08U* pLen, CDV_INT08U* pCmdBuf, CDV_INT16U NumByteOfCmd);
-//RET_STATUS TFCmdParse (CDV_INT08U* pBuf, CDV_INT08U len);
-//RET_STATUS Cascade_Slave_Write(CDV_INT08U* pBuffer, CDV_INT16U NumByteToWrite);
-	RET_STATUS CascadeModbus_MapInit(void);
+//RET_STATUS CascadeTranferCmd(u8** ppBuffer, u8* pLen, u8* pCmdBuf, u16 NumByteOfCmd);
+//RET_STATUS TFCmdParse (u8* pBuf, u8 len);
+//RET_STATUS Cascade_Slave_Write(u8* pBuffer, u16 NumByteToWrite);
+	RET_STATUS CascadeModbus_MapInit(u8* buf, u16 len);
 	RET_STATUS CascadeModbus_Map(void);
 	RET_STATUS CascadeModbus_MapFindInExp(
-	                    const CDV_INT08U type,
-										  const CDV_INT16U typeno,
-											CDV_INT16U* localaddr,
-										  CDV_INT16U* remoteaddr,
-											CDV_INT08U* host);
+	                    const u8 type,
+										  const u16 typeno,
+											u16* localaddr,
+										  u16* remoteaddr,
+											u8* host);
 	
-	RET_STATUS CoilToCoil(CDV_INT08U* buf, CDV_INT08U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum);
-	int CoilCmp(CDV_INT08U* buf, CDV_INT16U bufaddr, CDV_INT08U* coil, CDV_INT16U coiladdr, CDV_INT16U tonum);
+	RET_STATUS CoilToCoil(u8* buf, u8 bufaddr, u8* coil, u16 coiladdr, u16 tonum);
+	int CoilCmp(u8* buf, u16 bufaddr, u8* coil, u16 coiladdr, u16 tonum);
 //
-CDV_INT08U PortCmdCache(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CDV_INT08U uartNo) ;
-RET_STATUS TFUsartCmdParse (CDV_INT08U* buf, CDV_INT16U len, CMD_ARG *arg);
-RET_STATUS NPC_NETParse(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);	
-RET_STATUS NPC_NETVeriSet(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
-RET_STATUS NPC_NETQuery(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
+u8 PortCmdCache(u8* rxBuf, u8 rxLen, u8 uartNo) ;
+RET_STATUS TFUsartCmdParse (u8* buf, u16 len, CMD_ARG *arg);
+RET_STATUS NPC_NETParse(u8* buf, u8 len, CMD_ARG *arg);	
+RET_STATUS NPC_NETVeriSet(u8* buf, u8 len, CMD_ARG *arg);
+RET_STATUS NPC_NETQuery(u8* buf, u8 len, CMD_ARG *arg);
 
 void GetTable(void);
-RET_STATUS CascadeSlaveParse2 (char* pBuf, CDV_INT08U len);
-//#endif
-											//
+RET_STATUS CascadeSlaveParse2 (char* pBuf, u8 len);
 											
-#ifdef  DEBUG_TIME
-											extern	u32 time_cascade_map;
-											#endif
-#endif
+int CascadeMap_Init (u8* buf, u16 len, CMD_ARG *arg);
 
+											
+#endif

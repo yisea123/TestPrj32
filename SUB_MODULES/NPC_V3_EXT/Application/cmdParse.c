@@ -33,6 +33,23 @@
 	
 int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen) {
 	
+	switch(rxbuf[0]) {
+		case 'T':
+			switch(rxbuf[1]) {
+				case 'I':
+					CascadeModbus_MapInit(rxbuf+2, rxlen-4);
+					break;
+				default:
+					break;
+			}
+			break;
+		default:
+			break;
+		
+		
+	}
+	
+	
 	rtbuf = rxbuf;
 	*rtlen = rxlen;
 	return 0;

@@ -798,7 +798,12 @@ void cdv_refresh_task(void *p_arg){
   ftime_cascade_map = GetCdvTimeTick();
 #endif
 		////CascadeModbus_AllUpdate();
+		
+#if USE_CASCADE_TRANSFER == 1u
+		if(0) {
+#else
 		if(OPT_FAILURE ==CascadeModbus_Map()) {
+#endif
 			if(cnt++ > 20) {
 				OUT_DisPlay(0xFF280B48);
 			  ManagerControl(WORKER_STOP);

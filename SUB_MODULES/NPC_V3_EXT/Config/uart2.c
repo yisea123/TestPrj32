@@ -234,7 +234,7 @@ int DMA_USART2_Send(u32 mar,u16 ndtr){
 ////	USART_ClearFlag(USART2, USART_FLAG_TC);
 //	
 //  gstartTime = GetCdvTimeTick();
-//	//delay_ms(10);
+//	////delay_ms(10);
 //	USART2_TX_DISABLE;
 //#endif
 

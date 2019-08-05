@@ -20,12 +20,24 @@
 #ifndef  _TYPEDEF_
 #define  _TYPEDEF_
 
-
 typedef enum
 { 
   FALSE  = 0,
   TRUE,
 }BOOL;
+
+
+typedef enum {
+	BUF_NONE = 0,
+	BUF_NEW,
+	
+}BUF_OPT;
+
+typedef enum  {
+	RC_NONE= 0,
+	RC_CRC,
+	
+}REQUEST_CTRL;
 
 typedef enum
 { 
@@ -68,6 +80,39 @@ typedef enum
 	OPT_TCP_ERROR,
   
 }RET_STATUS;
+
+typedef struct 
+{
+	unsigned char hostid;//主机号
+	unsigned char uart;//占用串口
+	void *arg;     // 配合其他属性的附加内容
+	unsigned short len;//命令长度
+	unsigned char* buf;//命令
+	void* ptrWorker; //指向工人结构体，用于逻辑等工人控制
+	/*资源回复相关*/
+	unsigned short reqlen;
+	unsigned char* reqbuf;
+	/*特殊操作记录，例如设置变量*/
+	unsigned short speclen;
+	unsigned char* specbuf;
+	//ArithmeticStack stack;
+}CMD_ARG;
+
+
+/*
+ * 联机命令缓存
+ */
+ #define HAVE_ONLINE_CMD g_olCache.mark
+typedef struct{
+
+	unsigned char* buf;         /*发送队列*/
+	unsigned short len;          /*数组处理位置*/	
+	unsigned char uart;         /*标记从哪号串口发来的*/
+	unsigned char mark;         /*回复标记*/
+	void *arg;               /*特殊标记*/
+} OLCMD_CACHE;
+extern OLCMD_CACHE g_olCache;
+extern OLCMD_CACHE g_portCmdCache;
 
 // define 的东西不需要提前声明，在使用前（c）声明即可
 
@@ -160,6 +205,14 @@ typedef enum
 #define PIN_14 ((uint16_t)0x4000)
 #define PIN_15 ((uint16_t)0x8000)
 
+
+/////////////////////////////////////////////////
+
+#define HIGH16U(A) (((u16)(A) & 0xff00) >> 8)
+#define LOW16U(A)  ((u16)(A) & 0x00ff)
+#define ENDIAN_TF16U(A)    ((((u16)(A) & 0xff00) >> 8) | \
+                              (((u16)(A) & 0x00ff) << 8))
+#define ENDIAN_TF(A,N)   
 
 #endif
 

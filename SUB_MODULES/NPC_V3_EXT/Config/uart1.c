@@ -212,7 +212,7 @@ int DMA_USART1_Send(u32 mar,u16 ndtr) {
 ////	USART_ClearFlag(USART1, USART_FLAG_TC);
 //	
 //  gstartTime = GetCdvTimeTick();
-//	//delay_ms(10);
+//	////delay_ms(10);
 //	USART1_TX_DISABLE;
 //#endif
 

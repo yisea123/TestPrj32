@@ -137,6 +137,8 @@ startup_stm32f40_41xxx.s
 		
 		#define USE_CASCADE_STATIC 1u // 静态内存分配
 		
+		#define USE_CASCADE_TRANSFER 1u //使用中转
+		
 	#endif
 	
 	#define USE_WORKER_DEBUG 1u

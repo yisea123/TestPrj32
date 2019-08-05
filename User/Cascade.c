@@ -1735,6 +1735,11 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		CDV_INT16U coilshift = COIL_SHIFT;
 		CDV_INT16U incoilshift = INCOIL_SHIFT;
 		
+#if USE_CASCADE_TRANSFER == 1u
+    CDV_INT08U* transfer_buf = NULL;
+		CDV_INT16U  transfer_len = 0;
+#endif
+		
 		if(!g_line.init) 
 			return OPT_FAILURE;
 		
@@ -1754,7 +1759,13 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		  DELETE(CascadeMap);
 			return OPT_FAILURE;
 		}
-		
+
+#if USE_CASCADE_TRANSFER == 1u
+		transfer_len = CascadeMapLen * MAP_LINE_LEN + 5;
+		NEWCH(transfer_buf, transfer_len+4/*头+CRC，方便CascadeModbus_Transfer_Init*/);
+		SPI_Flash_Read(transfer_buf+2, SCRIP_MAP, transfer_len);//读取所有映射
+		  
+#endif
 		
 		
 		for( i = 0; i < CascadeMapLen; i++) {
@@ -1805,15 +1816,29 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 	  NEWCH(g_regCascade, sizeof(MODBUS_Register));
 #endif
 		/////////////////////////////检测从机是否挂载
+		
+#if USE_CASCADE_TRANSFER == 1u
+		if(1)
+#else
 		if(DIP_ON == READ_DIP_SW(2))
+#endif
 		{
+#if USE_CASCADE_TRANSFER == 1u
+			if(OPT_FAILURE == CascadeModbus_Transfer_Init(transfer_buf, transfer_len)) {
+#else
 			if(OPT_FAILURE == CascadeModbus_Map()) {
+#endif
 				OUT_DisPlay(0xFF280B48);
 				//OUT_DisPlay(0xFF511751);
 				while(1);
 			}
 		}
+		
 		/////////////////////////////
+#if USE_CASCADE_TRANSFER == 1u
+		DELETE(transfer_buf);
+#endif
+		
 		return OPT_SUCCESS;
 	}
 	
@@ -1976,6 +2001,69 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		return ret;
 	}
 	
+	/** @brief  中转初始化
+  * @param  
+  * @retval RET_STATUS
+  * @note   
+  */
+RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
+		
+		CDV_INT08U* recvBuf = cascade_recv_buf;
+
+		CDV_INT08U recvLen = 0;
+		
+		RET_STATUS ret = OPT_FAILURE;
+		
+		if(!g_line.init || !CascadeMap || !g_coilCascade || !g_regCascade) 
+			return ret;
+		
+		
+		buf[0] = 'T';
+		buf[1] = 'I';
+		
+		ret = UniSerialSendCRC(buf, len + 2, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NONE);
+		
+		 if(OPT_SUCCESS == ret) {
+			 
+			 
+		 }
+		
+			return ret;
+		}
+//	RET_STATUS CascadeModbus_Transfer_Init(void) {
+//		
+//		CDV_INT08U* recvBuf = cascade_recv_buf;
+
+//		CDV_INT08U recvLen = 0;
+//		
+//		
+//		CDV_INT08U i;
+//		RET_STATUS ret = OPT_FAILURE;
+//		struct CASCADE_MAP* map = CascadeMap;
+
+//		CDV_INT08U *send_buf = NULL;
+//		
+//		if(!g_line.init || !map || !g_coilCascade || !g_regCascade) 
+//			return ret;
+//		
+//		
+//		NEWCH(send_buf, CascadeMapLen * sizeof(struct CASCADE_MAP) + 4);
+//		
+//		send_buf[0] = 'T';
+//		send_buf[1] = 'I';
+//		
+//		MemCpy(send_buf+2, map, CascadeMapLen * sizeof(struct CASCADE_MAP));
+//		
+//		ret = UniSerialSendCRC(send_buf, CascadeMapLen * sizeof(struct CASCADE_MAP) + 2, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NONE);
+//		
+//		 if(OPT_SUCCESS == ret) {
+//			 
+//			 
+//		 }
+//		DELETE(send_buf);
+//		
+//			return ret;
+//		}
 /** @brief  利用map检查从机是否有挂载
   * @param  void
   * @retval RET_STATUS

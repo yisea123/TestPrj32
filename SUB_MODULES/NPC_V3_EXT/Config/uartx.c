@@ -167,7 +167,7 @@ void USART_Configuration(void){
 //	
 //	for (i = 0; i < 6; i++)
 //	{
-//		Org_Flash_Read((CDV_INT08U *)&comPar, USART_SET_ADDR(i), sizeof(comPar));
+//		Org_Flash_Read((u8 *)&comPar, USART_SET_ADDR(i), sizeof(comPar));
 //		if(p_UartSet[i]) {
 //			if(OPT_SUCCESS == CorrectComParam(&comPar, i))
 //				p_UartSet[i](comPar.bound, comPar.wordLength, comPar.stopBits, comPar.parity);
@@ -176,7 +176,7 @@ void USART_Configuration(void){
 //		}
 //	}
   USART1_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
-	USART2_Configuration(921600, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
+	USART2_Configuration(460800, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	USART3_Configuration(460800, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART4_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
 //	UART5_Configuration(115200, USART_WordLength_8b, USART_StopBits_1, USART_Parity_No);
@@ -208,7 +208,7 @@ void USARTSet(u32 bound, u16 wordLength, u16 stopBits, u16 parity, u8 no) {
 	comPar.wordLength = wordLength;
 	comPar.stopBits = stopBits;
 	comPar.parity = parity;
-	//SPI_Flash_Write((CDV_INT08U *)&comPar, USART_SET_ADDR(no - 1), sizeof(comPar));
+	//SPI_Flash_Write((u8 *)&comPar, USART_SET_ADDR(no - 1), sizeof(comPar));
 }
 
 

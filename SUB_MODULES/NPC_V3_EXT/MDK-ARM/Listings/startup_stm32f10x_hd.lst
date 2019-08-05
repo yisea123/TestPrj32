@@ -76,23 +76,23 @@ ARM Macro Assembler    Page 2
    42 00000400         ;   <o>  Heap Size (in Bytes) <0x0-0xFFFFFFFF:8>
    43 00000400         ; </h>
    44 00000400         
-   45 00000400 00000200 
+   45 00000400 00002000 
                        Heap_Size
-                               EQU              0x00000200
+                               EQU              0x00002000
    46 00000400         
    47 00000400                 AREA             HEAP, NOINIT, READWRITE, ALIGN=
 3
    48 00000000         __heap_base
    49 00000000         Heap_Mem
                                SPACE            Heap_Size
-   50 00000200         __heap_limit
-   51 00000200         
-   52 00000200                 PRESERVE8
-   53 00000200                 THUMB
-   54 00000200         
-   55 00000200         
-   56 00000200         ; Vector Table Mapped to Address 0 at Reset
-   57 00000200                 AREA             RESET, DATA, READONLY
+   50 00002000         __heap_limit
+   51 00002000         
+   52 00002000                 PRESERVE8
+   53 00002000                 THUMB
+   54 00002000         
+   55 00002000         
+   56 00002000         ; Vector Table Mapped to Address 0 at Reset
+   57 00002000                 AREA             RESET, DATA, READONLY
    58 00000000                 EXPORT           __Vectors
    59 00000000                 EXPORT           __Vectors_End
    60 00000000                 EXPORT           __Vectors_Size
@@ -561,14 +561,13 @@ ARM Macro Assembler    Page 9
               00000000 
               00000000 
               00000400 
-              00000200 
+              00002000 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M3 --apcs=interw
 ork --depend=.\objects\startup_stm32f10x_hd.d -o.\objects\startup_stm32f10x_hd.
 o -IC:\Keil_v5\ARM\RV31\INC -IC:\Keil_v5\ARM\CMSIS\Include -IC:\Keil_v5\ARM\INC
 \ST\STM32F10x --predefine="__UVISION_VERSION SETA 525" --list=.\listings\startu
-p_stm32f10x_hd.lst ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\ar
-m\startup_stm32f10x_hd.s
+p_stm32f10x_hd.lst ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
 
 
 
@@ -579,8 +578,7 @@ STACK 00000000
 
 Symbol: STACK
    Definitions
-      At line 37 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 37 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
       None
 Comment: STACK unused
@@ -588,23 +586,20 @@ Stack_Mem 00000000
 
 Symbol: Stack_Mem
    Definitions
-      At line 38 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 38 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 347 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 349 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 347 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 349 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 __initial_sp 00000400
 
 Symbol: __initial_sp
    Definitions
-      At line 39 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 39 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 62 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 62 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
 Comment: __initial_sp used once
 3 symbols
 
@@ -617,8 +612,7 @@ HEAP 00000000
 
 Symbol: HEAP
    Definitions
-      At line 47 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 47 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
       None
 Comment: HEAP unused
@@ -626,29 +620,26 @@ Heap_Mem 00000000
 
 Symbol: Heap_Mem
    Definitions
-      At line 49 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 49 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 346 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 348 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 346 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 348 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 __heap_base 00000000
 
 Symbol: __heap_base
    Definitions
-      At line 48 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 48 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
       None
 Comment: __heap_base unused
-__heap_limit 00000200
+__heap_limit 00002000
 
 Symbol: __heap_limit
    Definitions
-      At line 50 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 50 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
       None
 Comment: __heap_limit unused
@@ -663,8 +654,7 @@ RESET 00000000
 
 Symbol: RESET
    Definitions
-      At line 57 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 57 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
       None
 Comment: RESET unused
@@ -672,25 +662,22 @@ __Vectors 00000000
 
 Symbol: __Vectors
    Definitions
-      At line 62 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 62 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 58 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 142 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 58 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 142 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 __Vectors_End 00000130
 
 Symbol: __Vectors_End
    Definitions
-      At line 140 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 140 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 59 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 142 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 59 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 142 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 3 symbols
 
@@ -703,8 +690,8 @@ Relocatable symbols
 
 Symbol: .text
    Definitions
-      At line 144 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 144 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
       None
 Comment: .text unused
@@ -712,230 +699,220 @@ ADC1_2_IRQHandler 0000001A
 
 Symbol: ADC1_2_IRQHandler
    Definitions
-      At line 282 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 282 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 98 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 221 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 98 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 221 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 ADC3_IRQHandler 0000001A
 
 Symbol: ADC3_IRQHandler
    Definitions
-      At line 311 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 311 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 127 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 250 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 127 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 250 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 BusFault_Handler 0000000E
 
 Symbol: BusFault_Handler
    Definitions
-      At line 174 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 174 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 67 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 175 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 67 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 175 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 CAN1_RX1_IRQHandler 0000001A
 
 Symbol: CAN1_RX1_IRQHandler
    Definitions
-      At line 285 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 285 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 101 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 224 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 101 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 224 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 CAN1_SCE_IRQHandler 0000001A
 
+Symbol: CAN1_SCE_IRQHandler
+   Definitions
 
 
 
 ARM Macro Assembler    Page 2 Alphabetic symbol ordering
 Relocatable symbols
 
-Symbol: CAN1_SCE_IRQHandler
-   Definitions
-      At line 286 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 286 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 102 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 225 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 102 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 225 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel1_IRQHandler 0000001A
 
 Symbol: DMA1_Channel1_IRQHandler
    Definitions
-      At line 275 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 275 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 91 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 214 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 91 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 214 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel2_IRQHandler 0000001A
 
 Symbol: DMA1_Channel2_IRQHandler
    Definitions
-      At line 276 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 276 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 92 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 215 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 92 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 215 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel3_IRQHandler 0000001A
 
 Symbol: DMA1_Channel3_IRQHandler
    Definitions
-      At line 277 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 277 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 93 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 216 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 93 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 216 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel4_IRQHandler 0000001A
 
 Symbol: DMA1_Channel4_IRQHandler
    Definitions
-      At line 278 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 278 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 94 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 217 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 94 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 217 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel5_IRQHandler 0000001A
+
+Symbol: DMA1_Channel5_IRQHandler
+   Definitions
+      At line 279 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
 
 
 
 ARM Macro Assembler    Page 3 Alphabetic symbol ordering
 Relocatable symbols
 
-
-Symbol: DMA1_Channel5_IRQHandler
-   Definitions
-      At line 279 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 95 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 218 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 95 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 218 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel6_IRQHandler 0000001A
 
 Symbol: DMA1_Channel6_IRQHandler
    Definitions
-      At line 280 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 280 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 96 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 219 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 96 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 219 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA1_Channel7_IRQHandler 0000001A
 
 Symbol: DMA1_Channel7_IRQHandler
    Definitions
-      At line 281 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 281 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 97 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 220 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 97 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 220 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA2_Channel1_IRQHandler 0000001A
 
 Symbol: DMA2_Channel1_IRQHandler
    Definitions
-      At line 320 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 320 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 136 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 259 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 136 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 259 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA2_Channel2_IRQHandler 0000001A
 
 Symbol: DMA2_Channel2_IRQHandler
    Definitions
-      At line 321 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 321 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 137 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 260 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 137 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 260 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
+DMA2_Channel3_IRQHandler 0000001A
+
+Symbol: DMA2_Channel3_IRQHandler
+   Definitions
+      At line 322 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 138 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 
 
 ARM Macro Assembler    Page 4 Alphabetic symbol ordering
 Relocatable symbols
 
-DMA2_Channel3_IRQHandler 0000001A
-
-Symbol: DMA2_Channel3_IRQHandler
-   Definitions
-      At line 322 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 138 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 261 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 261 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DMA2_Channel4_5_IRQHandler 0000001A
 
 Symbol: DMA2_Channel4_5_IRQHandler
    Definitions
-      At line 323 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 323 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 139 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 262 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 139 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 262 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 DebugMon_Handler 00000014
 
 Symbol: DebugMon_Handler
    Definitions
-      At line 188 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 188 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 74 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 189 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 74 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 189 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 Default_Handler 0000001A
 
 Symbol: Default_Handler
    Definitions
-      At line 201 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 201 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
       None
 Comment: Default_Handler unused
@@ -943,713 +920,693 @@ EXTI0_IRQHandler 0000001A
 
 Symbol: EXTI0_IRQHandler
    Definitions
-      At line 270 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 270 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 86 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 209 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 86 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 209 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 EXTI15_10_IRQHandler 0000001A
 
+Symbol: EXTI15_10_IRQHandler
+   Definitions
+      At line 304 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 120 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 243 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+EXTI1_IRQHandler 0000001A
 
 
 
 ARM Macro Assembler    Page 5 Alphabetic symbol ordering
 Relocatable symbols
 
-Symbol: EXTI15_10_IRQHandler
-   Definitions
-      At line 304 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 120 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 243 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-EXTI1_IRQHandler 0000001A
 
 Symbol: EXTI1_IRQHandler
    Definitions
-      At line 271 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 271 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 87 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 210 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 87 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 210 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 EXTI2_IRQHandler 0000001A
 
 Symbol: EXTI2_IRQHandler
    Definitions
-      At line 272 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 272 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 88 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 211 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 88 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 211 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 EXTI3_IRQHandler 0000001A
 
 Symbol: EXTI3_IRQHandler
    Definitions
-      At line 273 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 273 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 89 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 212 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 89 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 212 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 EXTI4_IRQHandler 0000001A
 
 Symbol: EXTI4_IRQHandler
    Definitions
-      At line 274 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 274 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 90 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 213 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 90 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 213 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 EXTI9_5_IRQHandler 0000001A
+
+Symbol: EXTI9_5_IRQHandler
+   Definitions
+      At line 287 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 103 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 226 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+FLASH_IRQHandler 0000001A
+
+Symbol: FLASH_IRQHandler
+   Definitions
 
 
 
 ARM Macro Assembler    Page 6 Alphabetic symbol ordering
 Relocatable symbols
 
-
-Symbol: EXTI9_5_IRQHandler
-   Definitions
-      At line 287 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 268 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 103 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 226 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-FLASH_IRQHandler 0000001A
-
-Symbol: FLASH_IRQHandler
-   Definitions
-      At line 268 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 84 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 207 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 84 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 207 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 FSMC_IRQHandler 0000001A
 
 Symbol: FSMC_IRQHandler
    Definitions
-      At line 312 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 312 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 128 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 251 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 128 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 251 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 HardFault_Handler 0000000A
 
 Symbol: HardFault_Handler
    Definitions
-      At line 164 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 164 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 65 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 165 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 65 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 165 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 I2C1_ER_IRQHandler 0000001A
 
 Symbol: I2C1_ER_IRQHandler
    Definitions
-      At line 296 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 296 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 112 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 235 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 112 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 235 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
+I2C1_EV_IRQHandler 0000001A
+
+Symbol: I2C1_EV_IRQHandler
+   Definitions
+      At line 295 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 111 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 234 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+I2C2_ER_IRQHandler 0000001A
+
+Symbol: I2C2_ER_IRQHandler
+   Definitions
+      At line 298 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
 
 
 
 ARM Macro Assembler    Page 7 Alphabetic symbol ordering
 Relocatable symbols
 
-I2C1_EV_IRQHandler 0000001A
-
-Symbol: I2C1_EV_IRQHandler
-   Definitions
-      At line 295 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+s
    Uses
-      At line 111 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 234 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-I2C2_ER_IRQHandler 0000001A
-
-Symbol: I2C2_ER_IRQHandler
-   Definitions
-      At line 298 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 114 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 237 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 114 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 237 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 I2C2_EV_IRQHandler 0000001A
 
 Symbol: I2C2_EV_IRQHandler
    Definitions
-      At line 297 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 297 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 113 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 236 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 113 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 236 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 MemManage_Handler 0000000C
 
 Symbol: MemManage_Handler
    Definitions
-      At line 169 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 169 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 66 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 170 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 66 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 170 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 NMI_Handler 00000008
 
 Symbol: NMI_Handler
    Definitions
-      At line 159 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 159 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 64 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 160 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 64 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 160 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+PVD_IRQHandler 0000001A
+
+Symbol: PVD_IRQHandler
+   Definitions
+      At line 265 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 81 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 204 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+PendSV_Handler 00000016
+
+Symbol: PendSV_Handler
+   Definitions
+      At line 192 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
 
 
 
 ARM Macro Assembler    Page 8 Alphabetic symbol ordering
 Relocatable symbols
 
-
-PVD_IRQHandler 0000001A
-
-Symbol: PVD_IRQHandler
-   Definitions
-      At line 265 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 81 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 204 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-PendSV_Handler 00000016
-
-Symbol: PendSV_Handler
-   Definitions
-      At line 192 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 76 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 193 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 76 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 193 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 RCC_IRQHandler 0000001A
 
 Symbol: RCC_IRQHandler
    Definitions
-      At line 269 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 269 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 85 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 208 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 85 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 208 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 RTCAlarm_IRQHandler 0000001A
 
 Symbol: RTCAlarm_IRQHandler
    Definitions
-      At line 305 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 305 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 121 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 244 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 121 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 244 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 RTC_IRQHandler 0000001A
 
 Symbol: RTC_IRQHandler
    Definitions
-      At line 267 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 267 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 83 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 206 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
+      At line 83 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 206 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+Reset_Handler 00000000
+
+Symbol: Reset_Handler
+   Definitions
+      At line 147 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 63 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 148 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+SDIO_IRQHandler 0000001A
+
+Symbol: SDIO_IRQHandler
+   Definitions
+      At line 313 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 129 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 252 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
 
 
 
 ARM Macro Assembler    Page 9 Alphabetic symbol ordering
 Relocatable symbols
 
-rtup\arm\startup_stm32f10x_hd.s
-
-Reset_Handler 00000000
-
-Symbol: Reset_Handler
-   Definitions
-      At line 147 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 63 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 148 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-SDIO_IRQHandler 0000001A
-
-Symbol: SDIO_IRQHandler
-   Definitions
-      At line 313 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 129 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 252 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+s
 
 SPI1_IRQHandler 0000001A
 
 Symbol: SPI1_IRQHandler
    Definitions
-      At line 299 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 299 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 115 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 238 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 115 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 238 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 SPI2_IRQHandler 0000001A
 
 Symbol: SPI2_IRQHandler
    Definitions
-      At line 300 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 300 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 116 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 239 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 116 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 239 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 SPI3_IRQHandler 0000001A
 
 Symbol: SPI3_IRQHandler
    Definitions
-      At line 315 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 315 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 131 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 131 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 254 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+SVC_Handler 00000012
+
+Symbol: SVC_Handler
+   Definitions
+      At line 183 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 73 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 184 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+SysTick_Handler 00000018
+
+Symbol: SysTick_Handler
+   Definitions
+      At line 196 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 77 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 197 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 
 
 ARM Macro Assembler    Page 10 Alphabetic symbol ordering
 Relocatable symbols
 
-      At line 254 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-SVC_Handler 00000012
-
-Symbol: SVC_Handler
-   Definitions
-      At line 183 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 73 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 184 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-SysTick_Handler 00000018
-
-Symbol: SysTick_Handler
-   Definitions
-      At line 196 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 77 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 197 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
 
 TAMPER_IRQHandler 0000001A
 
 Symbol: TAMPER_IRQHandler
    Definitions
-      At line 266 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 266 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 82 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 205 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 82 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 205 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM1_BRK_IRQHandler 0000001A
 
 Symbol: TIM1_BRK_IRQHandler
    Definitions
-      At line 288 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 288 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 104 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 227 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 104 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 227 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM1_CC_IRQHandler 0000001A
 
 Symbol: TIM1_CC_IRQHandler
    Definitions
-      At line 291 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 291 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 107 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
+      At line 107 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 230 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM1_TRG_COM_IRQHandler 0000001A
+
+Symbol: TIM1_TRG_COM_IRQHandler
+   Definitions
+      At line 290 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 106 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 229 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM1_UP_IRQHandler 0000001A
+
+Symbol: TIM1_UP_IRQHandler
+   Definitions
+      At line 289 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 105 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 228 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 
 
 ARM Macro Assembler    Page 11 Alphabetic symbol ordering
 Relocatable symbols
 
-rtup\arm\startup_stm32f10x_hd.s
-      At line 230 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM1_TRG_COM_IRQHandler 0000001A
-
-Symbol: TIM1_TRG_COM_IRQHandler
-   Definitions
-      At line 290 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 106 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 229 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM1_UP_IRQHandler 0000001A
-
-Symbol: TIM1_UP_IRQHandler
-   Definitions
-      At line 289 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 105 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 228 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
 
 TIM2_IRQHandler 0000001A
 
 Symbol: TIM2_IRQHandler
    Definitions
-      At line 292 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 292 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 108 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 231 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 108 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 231 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM3_IRQHandler 0000001A
 
 Symbol: TIM3_IRQHandler
    Definitions
-      At line 293 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 293 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 109 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 232 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 109 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 232 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM4_IRQHandler 0000001A
 
 Symbol: TIM4_IRQHandler
    Definitions
-      At line 294 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 294 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
+      At line 110 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 233 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM5_IRQHandler 0000001A
+
+Symbol: TIM5_IRQHandler
+   Definitions
+      At line 314 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 130 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 253 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM6_IRQHandler 0000001A
+
+Symbol: TIM6_IRQHandler
+   Definitions
+      At line 318 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 134 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 257 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
 
 
 
 ARM Macro Assembler    Page 12 Alphabetic symbol ordering
 Relocatable symbols
 
-      At line 110 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 233 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM5_IRQHandler 0000001A
-
-Symbol: TIM5_IRQHandler
-   Definitions
-      At line 314 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 130 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 253 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM6_IRQHandler 0000001A
-
-Symbol: TIM6_IRQHandler
-   Definitions
-      At line 318 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 134 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 257 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+s
 
 TIM7_IRQHandler 0000001A
 
 Symbol: TIM7_IRQHandler
    Definitions
-      At line 319 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 319 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 135 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 258 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 135 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 258 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM8_BRK_IRQHandler 0000001A
 
 Symbol: TIM8_BRK_IRQHandler
    Definitions
-      At line 307 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 307 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 123 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 246 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 123 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 246 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 TIM8_CC_IRQHandler 0000001A
 
 Symbol: TIM8_CC_IRQHandler
    Definitions
-      At line 310 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 310 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 126 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 249 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM8_TRG_COM_IRQHandler 0000001A
+
+Symbol: TIM8_TRG_COM_IRQHandler
+   Definitions
+      At line 309 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 125 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 248 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+TIM8_UP_IRQHandler 0000001A
+
+Symbol: TIM8_UP_IRQHandler
+   Definitions
+      At line 308 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 124 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 
 
 ARM Macro Assembler    Page 13 Alphabetic symbol ordering
 Relocatable symbols
 
-   Uses
-      At line 126 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 249 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM8_TRG_COM_IRQHandler 0000001A
-
-Symbol: TIM8_TRG_COM_IRQHandler
-   Definitions
-      At line 309 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 125 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 248 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-TIM8_UP_IRQHandler 0000001A
-
-Symbol: TIM8_UP_IRQHandler
-   Definitions
-      At line 308 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 124 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 247 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 247 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 UART4_IRQHandler 0000001A
 
 Symbol: UART4_IRQHandler
    Definitions
-      At line 316 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 316 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 132 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 255 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 132 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 255 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 UART5_IRQHandler 0000001A
 
 Symbol: UART5_IRQHandler
    Definitions
-      At line 317 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 317 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 133 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 256 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 133 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 256 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 USART1_IRQHandler 0000001A
 
 Symbol: USART1_IRQHandler
    Definitions
-      At line 301 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
+      At line 301 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 117 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 240 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+USART2_IRQHandler 0000001A
+
+Symbol: USART2_IRQHandler
+   Definitions
+      At line 302 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 118 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 241 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+USART3_IRQHandler 0000001A
+
+Symbol: USART3_IRQHandler
+   Definitions
+      At line 303 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 119 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
 
 
 
 ARM Macro Assembler    Page 14 Alphabetic symbol ordering
 Relocatable symbols
 
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 117 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 240 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-USART2_IRQHandler 0000001A
-
-Symbol: USART2_IRQHandler
-   Definitions
-      At line 302 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 118 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 241 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-USART3_IRQHandler 0000001A
-
-Symbol: USART3_IRQHandler
-   Definitions
-      At line 303 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 119 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 242 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+s
+      At line 242 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 USBWakeUp_IRQHandler 0000001A
 
 Symbol: USBWakeUp_IRQHandler
    Definitions
-      At line 306 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 306 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 122 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 245 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 122 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 245 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 USB_HP_CAN1_TX_IRQHandler 0000001A
 
 Symbol: USB_HP_CAN1_TX_IRQHandler
    Definitions
-      At line 283 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 283 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 99 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 222 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 99 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 222 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 USB_LP_CAN1_RX0_IRQHandler 0000001A
 
 Symbol: USB_LP_CAN1_RX0_IRQHandler
    Definitions
+      At line 284 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 100 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+      At line 223 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+UsageFault_Handler 00000010
+
+Symbol: UsageFault_Handler
+   Definitions
+      At line 179 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 68 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 180 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+
+WWDG_IRQHandler 0000001A
+
+Symbol: WWDG_IRQHandler
+   Definitions
+      At line 264 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
+   Uses
+      At line 80 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 203 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
 
 
 
 ARM Macro Assembler    Page 15 Alphabetic symbol ordering
 Relocatable symbols
 
-      At line 284 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 100 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-      At line 223 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-UsageFault_Handler 00000010
-
-Symbol: UsageFault_Handler
-   Definitions
-      At line 179 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 68 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 180 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-
-WWDG_IRQHandler 0000001A
-
-Symbol: WWDG_IRQHandler
-   Definitions
-      At line 264 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
-   Uses
-      At line 80 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 203 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+s
 
 __user_initial_stackheap 0000001C
 
 Symbol: __user_initial_stackheap
    Definitions
-      At line 344 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 344 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 342 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 342 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 Comment: __user_initial_stackheap used once
 73 symbols
 
@@ -1658,39 +1615,34 @@ Comment: __user_initial_stackheap used once
 ARM Macro Assembler    Page 1 Alphabetic symbol ordering
 Absolute symbols
 
-Heap_Size 00000200
+Heap_Size 00002000
 
 Symbol: Heap_Size
    Definitions
-      At line 45 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 45 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 49 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 348 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 49 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 348 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 Stack_Size 00000400
 
 Symbol: Stack_Size
    Definitions
-      At line 35 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 35 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
    Uses
-      At line 38 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
-      At line 347 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 38 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
+      At line 347 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 
 __Vectors_Size 00000130
 
 Symbol: __Vectors_Size
    Definitions
-      At line 142 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 142 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 60 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\star
-tup\arm\startup_stm32f10x_hd.s
+      At line 60 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.s
 Comment: __Vectors_Size used once
 3 symbols
 
@@ -1703,28 +1655,28 @@ SystemInit 00000000
 
 Symbol: SystemInit
    Definitions
-      At line 150 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 150 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 151 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 151 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 Comment: SystemInit used once
 __main 00000000
 
 Symbol: __main
    Definitions
-      At line 149 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 149 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
-      At line 153 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 153 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
 Comment: __main used once
 __use_two_region_memory 00000000
 
 Symbol: __use_two_region_memory
    Definitions
-      At line 341 in file ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\sta
-rtup\arm\startup_stm32f10x_hd.s
+      At line 341 in file ..\STM32F10x_StdPeriph_Template\startup_stm32f10x_hd.
+s
    Uses
       None
 Comment: __use_two_region_memory unused

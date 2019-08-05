@@ -21,20 +21,23 @@
 #define  __INCLUDE_
 
 #include "stm32f10x.h"   //m3
-//APP
-#include "cmdParse.h"
-//USER
-#include "_common.h" 
-#include "_typedef.h"
-//CONFIG
-#include "iox.h"
-#include "74HC595.h"
-#include "uartx.h"
 //OTHER
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+//USER
+#include "_common.h" 
+#include "_typedef.h"
+//APP
+#include "cmdParse.h"
+#include "modbus.h"
+#include "UniversalSCom.h"
+#include "Cascade.h"
+//CONFIG
+#include "iox.h"
+#include "74HC595.h"
+#include "uartx.h"
 
 #endif
 

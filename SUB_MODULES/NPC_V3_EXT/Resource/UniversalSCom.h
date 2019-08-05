@@ -19,7 +19,7 @@
 #ifndef  _UNIVERSAL_SERIAL_COM_
 #define  _UNIVERSAL_SERIAL_COM_
 
-#include "cdv_include.h"
+#include "_include.h"
 
 typedef enum{
 	CHECK_CRC, 
@@ -27,8 +27,10 @@ typedef enum{
 }CHECK_MODE;
 
 void ClearUniversalCnt(void);
-RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart, CMD_ARG *arg);
-RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg);
-RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8* rxLen , const CDV_INT08U uart,BUF_OPT opt);
+RET_STATUS UniSerialModbusParse(u8* buf, u8 len, u8 uart, CMD_ARG *arg);
+RET_STATUS UniSerialComSetCmd(u8* rxBuf, u8 rxLen, CMD_ARG *arg);
+RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u16* rxLen , const u8 uart,BUF_OPT opt);
+void ResRequest(u8* rxBuf, u16 rxLen , u8* para, u16 paraLen, CMD_ARG *arg, REQUEST_CTRL ctrl);
+void AddTxPlus(u8* txBuf, u16 txLen, CMD_ARG *arg) ;
 #endif
 

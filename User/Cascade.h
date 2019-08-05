@@ -36,7 +36,11 @@
 #elif _NPC_VERSION_ == 2u
 #define CASCADE_USART 3
 #elif _NPC_VERSION_ == 3u
+#if USE_CASCADE_TRANSFER == 1u
+#define CASCADE_USART 5
+#else
 #define CASCADE_USART 6
+#endif
 #endif
 
 	
@@ -71,6 +75,8 @@ RET_STATUS NPC_NETQuery(CDV_INT08U* buf, CDV_INT08U len, CMD_ARG *arg);
 
 void GetTable(void);
 RET_STATUS CascadeSlaveParse2 (char* pBuf, CDV_INT08U len);
+											
+RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len);
 //#endif
 											//
 											

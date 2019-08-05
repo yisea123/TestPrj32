@@ -29,16 +29,65 @@ MODBUS_Input_Coil g_modbusInCoil={0};
 MODBUS_Register g_modbusReg={0};
 MODBUS_Input_Register g_modbusInReg={0};
 
-//int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
-//int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U uartNo);
+//int ReadCoil(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int ReadInCoil(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int ReadRegister(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int ReadInRegister(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int WriteCoil(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int WriteRegister(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int WriteMultiCoil(u8* rxBuf,u8 rxLen, u8 uartNo);
+//int WriteMultiRegister(u8* rxBuf,u8 rxLen, u8 uartNo);
 
-
+/**
+  * @brief  modbus¹¦ÄÜÂë³ö´í»Ø¸´
+  *         
+  *  
+  * @param  no     ¹¦ÄÜÂë
+  *         err     ´íÎóÂë
+  *           
+  *   
+  * @retval ·µ»ØÖµËµÃ÷
+  *
+  * @note   
+  */
+void ModbusRequest(u8 no,u8 errNo, CMD_ARG *arg) {
+	u8 len , *txBuf =NULL;
+//	OS_ERR err;
+	switch(no) {
+		case 65:
+			len = 6;//tx×Ü³¤¶È=8
+			//txBuf = (u8*)malloc(sizeof(u8)*len);
+			NEW08U(txBuf , len);
+		  txBuf[0] = arg->buf[0];
+			txBuf[1] = 0x41+0x80;
+			txBuf[2] = 00;
+		  txBuf[3] = 00;
+		 // txBuf[4] = g_scriptInfo.no;
+		  txBuf[5] = errNo;
+//			len = 8;//tx×Ü³¤¶È=8
+//		USART_TX_ADD_WITH_LEN(len);//¿ª±Ù¿Õ¼ä
+//		USART_TX_BUF(0) = CDV_ID;
+//		USART_TX_BUF(1) = 0x41+0x80;
+//		USART_TX_BUF(2) = 00;
+//		USART_TX_BUF(3) = 00;
+//		USART_TX_BUF(4) = g_scriptInfo.no;
+//		USART_TX_BUF(5) = errNo;
+//		RequestAdd(USART_TX_BUF_ADDR, len);
+//		USART_TX_QUEUE_SELF_ADD;
+//		OSTaskResume((OS_TCB*)&UsartSendTaskTCB,&err);
+			break;
+		default:
+			len = 3;//tx×Ü³¤¶È=5
+		  //txBuf = (u8*)malloc(sizeof(u8)*len);
+		  NEW08U(txBuf , len);
+		  txBuf[0] = arg->buf[0];
+			txBuf[1] = no+0x80;
+			txBuf[2] = errNo;
+			break;
+	}
+	AddTxPlus(txBuf , len , arg);
+	DELETE(txBuf);
+}
 /**
   * @brief  modbus¶ÁÏßÈ¦
   *         01
@@ -51,12 +100,12 @@ MODBUS_Input_Register g_modbusInReg={0};
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int ReadCoil(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U i, len ;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf;
-	CDV_INT08U *txBuf = NULL;
+	u16 i, len ;
+	u16 addr, num, numCh;
+	u16 sta, sf;
+	u8 *txBuf = NULL;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
 	num = (rxBuf[4]<<8) + rxBuf[5];
@@ -108,12 +157,12 @@ int ReadCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int ReadInCoil(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U i, len ;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf;
-	CDV_INT08U *txBuf = NULL;
+	u16 i, len ;
+	u16 addr, num, numCh;
+	u16 sta, sf;
+	u8 *txBuf = NULL;
 	
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 	num = (rxBuf[4]<<8) + rxBuf[5];//¶ÁiÊýÁ¿
@@ -126,9 +175,9 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 		return 2;
 	}
 	
-	for(i = 0 ; i < CDV_I_NUM; i ++) {
-	  IRead(i);
-	}
+//	for(i = 0 ; i < I_NUM; i ++) {
+//	  IRead(i);
+//	}
 	
 	sta = (addr >> 3) /*+ 3*/;//¶ÁÏßÈ¦µÄ³õÊ¼char
 	sf = addr & 0x07;
@@ -167,11 +216,11 @@ int ReadInCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int ReadRegister(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U i, len ;
-	CDV_INT16U addr, num;
-	CDV_INT08U *txBuf = NULL;
+	u16 i, len ;
+	u16 addr, num;
+	u8 *txBuf = NULL;
 	
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
@@ -214,11 +263,11 @@ int ReadRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int ReadInRegister(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U i, len ;
-	CDV_INT16U addr, num;
-	CDV_INT08U *txBuf = NULL;
+	u16 i, len ;
+	u16 addr, num;
+	u8 *txBuf = NULL;
 	
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
@@ -261,12 +310,12 @@ int ReadInRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int WriteCoil(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	//CDV_INT08U len ;
-	CDV_INT16U addr, num;
-	//CDV_INT08U *txBuf = NULL;
-//	CDV_INT16U sta, sf;
+	//u8 len ;
+	u16 addr, num;
+	//u8 *txBuf = NULL;
+//	u16 sta, sf;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 	
 	num = (rxBuf[4]<<8) + rxBuf[5];
@@ -279,11 +328,6 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 		ModbusRequest(rxBuf[1] , 3, arg);
 		return 3;
 	}
-//	len = rxLen;//tx×Ü³¤¶È=rx Ô­ÑùÓ¦´ð
-//	
-//	NEW08U(txBuf , len);
-//	
-//	memcpy(txBuf , rxBuf , len);
 	
 	if (0xFF00 == num){
 		SET_COIL_ADDR(addr);
@@ -297,30 +341,16 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 		
 	}
 	
-	//if(addr < CDV_IO_NUM) {
-		if(READ_O(addr))
-		{
-			OWrite(addr, BIT_1);
-			
-//			if(addr == 200)
-//				ChangeToCdvStat(CDV_RUN);
-//			else if(addr == 201)
-//				ChangeToCdvStat(CDV_PAUSE);
-		}
-		else
-		{
-			OWrite(addr, BIT_0);
-			
-//			if(addr == 200)
-//				ChangeToCdvStat(CDV_ONLINE);
-//			else if(addr == 201)
-//				ChangeToCdvStat(CDV_RUN);
-		}
-//	}
+//		if(READ_O(addr))
+//		{
+//			OWrite(addr, BIT_1);
+//		}
+//		else
+//		{
+//			OWrite(addr, BIT_0);
+//		}
 	
 	AddTxPlus(rxBuf , rxLen, arg);
-//	AddTx(txBuf , len, uartNo);
-//	DELETE(txBuf);
 	return 0;	
 				
 }
@@ -337,9 +367,9 @@ int WriteCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int WriteRegister(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U addr, num;
+	u16 addr, num;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
 	num = (rxBuf[4]<<8) + rxBuf[5];
@@ -357,9 +387,9 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
   AddTxPlus(rxBuf , rxLen, arg);
 
-#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
-	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
-#endif
+//#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
+//	SPI_Flash_Write((u8 *)&num, (VAL_STADDR + 2 * (addr)), 2);
+//#endif
 	return 0;
 }
 			
@@ -375,11 +405,11 @@ int WriteRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
+int WriteMultiCoil(u8* rxBuf,u8 rxLen, CMD_ARG *arg){
 	
-	CDV_INT16U i;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf, end, esf;
+	u16 i;
+	u16 addr, num, numCh;
+	u16 sta, sf, end, esf;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 	
 	num = (rxBuf[4]<<8) + rxBuf[5];//Ð´µÄÊýÁ¿£¬Òª´¦Àí¶àÉÙ×Ö½Ú¹Ø¼üÒª¿´Õâ¸ö£¬¶ø²»ÄÜ¿´numch
@@ -416,15 +446,15 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
 		MODBUS_COIL_CH(sta+i) = (MODBUS_COIL_CH(sta+i) & (0xFF<<(esf))) 
 	| (((i>=rxBuf[6]?0x00 : (rxBuf[7+i]<<sf)) | (rxBuf[7+i-1]>>(8-sf)))& (0xFF>>(8-esf)));
 	
-	for(i = addr; i< addr + num ; i++)
-	if(READ_O(i))
-	{
-		OWrite(i, BIT_1);
-	}
-	else
-	{
-		OWrite(i, BIT_0);
-	}
+//	for(i = addr; i< addr + num ; i++)
+//	if(READ_O(i))
+//	{
+//		OWrite(i, BIT_1);
+//	}
+//	else
+//	{
+//		OWrite(i, BIT_0);
+//	}
   AddTxPlus(rxBuf , 6, arg);		
   return 0;	
 }
@@ -441,10 +471,10 @@ int WriteMultiCoil(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){
   *
   * @note   Ê¹ÓÃµ½È«¾Ö±äÁ¿,²»ÄÜÖØÈë
   */
-int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
+int WriteMultiRegister(u8* rxBuf,u8 rxLen, CMD_ARG *arg){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U i;
-	CDV_INT16U addr, num , numCh , data;
+	u16 i;
+	u16 addr, num , numCh , data;
 	addr = (rxBuf[2]<<8) + rxBuf[3];
 
 	num = (rxBuf[4]<<8) + rxBuf[5];
@@ -468,9 +498,9 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î
 	}
 	
 	AddTxPlus(rxBuf , 6/*rxLen*/, arg);
-#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
-	ValToFlash((addr>>1), (num>>1));
-#endif
+//#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
+//	ValToFlash((addr>>1), (num>>1));
+//#endif
   return 0;	
 }
 
@@ -486,7 +516,7 @@ int WriteMultiRegister(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CMD_ARG *arg){//»ñÈ¡Î
   * @note   RecvParseÖÐ
   */
 
-CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg/*, CDV_INT08U uartNo*/){	
+u8 ModbusParse(u8* rxBuf, u8 rxLen, CMD_ARG *arg/*, u8 uartNo*/){	
 
 //	OS_ERR err;
 	int ret = 0;
@@ -556,9 +586,9 @@ CDV_INT08U ModbusParse(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg/*, CDV_
   *
   * @note   
   */
-void SwapByte(CDV_INT08U* rbuf, CDV_INT08U* dbuf)
+void SwapByte(u8* rbuf, u8* dbuf)
 {
-	CDV_INT08U tmp;
+	u8 tmp;
 	ASSERT(rbuf && dbuf);
 	tmp = *rbuf;
 	*rbuf = *dbuf;
@@ -572,21 +602,16 @@ void SwapByte(CDV_INT08U* rbuf, CDV_INT08U* dbuf)
   * @param  size  ¼Ä´æÆ÷¶àÉÙ¸ö×Ö½Ú£¬16Î» È¡2
             num   bufÓÐ¶àÉÙ¸ö×Ö½Ú
   *   
-  * @retval CDV_INT08U*
+  * @retval u8*
   *
   * @note   
   */
-CDV_INT08U* Endian_TF(CDV_INT08U* buf, const u16 num, const u16 size)
+u8* Endian_TF(u8* buf, const u16 num, const u16 size)
 {
 	int i, j;
 	ASSERT(!(num%size));
 	ASSERT(!(size%2));
-//	
-//	for (i = 0; i < num; i++)
-//	{
-//		buf[i] = ((((CDV_INT16U)(buf[i]) & 0xff00) >> 8) | (((CDV_INT16U)(buf[i]) & 0x00ff) << 8));
-//	}
-	
+
 	for (i = 0; i < num / size; i++)
 	{
 		for (j = 0; j < size / 2; j++)
@@ -609,8 +634,8 @@ CDV_INT08U* Endian_TF(CDV_INT08U* buf, const u16 num, const u16 size)
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void WriteRegisterCmd(u8 dev, u16 addr, u16 val, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -637,8 +662,8 @@ void WriteRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* regVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void WriteMultiRegisterCmd(u8 dev, u16 addr, u16 num, 
+     u8* regVal, u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -669,8 +694,8 @@ void WriteMultiRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void ReadRegisterCmd(u8 dev, u16 addr, u16 num, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -696,8 +721,8 @@ void ReadRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void ReadInRegisterCmd(u8 dev, u16 addr, u16 num, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -723,8 +748,8 @@ void ReadInRegisterCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void WriteCoilCmd(u8 dev, u16 addr, u16 val, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -749,9 +774,9 @@ void WriteCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U val,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U* coilVal, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag) {
-	CDV_INT16U numCh = (num>>3)+((num & 0x07)?1:0);
+void WriteMultiCoilCmd(u8 dev, u16 addr, u16 num, 
+     u8* coilVal, u8** cmdBuf,u8* cmdLen,BUF_OPT flag) {
+	u16 numCh = (num>>3)+((num & 0x07)?1:0);
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
@@ -778,8 +803,8 @@ void WriteMultiCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void ReadInCoilCmd(u8 dev, u16 addr, u16 num, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -805,8 +830,8 @@ void ReadInCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num, 
-     CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen,BUF_OPT flag)
+void ReadCoilCmd(u8 dev, u16 addr, u16 num, 
+     u8** cmdBuf,u8* cmdLen,BUF_OPT flag)
 {
 	ASSERT(NULL != cmdBuf);
 	//ASSERT(NULL == *cmdBuf);
@@ -832,11 +857,11 @@ void ReadCoilCmd(CDV_INT08U dev, CDV_INT16U addr, CDV_INT16U num,
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int ReadCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int ReadCoilReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf;
+	u8 i;
+	u16 addr, num, numCh;
+	u16 sta, sf;
 	
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -882,11 +907,11 @@ int ReadCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_I
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int ReadInCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int ReadInCoilReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf;
+	u8 i;
+	u16 addr, num, numCh;
+	u16 sta, sf;
 	
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -901,9 +926,9 @@ int ReadInCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV
 		return 2;
 	}
 	
-	for(i = 0 ; i < CDV_I_NUM; i ++) {
-	  IRead(i);
-	}
+//	for(i = 0 ; i < CDV_I_NUM; i ++) {
+//	  IRead(i);
+//	}
 	
 	sta = (addr >> 3) /*+ 3*/;//¶ÁÏßÈ¦µÄ³õÊ¼char
 	sf = addr & 0x07;
@@ -934,10 +959,10 @@ int ReadInCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int ReadRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int ReadRegisterReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num;
+	u8 i;
+	u16 addr, num;
 		
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -973,10 +998,10 @@ int ReadRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,C
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int ReadInRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int ReadInRegisterReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num;
+	u8 i;
+	u16 addr, num;
 		
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -1012,8 +1037,8 @@ int ReadInRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int WriteCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
-	CDV_INT16U addr, num;
+int WriteCoilReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
+	u16 addr, num;
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
 	ASSERT(NULL != cmdLen);
@@ -1036,24 +1061,24 @@ int WriteCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_
 		
 	}
 	
-	if(READ_O(addr))
-	{
-		OWrite(addr, BIT_1);
-		
-		if(addr == 200)
-			ChangeToCdvStat(CDV_RUN);
-		else if(addr == 201)
-			ChangeToCdvStat(CDV_PAUSE);
-	}
-	else
-	{
-		OWrite(addr, BIT_0);
-		
-		if(addr == 200)
-			ChangeToCdvStat(CDV_ONLINE);
-		else if(addr == 201)
-			ChangeToCdvStat(CDV_RUN);
-	}
+//	if(READ_O(addr))
+//	{
+//		OWrite(addr, BIT_1);
+//		
+//		if(addr == 200)
+//			ChangeToCdvStat(CDV_RUN);
+//		else if(addr == 201)
+//			ChangeToCdvStat(CDV_PAUSE);
+//	}
+//	else
+//	{
+//		OWrite(addr, BIT_0);
+//		
+//		if(addr == 200)
+//			ChangeToCdvStat(CDV_ONLINE);
+//		else if(addr == 201)
+//			ChangeToCdvStat(CDV_RUN);
+//	}
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , 6);
@@ -1067,9 +1092,9 @@ int WriteCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int WriteRegisterReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT16U addr, num;
+	u16 addr, num;
 		
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -1087,9 +1112,9 @@ int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , 6);
-#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
-	SPI_Flash_Write((CDV_INT08U *)&num, (VAL_STADDR + 2 * (addr)), 2);
-#endif
+//#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
+//	SPI_Flash_Write((u8 *)&num, (VAL_STADDR + 2 * (addr)), 2);
+//#endif
 	return 0;
 }
 			
@@ -1099,11 +1124,11 @@ int WriteRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,
   * @retval ·µ»ØÖµËµÃ÷
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int WriteMultiCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){
+int WriteMultiCoilReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num, numCh;
-	CDV_INT16U sta, sf, end, esf;
+	u8 i;
+	u16 addr, num, numCh;
+	u16 sta, sf, end, esf;
 		
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -1139,14 +1164,14 @@ int WriteMultiCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf
 	| (((i>=rxBuf[6]?0x00 : (rxBuf[7+i]<<sf)) | (rxBuf[7+i-1]>>(8-sf)))& (0xFF>>(8-esf)));
 	
 	for(i = addr; i< addr + num ; i++)
-	if(READ_O(i))
-	{
-		OWrite(i, BIT_1);
-	}
-	else
-	{
-		OWrite(i, BIT_0);
-	}
+//	if(READ_O(i))
+//	{
+//		OWrite(i, BIT_1);
+//	}
+//	else
+//	{
+//		OWrite(i, BIT_0);
+//	}
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , 6);
@@ -1159,10 +1184,10 @@ int WriteMultiCoilReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf
   * @retval 
   * @note   Íâ²¿µ÷ÓÃ¸ºÔðÇåÀícmdBuf
   */
-int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cmdBuf,CDV_INT08U* cmdLen){//»ñÈ¡Î»×´Ì¬
+int WriteMultiRegisterReqCmd(u8* rxBuf,u8 rxLen, u8** cmdBuf,u8* cmdLen){//»ñÈ¡Î»×´Ì¬
 	
-	CDV_INT08U i;
-	CDV_INT16U addr, num , numCh , data;
+	u8 i;
+	u16 addr, num , numCh , data;
 		
 	ASSERT(NULL != cmdBuf);
 	ASSERT(NULL == *cmdBuf);
@@ -1186,9 +1211,9 @@ int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cm
 	*cmdLen = 6;
 	NEW08U((*cmdBuf) , *cmdLen);
 	MemCpy((*cmdBuf), rxBuf , rxLen-2);
-#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
-	ValToFlash((addr>>1), (num>>1));
-#endif
+//#if USE_PVD == 0u && USE_EXTI_POWER_OFF == 0u
+//	ValToFlash((addr>>1), (num>>1));
+//#endif
   return 0;	
 }
 
@@ -1205,11 +1230,11 @@ int WriteMultiRegisterReqCmd(CDV_INT08U* rxBuf,CDV_INT08U rxLen, CDV_INT08U** cm
   * @retval 
   * @note
   */
-RET_STATUS ReadCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CDV_INT32U var){//»ñÈ¡Î»×´Ì¬
-	CDV_INT08U sta, sf;
-	CDV_INT08U fc = buf[1];
-	CDV_INT08U numCh = buf[2];
-	CDV_INT08U* p_bit = buf + 3;
+RET_STATUS ReadCoilReqToVar(u8* buf,u8 len, u8 bit, s32 *var){//»ñÈ¡Î»×´Ì¬
+	u8 sta, sf;
+	u8 fc = buf[1];
+	u8 numCh = buf[2];
+	u8* p_bit = buf + 3;
 	RET_STATUS ret = OPT_FAILURE;
 	
 	if(0x01 != fc || len < numCh + 3)
@@ -1218,7 +1243,8 @@ RET_STATUS ReadCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CDV_
 	sta = (bit >> 3);
 	sf = bit & 0x07;
 	
-	ValSet(var, (p_bit[sta] >> sf) & 0x01);
+	//ValSet(var, (p_bit[sta] >> sf) & 0x01);
+	*var = (p_bit[sta] >> sf) & 0x01;
 	
 	ret = OPT_SUCCESS;
 	return ret;
@@ -1231,11 +1257,11 @@ RET_STATUS ReadCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CDV_
   * @retval 
   * @note
   */
-RET_STATUS ReadInCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CDV_INT32U var){//»ñÈ¡Î»×´Ì¬
-	CDV_INT08U sta, sf;
-	CDV_INT08U fc = buf[1];
-	CDV_INT08U numCh = buf[2];
-	CDV_INT08U* p_bit = buf + 3;
+RET_STATUS ReadInCoilReqToVar(u8* buf,u8 len, u8 bit, s32 *var){//»ñÈ¡Î»×´Ì¬
+	u8 sta, sf;
+	u8 fc = buf[1];
+	u8 numCh = buf[2];
+	u8* p_bit = buf + 3;
 	RET_STATUS ret = OPT_FAILURE;
 	
 	if(0x02 != fc || len < numCh + 3)
@@ -1244,7 +1270,8 @@ RET_STATUS ReadInCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CD
 	sta = (bit >> 3);
 	sf = bit & 0x07;
 	
-	ValSet(var, (p_bit[sta] >> sf) & 0x01);
+	//ValSet(var, (p_bit[sta] >> sf) & 0x01);
+	*var = (p_bit[sta] >> sf) & 0x01;
 	
 	ret = OPT_SUCCESS;
 	return ret;
@@ -1257,12 +1284,12 @@ RET_STATUS ReadInCoilReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U bit, CD
   * @retval 
   * @note
   */
-RET_STATUS ReadRegReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U reg, CDV_INT32U var){//»ñÈ¡Î»×´Ì¬
-	CDV_INT08U fc = buf[1];
-	CDV_INT08U numCh = buf[2];
-	CDV_INT16U* p_reg = (CDV_INT16U*)(buf + 3);
+RET_STATUS ReadRegReqToVar(u8* buf,u8 len, u8 reg, s32 *var){//»ñÈ¡Î»×´Ì¬
+	u8 fc = buf[1];
+	u8 numCh = buf[2];
+	u16* p_reg = (u16*)(buf + 3);
 	RET_STATUS ret = OPT_FAILURE;
-	CDV_INT32S num;
+	s32 num;
 	
 	if(0x03 != fc || len < numCh + 3)
 		return ret;
@@ -1280,7 +1307,8 @@ RET_STATUS ReadRegReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U reg, CDV_I
 		return OPT_SUCCESS;
 	}
 	
-	ValSet(var, num);
+	//ValSet(var, num);
+	*var = num;
 	
 	ret = OPT_SUCCESS;
 	return ret;
@@ -1293,16 +1321,17 @@ RET_STATUS ReadRegReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U reg, CDV_I
   * @retval 
   * @note
   */
-RET_STATUS ReadInRegReqToVar(CDV_INT08U* buf,CDV_INT08U len, CDV_INT08U reg, CDV_INT32U var){//»ñÈ¡Î»×´Ì¬
-	CDV_INT08U fc = buf[1];
-	CDV_INT08U numCh = buf[2];
-	CDV_INT16U* p_reg = (CDV_INT16U*)(buf + 3);
+RET_STATUS ReadInRegReqToVar(u8* buf,u8 len, u8 reg, s32 *var){//»ñÈ¡Î»×´Ì¬
+	u8 fc = buf[1];
+	u8 numCh = buf[2];
+	u16* p_reg = (u16*)(buf + 3);
 	RET_STATUS ret = OPT_FAILURE;
 	
 	if(0x04 != fc || len < numCh + 3)
 		return ret;
 	
-	ValSet(var, ENDIAN_TF16U(p_reg[reg]));
+	//ValSet(var, ENDIAN_TF16U(p_reg[reg]));
+	*var = ENDIAN_TF16U(p_reg[reg]);
 	
 	ret = OPT_SUCCESS;
 	return ret;

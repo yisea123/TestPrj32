@@ -300,7 +300,7 @@ void assert(uint8_t* file, uint8_t* function, uint32_t line)
 	
   while (loop)
   {
-	//	USARTSend((CDV_INT08U*)tmp, strlen(tmp), MAIN_COM);
+	//	USARTSend((u8*)tmp, strlen(tmp), MAIN_COM);
 		DelayUS(5000000);
   }
 	
@@ -336,7 +336,7 @@ void assert_plus(uint8_t* file, uint8_t* function, uint32_t line, char* str, int
 	
   while (loop)
   {
-		//USARTSend((CDV_INT08U*)tmp, strlen(tmp), MAIN_COM);
+		//USARTSend((u8*)tmp, strlen(tmp), MAIN_COM);
 		DelayUS(5000000);
   }
 	
@@ -349,7 +349,7 @@ void assert_plus(uint8_t* file, uint8_t* function, uint32_t line, char* str, int
   */
 void com_print(const char* str)
 {
-		//USARTSend((CDV_INT08U*)str, strlen(str), MAIN_COM);
+		//USARTSend((u8*)str, strlen(str), MAIN_COM);
 }
 //////////crc 
 

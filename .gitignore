@@ -14,12 +14,13 @@ JLinkLog.txt
 *.tra
 *.axf
 *.hex
+*.bin
 *.lnp
 *.sct
 *.__i
 *.htm
 /Obj
-/MDK-ARM5.11/Obj
+/MDK-ARM5/Obj
 /MDK-ARM5.25/Obj
 /Libraries/CMSIS/*
 !/Libraries/CMSIS/Device/

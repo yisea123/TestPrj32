@@ -22,88 +22,6 @@
 	#include "UniversalSCom.h"
 
 
-
-/** @brief  根据id获取串口号
-  * @param  ID
-  * @retval 串口号
-  * @note   
-  */
-CDV_INT08U GetComNoFromID(CDV_INT08U id)   
-{ 
-	CDV_INT08U no = 0;
-	
-	switch (id)
-	{
-		case 1:
-			no = 1;//no = 6;
-			break;
-		case 2:
-			no = 1;
-		  break;
-		default:
-			break;
-	}
-
- 	return no;
-}
-	
-
-/** @brief  清空失败计数值
-  * @param  
-  * @retval 
-  * @note   
-  */
-void ClearUniversalCnt(void)   
-{ 
-	CDV_INT08U* UniversalCnt = UserMemPtr(CCM_UNIVERSALSCOM_CNT);
-	memset(UniversalCnt, 0, 256);
-}
-	
-
-/** @brief  串口总线通讯设置命令
-  * @param  rxBuf  分析字符串
-	*         rxLen  长度
-	*         uartNo 命令来自哪个串口
-  * @retval 
-  * @note   
-  */
-RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)   
-{ 
-	RET_STATUS ret = OPT_FAILURE;
-	CDV_INT08U no = 0;
-	CDV_INT08U type = rxBuf[0];
-	CDV_INT08U id = rxBuf[1];
-	struct COM_PARAM param;
-	param.bound = *(CDV_INT32U*)(rxBuf + 2);
-	param.wordLength = *(CDV_INT32U*)(rxBuf + 6);
-	param.stopBits = *(CDV_INT32U*)(rxBuf + 10);
-	param.parity = *(CDV_INT32U*)(rxBuf + 14);
-	
-	switch (type)
-	{
-		case 0://串口485
-			no = GetComNoFromID(id);
-		
-		  if (OPT_SUCCESS == (ret = CorrectComParam(&param, no))){
-			  USARTSet(param.bound, param.wordLength, param.stopBits, param.parity, no);
-				
-					ResRequest(arg->buf, arg->len, 0,0,arg, RC_CRC);
-			}
-			
-			break;
-		case 1:
-			no = GetComNoFromID(id);
-			SPI_Flash_Read((CDV_INT08U *)&param, USART_SET_ADDR(no - 1), sizeof(param));
-			if (OPT_SUCCESS == (ret = ReturnComParam(&param, no)))
-		    ResRequest(arg->buf, arg->len, (CDV_INT08U*)&param, sizeof(param), arg, RC_CRC);
-			break;
-		default:
-			break;
-	}
-	
- 	return ret;
-}
-
 /**
   * @brief  CSB 命令 转发
   *  
@@ -111,23 +29,17 @@ RET_STATUS UniSerialComSetCmd(CDV_INT08U* rxBuf, CDV_INT08U rxLen, CMD_ARG *arg)
   *   
   * @retval void
   *
-  * @note   
+  * @note   rxBuf 必须是指针
   */
-RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8* rxLen , const CDV_INT08U uart,BUF_OPT opt)
+RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf,u16* rxLen , const u8 uart,BUF_OPT opt)
 {
-	OS_ERR err;
-	CDV_INT32S val = 0;
+//	OS_ERR err;
+	s32 val = 0;
 	u16 data;
 	u8* sendBuf = NULL;
 	u8 i = 0;
 	
-//	ASSERT(NULL != txBuf);
-//	ASSERT(0 != txLen);
-//	ASSERT(NULL != rxBuf);
-//	ASSERT(0 != rxbufLen);
-//	ASSERT(NULL != rxLen);
-	
-	if((NULL == txBuf) || (0 == txLen) || (NULL == rxBuf) || (0 == rxbufLen) || (NULL == rxLen))
+	if((NULL == txBuf) || (0 == txLen) || (NULL == rxBuf) || (NULL == rxLen))
 		return OPT_FAILURE;
 	
 	if(BUF_NEW == opt) {
@@ -139,9 +51,10 @@ RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8*
 	
 	
 	data=getCRC16(sendBuf,txLen);
-	sendBuf[txLen]=data & 0x00ff;
-  sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
-	USARTTR(sendBuf ,txLen + 2 ,rxBuf ,rxbufLen , rxLen , uart);
+	MemCpy(sendBuf + txLen, &data, 2);
+//	sendBuf[txLen]=data & 0x00ff;
+//  sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
+	USARTTR(sendBuf ,txLen + 2 ,rxBuf , rxLen , uart);
 	
 	if(BUF_NEW == opt) {
 	  DELETE(sendBuf);
@@ -149,8 +62,11 @@ RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8*
 	
 	if(*rxLen > 2) {
 		data=getCRC16(rxBuf,*rxLen-2);
-		if((rxBuf[*rxLen-2]==(data & 0x00ff))
-			&& (rxBuf[*rxLen-1]==((data >> 8) & 0x00ff))) //crc
+		
+		if(data == *(u16*)(rxBuf+*rxLen-2))
+//			
+//		if((rxBuf[*rxLen-2]==(data & 0x00ff))
+//			&& (rxBuf[*rxLen-1]==((data >> 8) & 0x00ff))) //crc
 		{
 			return OPT_SUCCESS;
 		}
@@ -165,299 +81,81 @@ RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf ,u8 rxbufLen,u8*
 	}
 }
 
-
-///** @brief  通用串口modbus解析
-//  * @param  buf     待分析字符串指针
-//  *         len     待分析字符串的长度
-//  * @retval 
-//  * @note   各字段定义请参考《通用总线.docx》
-//  */
-//RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart, CMD_ARG *arg)
-//{
-//	CDV_INT08U* cmdBuf = NULL;
-//	CDV_INT08U  cmdLen = 0;
-//	
-//	RET_STATUS ret       = OPT_FAILURE;	
-//	//CDV_INT08U native    = CascadeGetNativeNo(); //本机号
-//	CDV_INT08U devAddr   = buf[1];//主机id
-//	CDV_INT08U res       = buf[2];//端口号
-//	/*保留字段*/
-//	CDV_INT08U ftmp1     = buf[3];
-//	CDV_INT08U ftmp2     = buf[4];
-//	
-//	CDV_INT08U fc        = buf[5];            /*功能码*/
-//	CDV_INT08U regPos    = buf[6];            /*寄存器位置*/
-//	CDV_INT08U datLen    = buf[7];            /*数据位长度*/
-//	CDV_INT08U* p_dat    = buf + 8;           /*报文数据*/
-//	/*保留字段*/
-//	CDV_INT08U btmp1     = buf[8 + (datLen?(len - 11):4)];//(datLen?datLen<<ftmp1:2)];//datLen:0变量4B；1数值（len-11）B
-//	CDV_INT08U prot      = buf[9 + (datLen?(len - 11):4)];   /*协议*/
-//	CDV_INT08U* p_pp     = buf + 10 + (datLen?(len - 11):4); /*协议解析*/
-//	
-//	u8 recv_buf[100];
-//	u8 recv_len=0;
-
-//	CDV_INT08U num     = 0;            /*操作数据长度*/
-//	CDV_INT08U* p_val  = NULL;              /*操作数据*/
-//	CDV_INT08U tmp[4] = {0};
-//	CDV_INT32S tmpVar = 0;
-//	CDV_INT08U uartNo;
-//	
-//	ASSERT(NULL != buf);
-//	ASSERT(0 != len);
-//	
-//	if(0x00 != prot)
-//		return ret;
-//	
-//	//选择端口号
-////	switch(res)
-////	{
-////		case 1:
-////			uartNo = 6;
-////			break;
-////		case 2:
-////			uartNo = 6;
-////			break;
-////		default:
-////			uartNo = 6;
-////			break;
-////		
-////	}
-//	uartNo = GetComNoFromID(res);
-//	
-//	if(!datLen) {                   /*0x00变量*/
-//		num = ftmp1;
-//		tmpVar = VarGet(*(CDV_INT32U*)p_dat);
-//		tmp[0] = tmpVar >> 8;
-//		tmp[1] = tmpVar;
-//		tmp[2] = tmpVar >> 24;
-//		tmp[3] = tmpVar >> 16;
-//		p_val = tmp;
-//	} else {
-//		num = (len - 11)>>1;//ftmp1;//datLen>>1;
-//		p_val = p_dat;
-//	}
-//	
-//	switch(fc) {
-//		case 0x10:                        /*write reg*/
-//			WriteRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			break;
-//		case 0x03:                        /*read reg*/
-//			ReadRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			//读到变量且接收成功
-//			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x03 == recv_buf[1]) {
-//				ret = ReadRegReqToVar(recv_buf, recv_len, 0, *(CDV_INT32U*)p_dat);
-//			}
-//			break;
-//		case 0x04:                        /*read inreg*/
-//			ReadInRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			//读到变量且接收成功
-//			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x04 == recv_buf[1]) {
-//				ret = ReadInRegReqToVar(recv_buf, recv_len, 0, *(CDV_INT32U*)p_dat);
-//			}
-//			break;
-//		case 0x05:                        /*write coil*/
-//			WriteCoilCmd(devAddr, regPos, *p_val, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			break;
-//		case 0x02:                        /*read incoil*/
-//			ReadInCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			//读到变量且接收成功
-//			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x02 == recv_buf[1]) {
-//				ret = ReadInCoilReqToVar(recv_buf, recv_len, 0, *(CDV_INT32U*)p_dat);
-//			}
-//			break;
-//		case 0x01:                        /*read coil*/
-//			ReadCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen);
-//			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo);
-//			//读到变量且接收成功
-//			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x01 == recv_buf[1]) {
-//				ret = ReadCoilReqToVar(recv_buf, recv_len, 0, *(CDV_INT32U*)p_dat);
-//			}
-//			break;
-//		default:
-//			break;
-//	}
-//	//回复开发层变量值
-//	if(!datLen)
-//	{
-//		tmpVar = VarGet(*(CDV_INT32U*)p_dat);
-//		ResRequest(arg->buf, arg->len, (CDV_INT08U*)&tmpVar, 4, arg);
-//	}
-//	else
-//	{
-//		ResRequest(arg->buf, arg->len, 0, 0, arg);
-//	}
-//	DELETE(cmdBuf);
-//	return ret;
-//}
-
-/** @brief  通用串口modbus解析
-  * @param  buf     待分析字符串指针
-  *         len     待分析字符串的长度
-  * @retval 
-  * @note   各字段定义请参考《通用总线.docx》
+/** @brief  资源反馈(新版)。
+  * @param  rxBuf     原始字符串
+  *         rxLen     ↑长度
+	*         para      附加参数字符串
+	*         paraLen   ↑长度
+            ctrl      0无 1 crc
+  * @retval 无
+  * @note   最终发送的字符串如下
+	*                 ┌──rxLen byte──┬   paraLen   ┬   2byte  ┐
+	*                                                    │          │
+	*               rxBuf                para            │    CRC   │                                    
+	*                 │                  │             │          │                                                                                                                                             
+  *                                                                               
   */
-RET_STATUS UniSerialModbusParse(CDV_INT08U* buf, CDV_INT08U len, CDV_INT08U uart, CMD_ARG *arg)
-{
-	CDV_INT08U* cmdBuf = NULL;
-	CDV_INT08U  cmdLen = 0;
+void ResRequest(u8* rxBuf, u16 rxLen , u8* para, u16 paraLen, CMD_ARG *arg, REQUEST_CTRL ctrl)	{
 	
-	RET_STATUS ret       = OPT_FAILURE;	
-	//CDV_INT08U native    = CascadeGetNativeNo(); //本机号
-	CDV_INT08U devAddr   = buf[1];//主机id
-	CDV_INT08U res       = buf[2];//端口号
-	/*保留字段*/
-	CDV_INT08U ftmp1     = buf[3];//寄存器位数
-	CDV_INT08U ftmp2     = buf[4];//绑定变量号
+	u16 txLen = 0;
+	u16 crc = 0xFFFF;
+	u8 *txBuf = NULL;
 	
-	CDV_INT08U fc        = buf[5];            /*功能码*/
-	CDV_INT16U regPos    = (buf[6]<<8) + buf[7];            /*寄存器位置*/
-	CDV_INT08U datLen    = buf[8];            /*数据位长度*/
-	CDV_INT08U* p_dat    = buf + 9;           /*报文数据*/
-	/*保留字段*/
-	CDV_INT08U btmp1     = buf[9 + (len - 12)];//(datLen?datLen<<ftmp1:2)];//datLen:0变量4B；1数值（len-11）B
-	CDV_INT08U prot      = buf[10 + (len - 12)];   /*协议*/
-	CDV_INT08U* p_pp     = buf + 11 + (len - 12); /*协议解析*/
+	if(NULL != rxBuf)
+	{
+		txLen += rxLen;
+	}
+	if(NULL != para)
+	{
+		txLen += paraLen;
+	}
+	if(ctrl) // crc 暂定
+	{
+		txLen += 2;
+	}
 	
-	CDV_INT08U isRead = 0;
+	NEW08U(txBuf,txLen);
 	
-	u8 recv_buf[100];
-	u8 recv_len=0;
+	if(rxLen > 0)
+	  MemCpy(txBuf , rxBuf , rxLen);
+	
+	
+	if(paraLen > 0)
+		MemCpy(txBuf + rxLen , para , paraLen);
+	
+	if(ctrl) {
+	  crc = MODBUS_CRC16(txBuf, rxLen + paraLen, crc);
+		MemCpy(txBuf + rxLen + paraLen, &crc, 2);
+	}
+	
+	arg->reqbuf = txBuf;
+	arg->reqlen = txLen;
+}
 
-	CDV_INT08U num     = 0;            /*操作数据长度*/
-	CDV_INT08U* p_val  = NULL;              /*操作数据*/
-	CDV_INT08U tmp[4] = {0};
-	CDV_INT32S tmpVar = 0;
-	CDV_INT08U uartNo;
-		
-  CDV_INT08U* UniversalCnt = UserMemPtr(CCM_UNIVERSALSCOM_CNT);
+/** @brief  带crc发送
+  * @param  
+  * @retval 
+  * @note   arg版
+  */
+void AddTxPlus(u8* txBuf, u16 txLen, CMD_ARG *arg) {
+	u16 crc;
 	
-	ASSERT(NULL != buf);
-	ASSERT(0 != len);
-	ASSERT(len>=11);
+	u16 txRealLen;
+	u8 *TX_BUF= NULL;
+	u8 TX_Head[6] = {0x00,0x00,0x00,0x00,0x00,0x00};
+	u8 uartNo = arg->uart;
 	
-	if(0x00 != prot)
-		return ret;
-	
-	if(5 < UniversalCnt[devAddr]) {
-		UniversalCnt[devAddr]++;
-		//delay_ms(20);
-//		if(0x01 == fc || 0x02 == fc || 0x03 == fc || 0x04 == fc)
-//		{
-//			ValSet(ftmp2, -1);//此操作可有可无，根据情况定
-//		}
-//		SET_INCOIL_ADDR(99+devAddr);
-		return OPT_SUCCESS;//通讯不通，跳过
-	}	
-	
-	uartNo = GetComNoFromID(res);
+	ASSERT(txBuf && txLen);
+	if(NULL == txBuf || 0 == txLen || 0xFF == uartNo)
+		return;
+
+	crc = MODBUS_CRC16(txBuf,txLen, 0xFFFF);
+	//crc = getCRC16(txBuf,txLen);
 	
 	
-	num = ftmp1;
-	if(datLen) {                   /*0x00变量*/
-		//tmpVar = VarGet(*(CDV_INT32U*)p_dat);
-		tmpVar = ArithmeticEx((char*)p_dat, datLen, arg);
-		
-	} else {
-//		num = (len - 11)>>1;//ftmp1;//datLen>>1;
-//		p_val = p_dat;
-		tmpVar = 0;
-	}
+		TX_BUF = txBuf;
 	
-	tmp[0] = tmpVar ;
-	tmp[1] = tmpVar >> 8;//修改2017-10-25
-	tmp[2] = tmpVar >> 16;
-	tmp[3] = tmpVar >> 24;
-	p_val = tmp;
+		USARTSend(TX_BUF, txLen, uartNo);
+		USARTSend((u8*)&crc, 2, uartNo);
 	
-	
-	switch(fc) {
-		case 0x10:                        /*write multi reg*/
-			WriteMultiRegisterCmd(devAddr, regPos, num, p_val, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			break;
-		case 0x06:                        /*write reg*/
-			WriteRegisterCmd(devAddr, regPos, *(CDV_INT16U*)p_val, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			break;
-		case 0x03:                        /*read reg*/
-			ReadRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			//读到变量且接收成功
-			if(!datLen && OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x03 == recv_buf[1]) {
-				ret = ReadRegReqToVar(recv_buf, recv_len, 0, ftmp2);
-				isRead = 1;
-			}
-			break;
-		case 0x04:                        /*read inreg*/
-			ReadInRegisterCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			//读到变量且接收成功
-			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x04 == recv_buf[1]) {
-				ret = ReadInRegReqToVar(recv_buf, recv_len, 0, ftmp2);
-				isRead = 1;
-			}
-			break;
-		case 0x05:                        /*write coil*/
-			WriteCoilCmd(devAddr, regPos, *p_val, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-		
-//		if(cmdBuf[2] == 0x02 && cmdBuf[3] == 0x0F)
-//			break;
-			break;
-		case 0x02:                        /*read incoil*/
-			ReadInCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			//读到变量且接收成功
-			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x02 == recv_buf[1]) {
-				ret = ReadInCoilReqToVar(recv_buf, recv_len, 0, ftmp2);
-				isRead = 1;
-			}
-			break;
-		case 0x01:                        /*read coil*/
-			ReadCoilCmd(devAddr, regPos, num, &cmdBuf, &cmdLen,BUF_NEW);
-			ret = UniSerialSendCRC(cmdBuf, cmdLen, recv_buf, 100, &recv_len, uartNo,BUF_NEW);
-			//读到变量且接收成功
-			if( OPT_SUCCESS == ret && devAddr == recv_buf[0] && 0x01 == recv_buf[1]) {
-				ret = ReadCoilReqToVar(recv_buf, recv_len, 0, ftmp2);
-				isRead = 1;
-			}
-			break;
-		default:
-			break;
-	}
-	//读取命令需要回复开发层变量值
-	if(!arg->ptrWorker) {
-		if(isRead)
-		{
-			tmpVar = VarGet(ftmp2);
-			ResRequest(arg->buf, arg->len, (CDV_INT08U*)&tmpVar, 4, arg, RC_CRC);
-		}
-		else
-		{
-			ResRequest(arg->buf, arg->len, 0, 0, arg, RC_CRC);
-		}
-	}
-	
-	DELETE(cmdBuf);
-	
-	if(OPT_SUCCESS == ret)
-	{
-//		RESET_INCOIL_ADDR(99+devAddr);
-		UniversalCnt[devAddr] = 0;
-	}
-	else
-	{
-		UniversalCnt[devAddr]++;
-	}
-	
-	if(0x05 == fc || 0x10 == fc || 0x06 == fc)
-		return ret;
-	else
-		return OPT_SUCCESS;//ret;//171014串口失败不死等，防止不通的时候，流程不执行
 }
