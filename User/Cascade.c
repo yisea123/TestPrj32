@@ -1855,6 +1855,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 
 	RET_STATUS CascadeOverlapOWrite(CDV_INT08U host, CDV_INT16U remoteaddr, CDV_INT32U num, CDV_INT08U* coilVal) { 
 		RET_STATUS ret =OPT_SUCCESS;
+		CDV_INT08U* recvBuf = cascade_recv_buf;
 #if USE_CASCADE_STATIC == 1u
 		CDV_INT08U *cmdBuf = cascade_cmd_buf;
 		BUF_OPT opt = BUF_NONE;
@@ -1863,7 +1864,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		BUF_OPT opt = BUF_NEW;
 #endif
 		CDV_INT08U  cmdLen = 0;
-		CDV_INT08U recvBuf[20] = {0};
+		//CDV_INT08U recvBuf[20] = {0};
 		CDV_INT08U  recvLen = 0;
 		
 		WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen,opt);
@@ -1892,6 +1893,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 
 	RET_STATUS CascadeOverlapDAWrite(CDV_INT08U host, CDV_INT16U remoteaddr, CDV_INT32U num, CDV_INT08U* regVal) { 
 		RET_STATUS ret =OPT_SUCCESS;
+		CDV_INT08U* recvBuf = cascade_recv_buf;
 #if USE_CASCADE_STATIC == 1u
 		CDV_INT08U *cmdBuf = cascade_cmd_buf;
 		BUF_OPT opt = BUF_NONE;
@@ -1900,7 +1902,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		BUF_OPT opt = BUF_NEW;
 #endif
 		CDV_INT08U  cmdLen = 0;
-		CDV_INT08U recvBuf[100] = {0};
+		//CDV_INT08U recvBuf[100] = {0};
 		CDV_INT08U  recvLen = 0;
 		
 		WriteMultiRegisterCmd(host, remoteaddr, num, regVal, &cmdBuf, &cmdLen,opt);

@@ -27,6 +27,6 @@
 
 
 
-int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen);
+int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen);
 
 #endif

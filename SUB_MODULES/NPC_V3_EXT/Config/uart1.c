@@ -247,73 +247,26 @@ int USART1_Receive(void) {
 	return -1;
 }
 
-/**
-  * @brief  命令 发送并接收 的封装函数
-  * @param  txbuf  要发送的字符串
-  *         txlen  要发送的字符串长度
-  *         rxbuf  接收的字符串缓存指针
-  *         rxlen  接收到的字符串长度
-  * @retval int 1 接收到命令，0 可以发送，-1 正在接收
-  * @note   test 02 02 00 00 00 0E F9 FD
-  *         发送等待示例
-while（1） {
-	if(1 == USART1_TR()) {
-		 // do something
-	}
-}
-  */
-int USART1_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen) {
-	static int stat = 0;  // 记录状态
-	static u32 ticks = 0; // 计算超时
-	static u16 crc;
-	
-	if(stat == 0 && txbuf && txlen) { // 发送
-		QUEUE_CLEAR(uart1_queue);
-		USART1_RxReset();
-	  USART1_Send(txbuf ,txlen);
-		ticks = sys_ticks;
-		
-	}
-	
-	if(0 == (stat = USART1_Receive()) && rxlen) { //接收
-		rxbuf = QUEUE_DO_BUF(uart1_queue);
-		*rxlen = QUEUE_DO_LEN(uart1_queue);
-		
-		if(*rxlen > 2)
-		  crc = MODBUS_CRC16(rxbuf, -2+*rxlen,0xFFFF);
-		else
-			crc = 0;
-		
-		if(crc == *(u16*)(rxbuf+*rxlen-2))
-			return 1;// 正常，接收到数据
-		
-	}else if( CalcCount(sys_ticks, ticks) > 2) { // 接收超时
-		stat = 0;
-	}
-	//DelayTick(5);
-	return stat;// 无
-}
-
-
-/**
-* @brief  命令 接收解析发送 的封装函数
-  * @param  
-  * @retval 
-  * @note   
-  *         接收解析发送示例
-  */
-	
-
-int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) {
-	static int stat = 0;  // 记录状态
-	static u32 ticks = 0; // 计算超时
-	static u16 crc;
-	
-	u8* rxbuf = NULL ;
-	u16 rxlen = 0;
-	
-	u8* rtbuf = NULL ;
-	u16 rtlen = 0;
+///**
+//  * @brief  命令 发送并接收 的封装函数
+//  * @param  txbuf  要发送的字符串
+//  *         txlen  要发送的字符串长度
+//  *         rxbuf  接收的字符串缓存指针
+//  *         rxlen  接收到的字符串长度
+//  * @retval int 1 接收到命令，0 可以发送，-1 正在接收
+//  * @note   test 02 02 00 00 00 0E F9 FD
+//  *         发送等待示例
+//while（1） {
+//	if(1 == USART1_TR()) {
+//		 // do something
+//	}
+//}
+//  */
+//int USART1_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen) {
+//	static int stat = 0;  // 记录状态
+//	static u32 ticks = 0; // 计算超时
+//	static u16 crc;
+//	
 //	if(stat == 0 && txbuf && txlen) { // 发送
 //		QUEUE_CLEAR(uart1_queue);
 //		USART1_RxReset();
@@ -321,6 +274,62 @@ int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) {
 //		ticks = sys_ticks;
 //		
 //	}
+//	
+//	if(0 == (stat = USART1_Receive()) && rxlen) { //接收
+//		rxbuf = QUEUE_DO_BUF(uart1_queue);
+//		*rxlen = QUEUE_DO_LEN(uart1_queue);
+//		
+//		if(*rxlen > 2)
+//		  crc = MODBUS_CRC16(rxbuf, -2+*rxlen,0xFFFF);
+//		else
+//			crc = 0;
+//		
+//		if(crc == *(u16*)(rxbuf+*rxlen-2))
+//			return 1;// 正常，接收到数据
+//		
+//	}else if( CalcCount(sys_ticks, ticks) > 2) { // 接收超时
+//		stat = 0;
+//	}
+//	//DelayTick(5);
+//	return stat;// 无
+//}
+
+
+/**
+  * @brief  命令 接收解析发送 的封装函数
+  * @param  
+  * @retval int 1 正常处理完成 0 接收到数据 -1 未接收到数据  -2 发送异常
+  * @note   
+  *         接收解析发送示例
+while (1) {
+  while ( 1 != USART1_RT) {
+    // do something
+  }
+}
+  */
+	
+
+int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8** ,u16* )) {
+	static int stat = 0;  // 记录状态
+	//static u32 ticks = 0; // 计算超时
+	static u16 crc;
+	
+	u8* rxbuf = NULL ;
+	u16 rxlen = 0;
+	
+	static u8* rtbuf = NULL ;
+	static u16 rtlen = 0;
+
+	
+	if(rtbuf && rtlen) {
+		if (0 == USART1_Send(rtbuf ,rtlen)) {//发送完成
+		  rtbuf = NULL ;
+	    rtlen = 0;
+	    return 1;// 正常，接收到数据
+		} else {
+			return -2; // 发送异常
+		}
+	}
 	
 	if(0 == (stat = USART1_Receive())) { //接收
 		
@@ -333,12 +342,12 @@ int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) {
 			crc = 0;
 		
 		if(crc == *(u16*)(rxbuf+rxlen-2)) {
-			p_cmd(rxbuf,rxlen,rtbuf,&rtlen);//调用命令处理
-			
-			if(rtbuf && rtlen) {
-				USART1_Send(rtbuf ,rtlen);
-			}
-			return 1;// 正常，接收到数据
+			p_cmd(rxbuf,rxlen,&rtbuf,&rtlen);//调用命令处理，rtbuf用户自行处理
+			QUEUE_DO_NEXT(uart1_queue);
+//			if(rtbuf && rtlen) {
+//				USART1_Send(rtbuf ,rtlen);
+//			}
+//			return 1;// 正常，接收到数据
 		}
 		
 	}

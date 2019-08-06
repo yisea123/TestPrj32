@@ -24,8 +24,8 @@ int main (void) {
 	static u32 led_ticks = 0;
 	//static u8* send_buf = NULL;
 	//static u16 send_len = 0;
-	static u8* recv_buf = NULL;
-	static u16 recv_len = 0;
+	//static u8* recv_buf = NULL;
+	//static u16 recv_len = 0;
 	
   if (SysTick_Config (SystemCoreClock / 1000)) { /* Setup SysTick for 1 msec interrupts */
     ;                                            /* Handle Error */
@@ -38,15 +38,16 @@ int main (void) {
 		// RUN LED
 		if(CalcCount(sys_ticks, led_ticks)>1000)
 		{
-			//LED1 =~LED1;
-			LED2 =~LED2;
-			//LED3 =~LED3;
 			led_ticks = sys_ticks;
+			LED2 =~LED2;
 		}
-		// USART1
-		USARTRT(CmdParse , 1);
-		// USART2
-		USARTTR(send_buf,8,recv_buf,&recv_len,2);
+		// host
+		Cascade_Host_Stat();
+		// slave
+		if(0 != CascadeModbus_Map_Stat())
+			LED3 = LED_ON;
+		else
+			LED3 = LED_OFF;
 		
 		
   }

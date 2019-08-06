@@ -36,11 +36,11 @@ RET_STATUS CorrectComParam(struct COM_PARAM* param, u8 uartNo);
 /*外设基础函数*/
 
 int USARTSend(u8 *buf ,u16 len ,u8 no);
-int USARTTR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen ,u8 no);
+int USARTTR(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen ,u8 no);
 void USARTx_IRQHandler(USART_TypeDef* USARTx, u8 uartNo);
 void USARTSet(u32 bound, u16 wordLength, u16 stopBits, u16 parity, u8 no);
 RET_STATUS ReturnComParam(struct COM_PARAM* param, u8 uartNo);
-int USARTRT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* ),u8 no);
+int USARTRT(int (*p_cmd)(u8 *,u16  ,u8** ,u16* ),u8 no);
 
 #endif
 

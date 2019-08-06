@@ -31,13 +31,37 @@
 主字段		从字段		报文数据长度
   */
 	
-int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen) {
+int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
+	
+	static u8* buf = NULL;
+	static u16 len = 0;
+	u16 crc = 0;
 	
 	switch(rxbuf[0]) {
 		case 'T':
 			switch(rxbuf[1]) {
-				case 'I':
-					CascadeModbus_MapInit(rxbuf+2, rxlen-4);
+				case 'I':// init
+					if(OPT_SUCCESS == CascadeModbus_MapInit(rxbuf+2, rxlen-4)) {
+						len = 5;
+						NEWCH(buf, len);
+						buf[0] = 'T';
+						buf[1] = 'I';
+						buf[2] = 'S';
+						crc=getCRC16(buf,3);
+	          MemCpy(buf + 3, &crc, 2);
+				  } else {
+						len = 5;
+						NEWCH(buf, len);
+						buf[0] = 'T';
+						buf[1] = 'I';
+						buf[2] = 'F';
+						crc=getCRC16(buf,3);
+	          MemCpy(buf + 3, &crc, 2);
+					}
+					break;
+				case 'R':
+					Restart();
+				
 					break;
 				default:
 					break;
@@ -50,8 +74,8 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen) {
 	}
 	
 	
-	rtbuf = rxbuf;
-	*rtlen = rxlen;
+	*rtbuf = buf;
+	*rtlen = len;
 	return 0;
 }
 //int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen)

@@ -80,7 +80,7 @@ void GpioInit(void);
  #define LED_ON  0
  #define LED_OFF 1
 
-#define LED1 PBout(7)		// 调试指示灯;
+#define LED1 PBout(7)		// 调试指示灯;没有这个灯
 #define LED2 PBout(1)	  // 运行指示灯;	
 #define LED3 PBout(0)	// 故障指示灯;	
 

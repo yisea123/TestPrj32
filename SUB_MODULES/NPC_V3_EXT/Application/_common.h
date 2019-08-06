@@ -26,53 +26,23 @@
 
 #include "_include.h"    /*放文件头会导致定义不能用在别的h文件中*/
 
-//#define NEW08U(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u8*)malloc(sizeof(u8)*(len));} if(NULL == (A)) {NewError();}
+void Restart(void);
+
 #define NEWCH(A,len) NewMemory((void **)&(A) , (len))
 #define RENEWCH(A,len) ReNewMemory((void **)&(A) , (len))
 #define NEW08U(A,len) NewMemory((void **)&(A) , sizeof(u8)*(len))
-#define NEW16U(A,len) NewMemory((void **)&(A) , sizeof(u16)*(len))//if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u16*)malloc(sizeof(u16)*(len));} if(NULL == (A)) {NewError();}
+#define NEW16U(A,len) NewMemory((void **)&(A) , sizeof(u16)*(len))
 #define NEW32U(A,len) NewMemory((void **)&(A) , sizeof(u32)*(len))
-//#define NEW32U(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u32*)malloc(sizeof(u32)*(len));} if(NULL == (A)) {NewError();}
-//#define NEW08UP(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u8**)malloc(sizeof(u8*)*(len));} if(NULL == (A)) {NewError();}
-//#define NEW16UP(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u16**)malloc(sizeof(u16*)*(len));} if(NULL == (A)) {NewError();}
-//#define NEW32UP(A,len) if((A)!=NULL) { free(A);(A)=NULL;} {(A) = (u32**)malloc(sizeof(u32*)*(len));} if(NULL == (A)) {NewError();}
-//#define DELETE(A) if((A)!=NULL) { free(A);(A)=NULL;}
 #define DELETE(A) DelMemory((void **)&(A))
 	
 void NewMemory(void **p , size_t size );
 void* MemCpy(void* dst, const void* src, size_t n);
 void DelMemory(void **p) ;
 
-
-
-
-
-
-
 #define CLI() __set_PRIMASK(1) /*关闭所有中断NVIC_SystemReset();// 复位*/
 #define SEI() __set_PRIMASK(0)
 
 #define ONLY_ID_ADDR (u32*)(0x1FFF7A10)
-/*
- *CDV 资源定义
- */
-/*I*/
-//typedef struct
-//{	
-//	GPIO_TypeDef * port;//输出端口
-//	u16 pin;//输出端口号
-//}CDV_IO;
-/*CDV资源全局变量，在CDVInit中初始化*/
-//#if defined(CDV_V1)
-//extern CDV_IO g_cdvI[16];
-//extern CDV_IO g_cdvO[16];
-//#elif defined(CDV_V2)
-//extern CDV_IO g_cdvI[20];
-//extern CDV_IO g_cdvO[20];
-//#endif
-
-//extern CDV_IO g_dipSW[6];
-
 
 void DelayUS(u32 cnt);
 	

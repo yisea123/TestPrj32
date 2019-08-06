@@ -68,6 +68,7 @@ void GetTable(void);
 RET_STATUS CascadeSlaveParse2 (char* pBuf, u8 len);
 											
 int CascadeMap_Init (u8* buf, u16 len, CMD_ARG *arg);
-
+int CascadeModbus_Map_Stat(void);
+int Cascade_Host_Stat(void);
 											
 #endif

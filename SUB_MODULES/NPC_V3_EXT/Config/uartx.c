@@ -243,8 +243,8 @@ int USARTSend(u8 *buf ,u16 len ,u8 no) {
 	return p_UartSend[no-1](buf ,len);
 	
 }
-int USART_TRNull(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen){}
-int (*p_UartTR[])(u8 *,u16  ,u8* ,u16* ) =
+int USART_TRNull(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen){}
+int (*p_UartTR[])(u8 *,u16  ,u8** ,u16* ) =
 {
 	USART_TRNull,
 	USART2_TR,
@@ -268,7 +268,7 @@ int (*p_UartTR[])(u8 *,u16  ,u8* ,u16* ) =
   * @retval void
   * @note   串口发送接收统一入口
   */
-int USARTTR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen ,u8 no) {
+int USARTTR(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen ,u8 no) {
 	ASSERT(0 < no && 6 >= no);
 	if(!p_UartTR[no - 1])
 		return -1;
@@ -276,8 +276,8 @@ int USARTTR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen ,u8 no) {
 }
 
 /////////////////RT
-int USART_RTNull(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )){return 0;}
-int (*p_UartRT[])(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) =
+int USART_RTNull(int (*p_cmd)(u8 *,u16  ,u8** ,u16* )){return 0;}
+int (*p_UartRT[])(int (*p_cmd)(u8 *,u16  ,u8** ,u16* )) =
 {
 	USART1_RT,
 	USART_RTNull,
@@ -295,7 +295,7 @@ int (*p_UartRT[])(int (*p_cmd)(u8 *,u16  ,u8* ,u16* )) =
   * @retval void
   * @note   串口接收发送统一入口
   */
-int USARTRT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* ),u8 no) {
+int USARTRT(int (*p_cmd)(u8 *,u16  ,u8** ,u16* ),u8 no) {
 	ASSERT(0 < no && 6 >= no);
 	if(!p_UartRT[no - 1])
 		return -1;

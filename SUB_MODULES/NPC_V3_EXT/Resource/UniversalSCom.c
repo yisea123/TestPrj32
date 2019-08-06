@@ -20,8 +20,6 @@
 	
 	
 	#include "UniversalSCom.h"
-
-
 /**
   * @brief  CSB 命令 转发
   *  
@@ -31,8 +29,9 @@
   *
   * @note   rxBuf 必须是指针
   */
-RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf,u16* rxLen , const u8 uart,BUF_OPT opt)
+RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8** rxBuf,u16* rxLen , const u8 uart,BUF_OPT opt)
 {
+	static int stat = 0;
 //	OS_ERR err;
 	s32 val = 0;
 	u16 data;
@@ -54,16 +53,16 @@ RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf,u16* rxLen , con
 	MemCpy(sendBuf + txLen, &data, 2);
 //	sendBuf[txLen]=data & 0x00ff;
 //  sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
-	USARTTR(sendBuf ,txLen + 2 ,rxBuf , rxLen , uart);
+	while(1 != USARTTR(sendBuf ,txLen + 2 ,rxBuf , rxLen , uart));
 	
 	if(BUF_NEW == opt) {
 	  DELETE(sendBuf);
 	}
 	
 	if(*rxLen > 2) {
-		data=getCRC16(rxBuf,*rxLen-2);
+		data=getCRC16(*rxBuf,*rxLen-2);
 		
-		if(data == *(u16*)(rxBuf+*rxLen-2))
+		if(data == *(u16*)(*rxBuf+*rxLen-2))
 //			
 //		if((rxBuf[*rxLen-2]==(data & 0x00ff))
 //			&& (rxBuf[*rxLen-1]==((data >> 8) & 0x00ff))) //crc
@@ -80,6 +79,65 @@ RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf,u16* rxLen , con
 		return OPT_FAILURE;
 	}
 }
+
+///**
+//  * @brief  CSB 命令 转发
+//  *  
+//  * @param  ID     要操作的CSB设备号
+//  *   
+//  * @retval void
+//  *
+//  * @note   rxBuf 必须是指针
+//  */
+//RET_STATUS UniSerialSendCRC(u8* txBuf, const u8 txLen,u8* rxBuf,u16* rxLen , const u8 uart,BUF_OPT opt)
+//{
+////	OS_ERR err;
+//	s32 val = 0;
+//	u16 data;
+//	u8* sendBuf = NULL;
+//	u8 i = 0;
+//	
+//	if((NULL == txBuf) || (0 == txLen) || (NULL == rxBuf) || (NULL == rxLen))
+//		return OPT_FAILURE;
+//	
+//	if(BUF_NEW == opt) {
+//	  NEW08U(sendBuf, txLen + 2);
+//	  MemCpy(sendBuf, txBuf, txLen);
+//	} else {
+//		sendBuf = txBuf;
+//	}
+//	
+//	
+//	data=getCRC16(sendBuf,txLen);
+//	MemCpy(sendBuf + txLen, &data, 2);
+////	sendBuf[txLen]=data & 0x00ff;
+////  sendBuf[txLen + 1]=(data >> 8) & 0x00ff;
+//	USARTTR(sendBuf ,txLen + 2 ,rxBuf , rxLen , uart);
+//	
+//	if(BUF_NEW == opt) {
+//	  DELETE(sendBuf);
+//	}
+//	
+//	if(*rxLen > 2) {
+//		data=getCRC16(rxBuf,*rxLen-2);
+//		
+//		if(data == *(u16*)(rxBuf+*rxLen-2))
+////			
+////		if((rxBuf[*rxLen-2]==(data & 0x00ff))
+////			&& (rxBuf[*rxLen-1]==((data >> 8) & 0x00ff))) //crc
+//		{
+//			return OPT_SUCCESS;
+//		}
+//		else
+//		{
+//			return OPT_FAILURE;
+//		}
+//	}
+//	else
+//	{
+//		return OPT_FAILURE;
+//	}
+//}
 
 /** @brief  资源反馈(新版)。
   * @param  rxBuf     原始字符串

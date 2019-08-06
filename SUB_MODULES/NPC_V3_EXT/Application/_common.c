@@ -27,9 +27,7 @@
   * @retval 
   * @note   
   */
-void ResetCdv(void){
-	//Log_Write("Reset Cdv" , LOG_EVENT);
-	
+void ResetSys(void){
 	CLI();
 	NVIC_SystemReset();
 }
@@ -39,24 +37,13 @@ void ResetCdv(void){
   * @retval 
   * @note   在PVD的配合下使用
   */
-void ShutDown(void) {
+void Restart(void) {
 //	__disable_irq();   // 关闭总中断
 	
 		//RCC_AHB1PeriphResetCmd(0X22E011FF, ENABLE);
 		//RCC_APB1PeriphResetCmd(0xE6FEC9FF, ENABLE);
 		//RCC_APB2PeriphResetCmd(0x00377F33, ENABLE);
-#if USE_PVD == 1u
-	INTX_DISABLE();
-	//PVD_Save();
-	AllWorkerCtrl(WORKER_STOP);
-	// PVD_FlagClear();
-	g_noWrite = 1;
-	INTX_ENABLE();
-	OS_TaskSuspend((OS_TCB*)&UsartRecvTaskTCB,&err);
-	//Sys_Enter_Standby();
-	while(PVD_GetFlag());
-#endif
-	ResetCdv();
+	ResetSys();
 }
 
 
@@ -435,7 +422,7 @@ void SysTick_Handler(void) {
 //  while ((msTicks - curTicks) < dlyTicks);
 //}
 
-//#define COUNT_TICK 
+//#define COUNT_TICK // 1个tick 是 1ms
 u32 CalcCount(u32 end_count , u32 start_count) {
 	u32 count = end_count >= start_count ? end_count - start_count : ((u32)0xFFFFFFFF) - start_count + end_count; 
 	return (count);

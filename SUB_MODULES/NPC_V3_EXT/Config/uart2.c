@@ -181,8 +181,8 @@ void USART2_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 
 	//Usart1 NVIC 配置
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;//串口1中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;		//子优先级1
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
 
@@ -192,8 +192,8 @@ void USART2_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	DMA_ConfigDir(DMA1_Channel7,(u32)&USART2->DR,(u32)0,0, DMA_DIR_PeripheralDST);//发送DMA配置
 
 	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel7_IRQn;//串口1中断通道
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =1;		//子优先级1
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
 	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
 	DMA_ITConfig(DMA1_Channel7, DMA_IT_TC, ENABLE);  // 打开dam tc中断，用于判断dma传输结束
@@ -277,7 +277,7 @@ int USART2_Receive(void)
   *         txlen  要发送的字符串长度
   *         rxbuf  接收的字符串缓存指针
   *         rxlen  接收到的字符串长度
-  * @retval int 1 接收到命令，0 可以发送，-1 正在接收
+  * @retval int    2 crc未通过 ，1 接收到命令，0 超时、可以发送，-1 正在接收，-2 等待其他buf
   * @note   test 02 02 00 00 00 0E F9 FD
   *         发送等待示例
 while（1） {
@@ -286,32 +286,43 @@ while（1） {
 	}
 }
   */
-int USART2_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen)
+int USART2_TR(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen)
 {
 	static int stat = 0;  // 记录状态
+	static u8* dobuf = NULL; //记录正在处理的buf
 	static u32 ticks = 0; // 计算超时
 	static u16 crc;
+	
+	
+	if(stat && dobuf != txbuf)
+		return -2; // 等待其他buf
 	
 	if(stat == 0 && txbuf && txlen) { // 发送
 		QUEUE_CLEAR(uart2_queue);
 		USART2_RxReset();
 	  USART2_Send(txbuf ,txlen);
 		ticks = sys_ticks;
-		
+		dobuf = txbuf;
 	}
 	
 	if(0 == (stat = USART2_Receive()) && rxlen) { //接收
-		rxbuf = QUEUE_DO_BUF(uart2_queue);
+		*rxbuf = QUEUE_DO_BUF(uart2_queue);
 		*rxlen = QUEUE_DO_LEN(uart2_queue);
-		if(*rxlen > 2)
-		  crc = MODBUS_CRC16(rxbuf, -2+*rxlen,0xFFFF);
-		else
-			crc = 0;
+		dobuf = NULL;
 		
-		if(crc == *(u16*)(rxbuf+*rxlen-2))
-			return 1;// 正常，接收到数据
+//		if(*rxlen > 2)
+//		  crc = MODBUS_CRC16(*rxbuf, -2+*rxlen,0xFFFF);
+//		else
+//			crc = 0;
+//		
+//		if(crc == *(u16*)(*rxbuf+*rxlen-2))
+//			return 1;// 正常，接收到数据
+//		else
+//			return 2;// crc 未通过
+		return 1;// 正常，接收到数据
 		
-	}else if( CalcCount(sys_ticks, ticks) > 2) { // 接收超时
+	}else if( CalcCount(sys_ticks, ticks) > 5) { // 接收超时,190806：DA命令 2ms会出错，子模块处理速度还需优化
+		dobuf = NULL;
 		stat = 0;
 	}
 	//DelayTick(5);

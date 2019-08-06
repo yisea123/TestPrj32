@@ -33,6 +33,6 @@ void USART1_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity);
 //int  DMA_usart2Send(u32  mar,u16  ndtr);
 int USART1_Send(u8 *buf,u16 len);
 int USART1_TR(u8 *txbuf,u16 txlen ,u8* rxbuf ,u16* rxlen);
-int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8* ,u16* ));
+int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8** ,u16* ));
 #endif
 

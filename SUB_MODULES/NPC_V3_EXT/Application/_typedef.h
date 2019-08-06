@@ -73,11 +73,8 @@ typedef enum
 
 typedef enum
 { 
-  WORKER_LEN_ERR  = 0, 
-	WORKER_CRC_ERR,
-	OPT_SUCCESS,
+	OPT_SUCCESS= 0,
 	OPT_FAILURE,
-	OPT_TCP_ERROR,
   
 }RET_STATUS;
 
