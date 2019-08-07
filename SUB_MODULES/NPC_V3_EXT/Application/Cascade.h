@@ -30,7 +30,7 @@
 	u8 CascadeGetNativeNo(void);
 //#if USE_CASCADE == 1u
 
-
+#define HOST_USART 1
 #define CASCADE_USART 2
 
 
@@ -70,5 +70,6 @@ RET_STATUS CascadeSlaveParse2 (char* pBuf, u8 len);
 int CascadeMap_Init (u8* buf, u16 len, CMD_ARG *arg);
 int CascadeModbus_Map_Stat(void);
 int Cascade_Host_Stat(void);
+int Cascade_Host_Transfer(u8* buf, u16 len, u8** rtbuf,u16* rtlen);
 											
 #endif

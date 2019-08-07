@@ -343,13 +343,13 @@ int USART1_RT(int (*p_cmd)(u8 *,u16  ,u8** ,u16* )) {
 		
 		if(crc == *(u16*)(rxbuf+rxlen-2)) {
 			p_cmd(rxbuf,rxlen,&rtbuf,&rtlen);//调用命令处理，rtbuf用户自行处理
-			QUEUE_DO_NEXT(uart1_queue);
+			
 //			if(rtbuf && rtlen) {
 //				USART1_Send(rtbuf ,rtlen);
 //			}
 //			return 1;// 正常，接收到数据
 		}
-		
+		QUEUE_DO_NEXT(uart1_queue);
 	}
 //	else if( CalcCount(sys_ticks, ticks) > 2) { // 接收超时
 //		stat = 0;

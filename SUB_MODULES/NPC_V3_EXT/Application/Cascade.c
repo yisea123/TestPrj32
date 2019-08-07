@@ -21,9 +21,13 @@
 	
 	#include "Cascade.h"
 	
-  //级联资源表——版本号
-	#define CASCADE_DATA_LEN 1024
-  u8 cascade_data[CASCADE_DATA_LEN] = {0};
+	#define CASCADE_DATA_LEN 512
+	/*
+	分配是incoil + inreg + coil + reg
+	写需要刷新从cascade_coil地址开始的cascade_coil_chlen + cascade_reg_chlen字节
+	读需要发送从cascade_incoil地址开始的cascade_incoil_chlen + cascade_inreg_chlen字节
+	*/
+  u8 cascade_data[CASCADE_DATA_LEN] = {0}; 
 	u8* cascade_incoil = NULL;
 	u16 cascade_incoil_chlen = 0;
 	u8* cascade_coil = NULL;
@@ -33,6 +37,7 @@
 	u8* cascade_reg = NULL;
 	u16 cascade_reg_chlen = 0;
 	//
+  //级联资源表——版本号
 	u8 version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 13/*迭代小版本*/};
 
 	
@@ -1690,7 +1695,7 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 /** @brief  映射初始化
   * @param  void
   * @retval RET_STATUS
-  * @note   参考说明文档
+  * @note   T I buf CRC
   */
 	
 	RET_STATUS CascadeModbus_MapInit(u8* buf, u16 len) {
@@ -1890,7 +1895,7 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 			
 			switch (map[i].type) {
 				case 0://I
-					ret = CascadeModbus_ReadInCoil2((u8*)g_modbusInCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadInCoil2(cascade_incoil/*(u8*)g_modbusInCoil.coilCh*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				case 1://O
 #if USE_OVERLAP
@@ -1901,7 +1906,7 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
 #endif
 					  //ASSERT(map[i].localaddr > O_NUM);
-						CoilToCoil((u8*)(g_modbusCoil.coilCh), map[i].localaddr, tmp_buf, 0, map[i].remotenum);
+						CoilToCoil(cascade_coil/*(u8*)(g_modbusCoil.coilCh)*/, map[i].localaddr, tmp_buf, 0, map[i].remotenum);
 						ret = CascadeOverlapOWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
 					
 #if USE_CASCADE_STATIC == 0u
@@ -1920,7 +1925,7 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 						u8 *tmp_buf = NULL;
 						NEWCH(tmp_buf, 2*map[i].remotenum);
 #endif
-						MemCpy(tmp_buf, g_modbusReg.reg + map[i].localaddr, 2*map[i].remotenum);
+						MemCpy(tmp_buf, cascade_reg/*g_modbusReg.reg*/ + map[i].localaddr, 2*map[i].remotenum);
 						ret = CascadeOverlapDAWrite(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
 #if USE_CASCADE_STATIC == 0u	
 						DELETE(tmp_buf);
@@ -1931,7 +1936,7 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 #endif
 					break;
 				case 3://AD
-					ret = CascadeModbus_ReadInReg2((u8*)g_modbusInReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					ret = CascadeModbus_ReadInReg2(cascade_inreg/*(u8*)g_modbusInReg.reg*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 					break;
 				default:
 					break;
@@ -1963,3 +1968,40 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 		return USARTRT(CmdParse , 1);
 		
 	}
+	
+	
+/** @brief  映射初始化
+  * @param  rtbuf 指针，外部无需释放
+  * @retval 0 正常 -1 不正常
+  * @note   T W buf CRC
+  */
+	
+	int Cascade_Host_Transfer(u8* buf, u16 len, u8** rtbuf,u16* rtlen) {
+		static u16 txlen = 0;
+		static u8 txbuf[CASCADE_BUF_LEN];
+		u16 crc;
+			
+		if( !CascadeMap || len != cascade_coil_chlen + cascade_reg_chlen)
+			return -1;
+		
+		txlen = cascade_incoil_chlen + cascade_inreg_chlen;
+//		txbuf = NULL;
+		// W
+		MemCpy(cascade_coil, buf , len);
+		// R
+		//NEWCH(txbuf, txlen + 4/*T R CRC*/);
+		
+		txbuf[0] = 'T';
+		txbuf[1] = 'R';
+		MemCpy(txbuf + 2, cascade_incoil, txlen);
+		
+		crc=getCRC16(txbuf,txlen + 2);
+	  MemCpy(txbuf + txlen + 2, &crc, 2);
+		
+		*rtbuf = txbuf;
+		*rtlen = txlen + 4;
+		
+		return 0;
+	}
+	
+	

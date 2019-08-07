@@ -173,9 +173,25 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
+          <LineNumber>1131</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134227974</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Application\Cascade.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\Project\../Application/Cascade.c\1131</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
           <LineNumber>1126</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134227962</Address>
+          <Address>134227964</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -187,7 +203,7 @@
           <Expression>\\Project\../Application/Cascade.c\1126</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>2</Number>
           <Type>0</Type>
           <LineNumber>59</LineNumber>
           <EnabledFlag>1</EnabledFlag>
@@ -203,11 +219,11 @@
           <Expression>\\Project\../STM32F10x_StdPeriph_Template/stm32f10x_it.c\59</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>3</Number>
           <Type>0</Type>
           <LineNumber>325</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134239190</Address>
+          <Address>134239602</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -217,22 +233,6 @@
           <Filename>..\Config\uart2.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\Project\../Config/uart2.c\325</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
-          <LineNumber>1134</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\Application\Cascade.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -266,37 +266,40 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_modbusInCoil</ItemText>
+          <ItemText>cascade_incoil_chlen,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_coilCascade</ItemText>
+          <ItemText>cascade_inreg_chlen,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_modbusCoil</ItemText>
+          <ItemText>cascade_coil_chlen,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>2</WinNumber>
-          <ItemText>g_modbusInReg</ItemText>
-        </Ww>
-        <Ww>
-          <count>4</count>
-          <WinNumber>2</WinNumber>
-          <ItemText>g_modbusReg</ItemText>
+          <ItemText>cascade_reg_chlen,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>txbuf</ItemText>
+          <ItemText>rtbuf</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
+      <MemoryWindow2>
+        <Mm>
+          <WinNumber>2</WinNumber>
+          <SubType>0</SubType>
+          <ItemText>cascade_data</ItemText>
+          <AccSizeX>0</AccSizeX>
+        </Mm>
+      </MemoryWindow2>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>

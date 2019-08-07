@@ -120,7 +120,6 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
-          <Name>Z?w,.?,.?趏+f</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -157,9 +156,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1996</LineNumber>
+          <LineNumber>2053</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134387456</Address>
+          <Address>134387722</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -168,39 +167,23 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\User\Cascade.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\NPC\../User/Cascade.c\1996</Expression>
+          <Expression>\\NPC\../User/Cascade.c\2053</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>1827</LineNumber>
+          <LineNumber>807</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134386546</Address>
+          <Address>134349666</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\User\Cascade.c</Filename>
+          <Filename>..\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\NPC\../User/Cascade.c\1827</Expression>
-        </Bp>
-        <Bp>
-          <Number>2</Number>
-          <Type>0</Type>
-          <LineNumber>1998</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>0</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>0</BreakIfRCount>
-          <Filename>..\User\Cascade.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression></Expression>
+          <Expression>\\NPC\../User/main.c\807</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>

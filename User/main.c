@@ -800,7 +800,7 @@ void cdv_refresh_task(void *p_arg){
 		////CascadeModbus_AllUpdate();
 		
 #if USE_CASCADE_TRANSFER == 1u
-		if(0) {
+		if(OPT_FAILURE ==Transfer_Map()) {
 #else
 		if(OPT_FAILURE ==CascadeModbus_Map()) {
 #endif
@@ -811,7 +811,7 @@ void cdv_refresh_task(void *p_arg){
 		}else{
 			cnt = 0;
 		}
-		
+		//TaskSched();
 #ifdef  DEBUG_TIME
 		//stime = GetCdvTimeTick();
 		

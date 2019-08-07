@@ -20,6 +20,27 @@
 	
 	
 	#include "Cascade.h"
+	//级联资源表——版本号
+	#define CASCADE_DATA_LEN 512
+	/*注意与中转保持一致
+	分配是incoil + inreg + coil + reg
+	写需要刷新从cascade_coil地址开始的cascade_coil_chlen + cascade_reg_chlen字节
+	读需要发送从cascade_incoil地址开始的cascade_incoil_chlen + cascade_inreg_chlen字节
+	*/
+  u8 cascade_data[CASCADE_DATA_LEN] = {0}; 
+	u8* cascade_incoil = NULL;
+	u16 cascade_incoil_chlen = 0;
+	u8* cascade_coil = NULL;
+	u16 cascade_coil_chlen = 0;
+	u8* cascade_inreg = NULL;
+	u16 cascade_inreg_chlen = 0;
+	u8* cascade_reg = NULL;
+	u16 cascade_reg_chlen = 0;
+	
+	u16 cascade_incoil_num = 0;
+	u16 cascade_coil_num = 0;
+	u16 cascade_inreg_num = 0;
+	u16 cascade_reg_num = 0;
 	
   //级联资源表——版本号
 	
@@ -1714,13 +1735,13 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
   * @retval RET_STATUS
   * @note   参考说明文档
   */
-	
-	RET_STATUS CascadeModbus_MapInit(void) {
 		#define MAP_LINE_LEN 6	
 		#define REG_SHIFT  CDV_VAR_NUM * 2
 		#define INREG_SHIFT  18                       //放在ADDA
 		#define COIL_SHIFT  CDV_O_NUM + CDV_EXO_NUM*CDV_FPGA_NUM
 		#define INCOIL_SHIFT  CDV_I_NUM + CDV_EXI_NUM*CDV_FPGA_NUM
+	RET_STATUS CascadeModbus_MapInit(void) {
+
     RET_STATUS ret;
 		//struct CASCADE_MAP* map = CascadeMap;
 		/////////////////////////////
@@ -1838,7 +1859,41 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #if USE_CASCADE_TRANSFER == 1u
 		DELETE(transfer_buf);
 #endif
+		// 从机数据保存缓存
+		regshift -= REG_SHIFT;
+		inregshift -= INREG_SHIFT;
+		coilshift -= COIL_SHIFT;
+		incoilshift -= INCOIL_SHIFT;
 		
+	  cascade_incoil_num = incoilshift;
+	  cascade_coil_num = coilshift;
+	  cascade_inreg_num = inregshift;
+	  cascade_reg_num = regshift;
+			
+		shift = 0;
+		
+		cascade_incoil = cascade_data + shift;
+		cascade_incoil_chlen = (incoilshift>>3)+((incoilshift & 0x07) ? 1 : 0);
+		shift += cascade_incoil_chlen;
+		
+		cascade_inreg= cascade_data + shift;
+		cascade_inreg_chlen = inregshift << 1 ;
+		shift += cascade_inreg_chlen;
+		
+		cascade_coil= cascade_data + shift;
+		cascade_coil_chlen = (coilshift>>3)+((coilshift & 0x07) ? 1 : 0);
+		shift += cascade_coil_chlen;
+		
+		cascade_reg= cascade_data + shift;
+		cascade_reg_chlen = regshift << 1 ;
+		shift += cascade_reg_chlen;
+		
+		if (shift > CASCADE_DATA_LEN)
+		{
+			CascadeMapLen = 0;
+		  DELETE(CascadeMap);
+			return OPT_FAILURE;
+		}
 		return OPT_SUCCESS;
 	}
 	
@@ -2604,3 +2659,53 @@ RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
 		return ret;
 	}
 
+/** @brief  中转数据交换
+  * @param  pBuffer      查询到的值保存的地方
+	*         id           主机号
+  *         addr         查询起始地址
+  *         num          查询的数量
+            uart         从机所在串口
+  * @retval RET_STATUS
+  * @note   CascadeModbus只能用在一个线程中
+	          系统启动时先检测有无挂载，无挂载系统不能启动
+  */
+
+	RET_STATUS Transfer_Map(void) {
+		CDV_INT08U* recvBuf = cascade_recv_buf;
+		CDV_INT08U i;
+		RET_STATUS ret = OPT_SUCCESS;
+		struct CASCADE_MAP* map = CascadeMap;
+#if USE_CASCADE_STATIC == 1u
+		//CDV_INT08U *tmp_buf = cascade_tmp_buf;
+		CDV_INT08U *cmdBuf = cascade_cmd_buf;
+#endif
+		CDV_INT08U  cmdLen = 0;
+		CDV_INT08U recvLen = 0;
+		//ASSERT(map);
+		//ASSERT(g_coilCascade);//此函数无条件执行，不需要
+		
+		if(!g_line.init || !map || !g_coilCascade || !g_regCascade) 
+			return ret;
+		//W
+		cmdLen = 2 + cascade_coil_chlen + cascade_reg_chlen;
+		cmdBuf[0] = 'T';
+		cmdBuf[1] = 'W';
+		CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), COIL_SHIFT, cmdBuf + 2, 0, cascade_coil_num);
+		//MemCpy(cmdBuf + 2 + cascade_coil_chlen, g_modbusReg.reg + REG_SHIFT, cascade_reg_num*2);
+		for(i = 0; i < cascade_reg_num; i++) {
+			(g_modbusReg.reg + REG_SHIFT)[i] = ((u16*)(cmdBuf + 2 + cascade_coil_chlen))[i];
+		}
+		
+		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NONE);
+		
+		if(OPT_SUCCESS == ret && 'T' == recvBuf[0] && 'R' == recvBuf[1] && recvLen == cascade_incoil_chlen + cascade_inreg_chlen + 4) {
+			CoilToCoil(recvBuf + 2, 0, (CDV_INT08U*)g_modbusInCoil.coilCh, INCOIL_SHIFT, cascade_incoil_num);
+			MemCpy(g_modbusInReg.reg + INREG_SHIFT, recvBuf + 2 + cascade_incoil_chlen, cascade_inreg_chlen);
+		}
+		
+			
+			//DelayTick(5);
+		//delay_ms(1);
+		
+		return ret;
+	}

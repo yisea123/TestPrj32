@@ -33,7 +33,7 @@
 	
 int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 	
-	static u8* buf = NULL;
+	static u8 buf[10];
 	static u16 len = 0;
 	u16 crc = 0;
 	
@@ -43,7 +43,7 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 				case 'I':// init
 					if(OPT_SUCCESS == CascadeModbus_MapInit(rxbuf+2, rxlen-4)) {
 						len = 5;
-						NEWCH(buf, len);
+						//NEWCH(buf, len);
 						buf[0] = 'T';
 						buf[1] = 'I';
 						buf[2] = 'S';
@@ -51,16 +51,34 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 	          MemCpy(buf + 3, &crc, 2);
 				  } else {
 						len = 5;
-						NEWCH(buf, len);
+						//NEWCH(buf, len);
 						buf[0] = 'T';
 						buf[1] = 'I';
 						buf[2] = 'F';
 						crc=getCRC16(buf,3);
 	          MemCpy(buf + 3, &crc, 2);
 					}
+	
+					*rtbuf = buf;
+					*rtlen = len;
 					break;
 				case 'R':
 					Restart();
+				
+					break;
+				case 'W':
+					if(0 != Cascade_Host_Transfer(rxbuf+2, rxlen-4, rtbuf, rtlen))
+					{
+						len = 5;
+						//NEWCH(buf, len);
+						buf[0] = 'T';
+						buf[1] = 'W';
+						buf[2] = 'F';
+						crc=getCRC16(buf,3);
+	          MemCpy(buf + 3, &crc, 2);
+					  *rtbuf = buf;
+					  *rtlen = len;
+					}
 				
 					break;
 				default:
@@ -73,9 +91,6 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 		
 	}
 	
-	
-	*rtbuf = buf;
-	*rtlen = len;
 	return 0;
 }
 //int CmdParse(u8 *rxbuf,u16 rxlen ,u8* rtbuf,u16* rtlen)

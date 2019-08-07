@@ -77,6 +77,8 @@ void GetTable(void);
 RET_STATUS CascadeSlaveParse2 (char* pBuf, CDV_INT08U len);
 											
 RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len);
+											
+RET_STATUS Transfer_Map(void);
 //#endif
 											//
 											
