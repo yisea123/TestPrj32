@@ -173,9 +173,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>1131</LineNumber>
+          <LineNumber>1903</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134227974</Address>
+          <Address>134231280</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -184,46 +184,30 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>..\Application\Cascade.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Project\../Application/Cascade.c\1131</Expression>
+          <Expression>\\Project\../Application/Cascade.c\1903</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>1126</LineNumber>
+          <LineNumber>192</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134227964</Address>
+          <Address>134241394</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\Application\Cascade.c</Filename>
+          <Filename>..\Config\uart1.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\Project\../Application/Cascade.c\1126</Expression>
+          <Expression>\\Project\../Config/uart1.c\192</Expression>
         </Bp>
         <Bp>
           <Number>2</Number>
           <Type>0</Type>
-          <LineNumber>59</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134221854</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>..\STM32F10x_StdPeriph_Template\stm32f10x_it.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\Project\../STM32F10x_StdPeriph_Template/stm32f10x_it.c\59</Expression>
-        </Bp>
-        <Bp>
-          <Number>3</Number>
-          <Type>0</Type>
           <LineNumber>325</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134239602</Address>
+          <Address>134239662</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -282,6 +266,11 @@
           <count>3</count>
           <WinNumber>2</WinNumber>
           <ItemText>cascade_reg_chlen,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>count_ticks,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

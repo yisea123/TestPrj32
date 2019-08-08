@@ -1877,6 +1877,8 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
   * @note   CascadeModbus_Map_Stat,不可重入
   */
 
+u32 count_ticks = 0,start_ticks = 0;
+
 	int CascadeModbus_Map_Stat(void) {
 		static u32 led_ticks = 0;
 		//static int stat = 0;
@@ -1890,9 +1892,16 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 		if(!map) 
 			return -1;
 		
+		
 		//for( i = 0; i < CascadeMapLen; i++) {
-		if(i < CascadeMapLen && CalcCount(sys_ticks, led_ticks)>1) {
+		if(i < CascadeMapLen && CalcCount(sys_ticks, led_ticks)>4) {
 			
+		if(i == 0) {
+			count_ticks = CalcCount(sys_ticks, start_ticks);
+			start_ticks = sys_ticks;
+			if(count_ticks > 150)
+				i = 0;
+		}
 			switch (map[i].type) {
 				case 0://I
 					ret = CascadeModbus_ReadInCoil2(cascade_incoil/*(u8*)g_modbusInCoil.coilCh*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);

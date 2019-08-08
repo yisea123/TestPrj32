@@ -321,7 +321,7 @@ int USART2_TR(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen)
 //			return 2;// crc 未通过
 		return 1;// 正常，接收到数据
 		
-	}else if( CalcCount(sys_ticks, ticks) > 5) { // 接收超时,190806：DA命令 2ms会出错，子模块处理速度还需优化
+	}else if( CalcCount(sys_ticks, ticks) > 50) { // 接收超时,190806：DA命令 2ms会出错，子模块处理速度还需优化
 		dobuf = NULL;
 		stat = 0;
 	}

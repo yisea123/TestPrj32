@@ -59,7 +59,7 @@ int main(void)
 	DAC7512_Pin_Config();
 	uart1_init(115200);	 		  //232串口初始化为115200，对应主机uart5
 	//uart2_init(921600);	 		  //串口初始化为750000 921600
-	uart2_init(460800);	     //485
+	uart2_init(921600);	     //485
 	
 	while(1)
 	{  

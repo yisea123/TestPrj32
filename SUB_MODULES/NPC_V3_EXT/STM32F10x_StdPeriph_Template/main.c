@@ -18,8 +18,6 @@ __INLINE static void ConfigInit(void) {
 u8 send_buf[] = {0x02, 0x02, 0x00, 0x00, 0x00, 0x0E, 0xF9, 0xFD};
 
 	
-
-
 int main (void) {
 	static u32 led_ticks = 0;
 	//static u8* send_buf = NULL;
@@ -27,7 +25,7 @@ int main (void) {
 	//static u8* recv_buf = NULL;
 	//static u16 recv_len = 0;
 	
-  if (SysTick_Config (SystemCoreClock / 1000)) { /* Setup SysTick for 1 msec interrupts */
+  if (SysTick_Config (SystemCoreClock / 10000)) { /* Setup SysTick for 0.1 msec interrupts */
     ;                                            /* Handle Error */
     while (1);
   }
@@ -36,7 +34,7 @@ int main (void) {
  
   while(1) {
 		// RUN LED
-		if(CalcCount(sys_ticks, led_ticks)>1000)
+		if(CalcCount(sys_ticks, led_ticks)>10000)
 		{
 			led_ticks = sys_ticks;
 			LED2 =~LED2;

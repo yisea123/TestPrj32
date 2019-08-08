@@ -249,7 +249,7 @@ void UART5_Configuration(u32 bound, u16 wordLength, u16 stopBits, u16 parity) {
 	
 	
    //UART5 初始化设置
-	USART_InitStructure.USART_BaudRate = bound;//波特率设置
+	USART_InitStructure.USART_BaudRate = 115200;//波特率设置
 	USART_InitStructure.USART_WordLength = wordLength;//字长为8位数据格式
 	USART_InitStructure.USART_StopBits = stopBits;//一个停止位
 	USART_InitStructure.USART_Parity = parity;//无奇偶校验位

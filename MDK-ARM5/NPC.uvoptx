@@ -120,6 +120,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>DLGUARM</Key>
+          <Name>Z宝w$嵃	$嵃	趏閘</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -184,6 +185,54 @@
           <Filename>..\User\main.c</Filename>
           <ExecCommand></ExecCommand>
           <Expression>\\NPC\../User/main.c\807</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>1848</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134386590</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\User\Cascade.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../User/Cascade.c\1848</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>148</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134424540</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Config\uart5.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../Config/uart5.c\148</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>371</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134425122</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>..\Config\uart5.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\NPC\../Config/uart5.c\371</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -359,7 +408,7 @@
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>sendBuf</ItemText>
+          <ItemText>rxBuf</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
