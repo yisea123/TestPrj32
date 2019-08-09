@@ -33,7 +33,9 @@ void Init74HC595(void)
 	u32 val = 0xFFFFFFFF;
 	  IN_SCK_L;
 	  IN_RCK_L;
-	
+	val = 0x00009669;
+	WriteToInLed((u8*)&val, 4);
+	val = 0x00000000;
 	WriteToOutLed((u8*)&val, 4);
 }	
 
@@ -44,7 +46,7 @@ void WriteToInLed(u8* data, u8 num)
 	
 	IN_RCK_L;
 	IN_SCK_L;
-	DelayUS(100);
+	//DelayUS(100);
 	for (i=num;i>0;i--)
 		for (j=8;j>0;j--)
 		{
@@ -59,13 +61,13 @@ void WriteToInLed(u8* data, u8 num)
 				IN_SI_LED_OFF;
 			}			
 			IN_SCK_H;		
-			DelayUS(100);
+			//DelayUS(100);
 			IN_SCK_L;
-			DelayUS(100);
+			//DelayUS(100);
 		}
 	
 	IN_RCK_H;
-	DelayUS(1);
+	//DelayUS(1);
 	IN_RCK_L;
 }
 void WriteToOutLed(u8* data, u8 num)
@@ -75,7 +77,7 @@ void WriteToOutLed(u8* data, u8 num)
 	
 	OUT_RCK_L;
 	OUT_SCK_L;
-	DelayUS(100);
+	//DelayUS(100);
 	for (i=num;i>0;i--)
 		for (j=8;j>0;j--)
 		{
@@ -90,12 +92,12 @@ void WriteToOutLed(u8* data, u8 num)
 				OUT_SI_LED_OFF;
 			}			
 			OUT_SCK_H;		
-			DelayUS(100);
+			//DelayUS(100);
 			OUT_SCK_L;
-			DelayUS(100);
+			//DelayUS(100);
 		}
 	
 	OUT_RCK_H;
-	DelayUS(1);
+	//DelayUS(1);
 	OUT_RCK_L;
 }

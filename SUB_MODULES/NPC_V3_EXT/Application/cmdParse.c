@@ -42,6 +42,8 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 			switch(rxbuf[1]) {
 				case 'I':// init
 					if(OPT_SUCCESS == CascadeModbus_MapInit(rxbuf+2, rxlen-4)) {
+						u32 val = 0x0000F99F;
+	          WriteToInLed((u8*)&val, 4);
 						len = 5;
 						//NEWCH(buf, len);
 						buf[0] = 'T';
@@ -49,6 +51,7 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 						buf[2] = 'S';
 						crc=getCRC16(buf,3);
 	          MemCpy(buf + 3, &crc, 2);
+							
 				  } else {
 						len = 5;
 						//NEWCH(buf, len);

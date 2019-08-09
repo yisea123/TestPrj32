@@ -49,7 +49,7 @@
 #elif _NPC_VERSION_ == 2u
 	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 2/*硬件驱动版本*/, 19/*迭代小版本*/};
 #elif _NPC_VERSION_ == 3u
-	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 13/*迭代小版本*/};
+	CDV_INT08U version[] = {0/*id号*/, 3/*软件大版本*/, 2/*硬件大版本*/, 3/*硬件驱动版本*/, 15/*迭代小版本*/};
 #endif
 	
 #if USE_CASCADE_STATIC == 1u
@@ -2693,7 +2693,7 @@ RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
 		CoilToCoil((CDV_INT08U*)(g_modbusCoil.coilCh), COIL_SHIFT, cmdBuf + 2, 0, cascade_coil_num);
 		//MemCpy(cmdBuf + 2 + cascade_coil_chlen, g_modbusReg.reg + REG_SHIFT, cascade_reg_num*2);
 		for(i = 0; i < cascade_reg_num; i++) {
-			(g_modbusReg.reg + REG_SHIFT)[i] = ((u16*)(cmdBuf + 2 + cascade_coil_chlen))[i];
+			((u16*)(cmdBuf + 2 + cascade_coil_chlen))[i] = (g_modbusReg.reg + REG_SHIFT)[i];
 		}
 		
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NONE);
