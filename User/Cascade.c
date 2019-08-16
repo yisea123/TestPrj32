@@ -2007,8 +2007,8 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 					break;
 				case 1://O
 #if USE_OVERLAP
-				  ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
-				  if(OPT_SUCCESS == ret && CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
+//				  ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+//				  if(OPT_SUCCESS == ret && CoilCmp((CDV_INT08U*)g_coilCascade->coilCh, map[i].localaddr, (CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)) {
 #if USE_CASCADE_STATIC == 0u			
 					  CDV_INT08U *tmp_buf = NULL;
 						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
@@ -2019,15 +2019,15 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #if USE_CASCADE_STATIC == 0u
 					  DELETE(tmp_buf);
 #endif
-					}
+//					}
 #else
 					ret = CascadeModbus_ReadCoil2((CDV_INT08U*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 #endif
 					break;
 				case 2://DA
 #if USE_OVERLAP
-				  ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_regCascade->reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
-				  if(OPT_SUCCESS == ret && RegCmp(g_regCascade->reg, map[i].localaddr, g_modbusReg.reg, map[i].localaddr, map[i].remotenum)) {
+//				  ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_regCascade->reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+//				  if(OPT_SUCCESS == ret && RegCmp(g_regCascade->reg, map[i].localaddr, g_modbusReg.reg, map[i].localaddr, map[i].remotenum)) {
 #if USE_CASCADE_STATIC == 0u	
 						CDV_INT08U *tmp_buf = NULL;
 						NEWCH(tmp_buf, 2*map[i].remotenum);
@@ -2037,7 +2037,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 #if USE_CASCADE_STATIC == 0u	
 						DELETE(tmp_buf);
 #endif
-					}
+//					}
 #else
 					ret = CascadeModbus_ReadReg2((CDV_INT08U*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
 #endif

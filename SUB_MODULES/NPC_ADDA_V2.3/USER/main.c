@@ -68,7 +68,7 @@ int main(void)
 			 u16TimeT = 0;
 			 LED1 = ~LED1;  
 			 LED2 = ~LED2;
-			 LED3 =0;       //故障指示灯;
+			 LED3 =1;       //故障指示灯;
 		}
 
     AD_ReadInRegister();

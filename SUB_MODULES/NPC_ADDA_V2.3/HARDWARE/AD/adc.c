@@ -337,7 +337,7 @@ u16 Get_Adc2_Average(u8 ch,u8 times)
 //adc_num:adc通道1-6
 //返回电压值
 //******************************************************
-u16 Get_Adc_Voltge (u8 adc_num)
+u16 Get_Adc_Voltge2 (u8 adc_num)
 {
 	u16 *buf;
   u16 lens;	
@@ -407,14 +407,77 @@ u16 Get_Adc_Voltge (u8 adc_num)
 	vol = (float)adc_val/4095*3.3;
 	return  adc_val;
 }
+u16 Get_Adc_Voltge (u8 adc_num)
+{
+	u16 *buf;
+  u16 lens = 10;	
+	u16 adc_val;
+	u16 i;
+	u32 sum = 0;
+	
+	float vol;
+	if( adc_num == 1)
+	{  
+		for(i=0;i<10;i++){
+			sum += AD1_Value[i][1];
+		}
+	}
+  else if( adc_num == 2 )
+	{
+		for(i=0;i<10;i++){
+			sum += AD1_Value[i][0];
+		}
+	}	
+	else if( adc_num == 5 )
+	{
+		for(i=0;i<10;i++)
+		{
+			sum += AD3_Value[i][1];
+		}
+	}	
+	else if ( adc_num == 6 )
+	{
+	 for(i=0;i<10;i++)
+		{
+			sum += AD3_Value[i][0];
+		}
+	}
+	else if (adc_num ==3)
+	{
+	 for(i=0;i<10;i++)
+		{
+		  sum += AD3_Value[i][3];
+		}
+	}
+	else if(adc_num ==4)
+	{
+		for(i=0;i<10;i++)
+		{	
+			sum += AD3_Value[i][2];
+		}
+	}
+	else
+  {
+		return 0;
+	}		
+  		
+	adc_val = sum / lens;
+//	vol = (float)adc_val/4095*3.3;
+	return  adc_val;
+}
 void AD_ReadInRegister(void)
 {
-		MODBUS_INREG_ADDR(INREG_AD1)  = Get_Adc_Voltge(1);
-		MODBUS_INREG_ADDR(INREG_AD2)  = Get_Adc_Voltge(2);
-		MODBUS_INREG_ADDR(INREG_AD3)  = Get_Adc_Voltge(3);
-		MODBUS_INREG_ADDR(INREG_AD4)  = Get_Adc_Voltge(4);
-	  MODBUS_INREG_ADDR(INREG_AD5)  = Get_Adc_Voltge(5);
-		MODBUS_INREG_ADDR(INREG_AD6)  = Get_Adc_Voltge(6);
+	static int i = 0;
+	MODBUS_INREG_ADDR(i)  = Get_Adc_Voltge(i+1);
+	i++;
+	if(i > 5)
+		i = 0;
+//		MODBUS_INREG_ADDR(INREG_AD1)  = Get_Adc_Voltge(1);
+//		MODBUS_INREG_ADDR(INREG_AD2)  = Get_Adc_Voltge(2);
+//		MODBUS_INREG_ADDR(INREG_AD3)  = Get_Adc_Voltge(3);
+//		MODBUS_INREG_ADDR(INREG_AD4)  = Get_Adc_Voltge(4);
+//	  MODBUS_INREG_ADDR(INREG_AD5)  = Get_Adc_Voltge(5);
+//		MODBUS_INREG_ADDR(INREG_AD6)  = Get_Adc_Voltge(6);
   }
 
 void Adc_Voltge ( void)
