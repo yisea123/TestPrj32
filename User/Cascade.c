@@ -1991,11 +1991,17 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		CDV_INT08U i;
 		RET_STATUS ret = OPT_SUCCESS;
 		struct CASCADE_MAP* map = CascadeMap;
+		static u32 start_time = 0, count_time = 0;
 #if USE_CASCADE_STATIC == 1u
 		CDV_INT08U *tmp_buf = cascade_tmp_buf;
 #endif
 		//ASSERT(map);
 		//ASSERT(g_coilCascade);//此函数无条件执行，不需要
+		if(CalcCount(GET_TICK, start_time) < 5) {
+			TaskSched();
+			return ret;
+		}
+		start_time = GET_TICK;
 		
 		if(!g_line.init || !map || !g_coilCascade || !g_regCascade) 
 			return ret;
@@ -2053,7 +2059,7 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 				return ret;
 			
 			//DelayTick(5);
-			delay_ms(1);
+			//delay_ms(1);
 		}
 		return ret;
 	}
