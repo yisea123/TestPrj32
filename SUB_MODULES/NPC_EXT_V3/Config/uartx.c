@@ -267,6 +267,11 @@ int (*p_UartTR[])(u8 *,u16  ,u8** ,u16* ) =
 	*					no :1 - 6操作的串口号
   * @retval void
   * @note   串口发送接收统一入口
+while（1） {
+	if(1 == USARTTR()) {
+		 // do something
+	}
+}
   */
 int USARTTR(u8 *txbuf,u16 txlen ,u8** rxbuf ,u16* rxlen ,u8 no) {
 	ASSERT(0 < no && 6 >= no);
