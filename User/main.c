@@ -817,7 +817,7 @@ void cdv_refresh_task(void *p_arg){
 		
 		time_cascade_map = CalcCount(GET_TICK, ftime_cascade_map);
 		
-		if(time_cascade_map > 1000) {
+		if(time_cascade_map > 100) {
 			time_log(time_cascade_map);
 			
 //			char tmp[50]={0};
@@ -845,12 +845,12 @@ void worker_manage_task(void *p_arg){
 	
 	OS_ERR err;
   //Ë¢ÐÂ
+	int i=0;
 
 	while (1) {
 #ifdef  DEBUG_TIME
   ftime_local_map = GetCdvTimeTick();
 #endif
-		int i=0;
 		
 		IReadAllFilter(5, 10); //IReadAll();
 #if USE_OVERLAP
@@ -914,8 +914,8 @@ void worker_manage_task(void *p_arg){
 		
 		time_local_map = CalcCount(GET_TICK, ftime_local_map);
 		
-		if(time_local_map > 1000) {
-			time_log(time_local_map);
+		if(time_local_map > 100) {
+//			time_log(time_local_map);
 			
 //			char tmp[50]={0};
 

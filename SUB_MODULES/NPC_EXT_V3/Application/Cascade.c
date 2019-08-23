@@ -712,6 +712,50 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 		#endif
 		return ret;
 	}
+	
+	int CascadeModbus_ReadInReg3(u8* pBuffer, u16 startaddr, const u8 id, const u16 addr, const u16 num, const u8 uart) {
+		static u8* recvBuf = NULL;//cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		u8 *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		u8* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
+	  static u8  cmdLen = 0;
+		static u16 recvLen = 0;
+		u16* pInReg = (u16*)pBuffer;
+		static int ret;
+		static int stat = 0;
+		
+		switch(stat) {
+			case 0:
+				//ASSERT(recvBuf&&pBuffer);
+				ReadInRegisterCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+				stat = 1;
+				break;
+			case 1:
+				ret = UniSerialSendCRC2(cmdBuf, cmdLen, &recvBuf, &recvLen, uart,opt);
+				if (0 != ret)
+					stat = 2;
+				break;
+			case 2:
+				if(1 == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
+					BufToInReg2(recvBuf, recvLen, pInReg, startaddr);
+				}
+				#if USE_CASCADE_STATIC == 0u
+				DELETE(cmdBuf);
+				#endif
+				stat = 0;
+				return ret;
+				break;
+			default:
+				stat = 0;
+				break;
+		}
+		return 0;
+	}
+		
 /** @brief  读取从机的只读寄存器到本机
   * @param  pBuffer      查询到的值保存的地方
 	*         id           主机号
@@ -825,8 +869,10 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 		u16 recvLen = 0;
 		u8* pInCoil = (u8*)pBuffer;
 		RET_STATUS ret;
+		
 		ASSERT(recvBuf&&pBuffer);
 		ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+		
 		ret = UniSerialSendCRC(cmdBuf, cmdLen, &recvBuf, &recvLen, uart,opt);
 		
 		if(OPT_SUCCESS == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
@@ -837,6 +883,52 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 #endif
 		return ret;
 	}
+	
+	int CascadeModbus_ReadInCoil3(u8* pBuffer, u16 startaddr, const u8 id, const u16 addr, const u16 num, const u8 uart) {
+	
+		static u8* recvBuf = NULL;//cascade_recv_buf;//UserMemPtr(CCM_CASCADE_MODBUS);
+#if USE_CASCADE_STATIC == 1u
+		u8 *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		u8* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
+	  static u8  cmdLen = 0;
+		static u16 recvLen = 0;
+		u8* pInCoil = (u8*)pBuffer;
+		static int ret;
+		static int stat =0;	
+		switch(stat){
+			case 0:
+						
+//				ASSERT(recvBuf&&pBuffer);
+				ReadInCoilCmd(id, addr, num, &cmdBuf, &cmdLen,opt);
+			  stat = 1;
+				break;
+			case 1:
+				ret = UniSerialSendCRC2(cmdBuf, cmdLen, &recvBuf, &recvLen, uart,opt);
+			
+			  if(ret != 0)
+					stat = 2;
+				break;
+			case 2:
+				if(1 == ret && id == recvBuf[0] && 0x80 > recvBuf[1]) {
+					BufToInCoil3(recvBuf, recvLen, pInCoil, startaddr, num);
+				}
+		#if USE_CASCADE_STATIC == 0u
+				DELETE(cmdBuf);
+		#endif
+				stat = 0;
+				return ret;
+				break;
+			default:
+				stat = 0;
+				break;
+		}
+		return 0;
+	}
+
 /** @brief  读取从机的只读线圈到本机
   * @param  pBuffer      查询到的值保存的地方
 	*         id           主机号
@@ -1072,6 +1164,49 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 #endif
 		return ret;
 	}
+	int CascadeOverlapOWrite2(u8 host, u16 remoteaddr, u32 num, u8* coilVal) { 
+		static int ret = 0;
+		static u8* recvBuf = NULL;//u8* recvBuf = cascade_recv_buf;
+#if USE_CASCADE_STATIC == 1u
+		u8 *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		u8* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
+		static u8  cmdLen = 0;
+		//u8 recvBuf[20] = {0};
+		static u16  recvLen = 0;
+		static int stat = 0;
+		switch(stat){
+			case 0:
+				WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen,opt);
+			  stat =1;
+				break;
+			case 1:
+				ret = UniSerialSendCRC2(cmdBuf, cmdLen, &recvBuf, &recvLen, CASCADE_USART,opt);
+				if(0!=ret)
+					stat = 2;
+			  break;
+			case 2:
+				if(1 == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
+					ret = 1;
+				} else {
+					ret = -1;
+				}
+		#if USE_CASCADE_STATIC == 0u
+				DELETE(cmdBuf);
+		#endif
+				stat = 0;
+				return ret;
+				break;
+			default:
+				stat = 0;
+				break;
+		}
+		return 0;
+	}
+	
 	/**
   * @brief  DA异步刷新
   *  
@@ -1110,6 +1245,52 @@ int RegCmp(u16* buf, u16 bufaddr, u16* reg, u16 regaddr, u16 tonum){
 		DELETE(cmdBuf);
 #endif
 		return ret;
+	}
+
+
+	int CascadeOverlapDAWrite2(u8 host, u16 remoteaddr, u32 num, u8* regVal) { 
+		static int ret = 0;
+		static u8* recvBuf = NULL;//u8* recvBuf = cascade_recv_buf;
+#if USE_CASCADE_STATIC == 1u
+		u8 *cmdBuf = cascade_cmd_buf;
+		BUF_OPT opt = BUF_NONE;
+#else
+		u8* cmdBuf = NULL;
+		BUF_OPT opt = BUF_NEW;
+#endif
+		static u8  cmdLen = 0;
+		//u8 recvBuf[100] = {0};
+		static u16  recvLen = 0;
+		static int stat = 0;
+		switch(stat){
+			
+			case 0:
+				WriteMultiRegisterCmd(host, remoteaddr, num, regVal, &cmdBuf, &cmdLen,opt);
+				//WriteMultiCoilCmd(host, remoteaddr, num, coilVal, &cmdBuf, &cmdLen);
+			  stat = 1;
+				break;
+			case 1:
+				ret = UniSerialSendCRC2(cmdBuf, cmdLen, &recvBuf, &recvLen, CASCADE_USART,opt);
+				if(0!=ret)
+					stat = 2;
+			  break;
+			case 2:
+				if(1 == ret && host == recvBuf[0] && 0x80 > recvBuf[1]) {
+					ret = 1;
+				} else {
+					ret = -1;
+				}
+		#if USE_CASCADE_STATIC == 0u
+				DELETE(cmdBuf);
+		#endif
+				stat =0;
+				return ret;
+				break;
+			default:
+				stat =0;
+				break;
+		}
+		return 0;
 	}
 	
 /** @brief  读取从机的寄存器到本机
@@ -1896,12 +2077,13 @@ u32 count_ticks = 0,start_ticks = 0;
 		//for( i = 0; i < CascadeMapLen; i++) {
 		if(i < CascadeMapLen && CalcCount(sys_ticks, led_ticks)>3) {
 			
-		if(i == 0) {
-			count_ticks = CalcCount(sys_ticks, start_ticks);
-			start_ticks = sys_ticks;
-			if(count_ticks > 130)
-				i = 0;
-		}
+			if(i == 0) {
+				count_ticks = CalcCount(sys_ticks, start_ticks);
+				start_ticks = sys_ticks;
+				if(count_ticks > 130)
+					i = 0;
+			}
+			
 			switch (map[i].type) {
 				case 0://I
 					ret = CascadeModbus_ReadInCoil2(cascade_incoil/*(u8*)g_modbusInCoil.coilCh*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
@@ -1958,6 +2140,96 @@ u32 count_ticks = 0,start_ticks = 0;
 			
 			led_ticks = sys_ticks;
 			++i;
+		}
+		
+		if(i >= CascadeMapLen)
+			i = 0;
+		
+		return ret;
+	}
+	int CascadeModbus_Map_Stat2(void) {
+		static u32 led_ticks = 0;
+		//static int stat = 0;
+		static u8 i = 0;
+		int ret = 0;
+		struct CASCADE_MAP* map = CascadeMap;
+#if USE_CASCADE_STATIC == 1u
+		u8 *tmp_buf = cascade_tmp_buf;
+#endif
+		
+		if(!map) 
+			return -1;
+		
+		
+		//for( i = 0; i < CascadeMapLen; i++) {
+		if(i < CascadeMapLen && CalcCount(sys_ticks, led_ticks)>3) {
+			
+
+			
+			switch (map[i].type) {
+				case 0://I
+					ret = CascadeModbus_ReadInCoil3(cascade_incoil/*(u8*)g_modbusInCoil.coilCh*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					break;
+				case 1://O
+#if USE_OVERLAP
+				  //ret = CascadeModbus_ReadCoil2((u8*)g_coilCascade->coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+				  if(1/*OPT_SUCCESS == ret && CoilCmp((u8*)g_coilCascade->coilCh, map[i].localaddr, (u8*)g_modbusCoil.coilCh, map[i].localaddr, map[i].remotenum)*/) {
+#if USE_CASCADE_STATIC == 0u
+					  u8 *tmp_buf = NULL;
+						NEWCH(tmp_buf, map[i].remotenum / 8 + 3);
+#endif
+					  //ASSERT(map[i].localaddr > O_NUM);
+						CoilToCoil(cascade_coil/*(u8*)(g_modbusCoil.coilCh)*/, map[i].localaddr, tmp_buf, 0, map[i].remotenum);
+						ret = CascadeOverlapOWrite2(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
+					
+#if USE_CASCADE_STATIC == 0u
+					  DELETE(tmp_buf);
+#endif
+					}
+#else
+					ret = CascadeModbus_ReadCoil2((u8*)g_modbusCoil.coilCh, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+#endif
+					break;
+				case 2://DA
+#if USE_OVERLAP
+				  //ret = CascadeModbus_ReadReg2((u8*)g_regCascade->reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+				  if(1/*OPT_SUCCESS == ret && RegCmp(g_regCascade->reg, map[i].localaddr, g_modbusReg.reg, map[i].localaddr, map[i].remotenum)*/) {
+#if USE_CASCADE_STATIC == 0u	
+						u8 *tmp_buf = NULL;
+						NEWCH(tmp_buf, 2*map[i].remotenum);
+#endif
+						MemCpy(tmp_buf, cascade_reg/*g_modbusReg.reg*/ + map[i].localaddr, 2*map[i].remotenum);
+						ret = CascadeOverlapDAWrite2(map[i].host, map[i].remoteaddr, map[i].remotenum, tmp_buf);
+#if USE_CASCADE_STATIC == 0u	
+						DELETE(tmp_buf);
+#endif
+					}
+#else
+					ret = CascadeModbus_ReadReg2((u8*)g_modbusReg.reg, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+#endif
+					break;
+				case 3://AD
+					ret = CascadeModbus_ReadInReg3(cascade_inreg/*(u8*)g_modbusInReg.reg*/, map[i].localaddr, map[i].host, map[i].remoteaddr, map[i].remotenum, CASCADE_USART);
+					break;
+				default:
+					break;
+			}
+			
+//			if(ret == OPT_FAILURE)
+//				return ret;
+			
+			//delay_ms(1);
+			
+			if(0!=ret){
+				led_ticks = sys_ticks;
+							if(i == 0) {
+				count_ticks = CalcCount(sys_ticks, start_ticks);
+				start_ticks = sys_ticks;
+				if(count_ticks > 130)
+					i = 0;
+			}
+			}
+			if(1==ret)++i;
 		}
 		
 		if(i >= CascadeMapLen)

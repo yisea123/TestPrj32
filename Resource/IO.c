@@ -1739,12 +1739,12 @@ RET_STATUS OCmd(CDV_INT08U* rxBuf, CDV_INT16U rxLen, CMD_ARG *arg) {
 			bit = (ArithmeticEx((char*)rxBuf + 6, rxLen - 6, arg)) ? BIT_1 : BIT_0;
 			OWrite(no, bit);
 		
-		// TEST 记录O2操作置位的情况
-		if((no == 0 || no == 1) && bit == BIT_0)
-		  time_log_anything(
-				-1*((DEBUG_SCRIPT*)(arg->ptrWorker))->which,
-		    -1*((DEBUG_SCRIPT*)(arg->ptrWorker))->doNo
-		    );
+//		// TEST 记录O2操作置位的情况
+//		if((no == 0 || no == 1) && bit == BIT_0)
+//		  time_log_anything(
+//				-1*((DEBUG_SCRIPT*)(arg->ptrWorker))->which,
+//		    -1*((DEBUG_SCRIPT*)(arg->ptrWorker))->doNo
+//		    );
 		
 			break;
 		case 0x01:/*等待*/

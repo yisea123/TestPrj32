@@ -2707,6 +2707,8 @@ RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
 		if(OPT_SUCCESS == ret && 'T' == recvBuf[0] && 'R' == recvBuf[1] && recvLen == cascade_incoil_chlen + cascade_inreg_chlen + 4) {
 			CoilToCoil(recvBuf + 2, 0, (CDV_INT08U*)g_modbusInCoil.coilCh, INCOIL_SHIFT, cascade_incoil_num);
 			MemCpy(g_modbusInReg.reg + INREG_SHIFT, recvBuf + 2 + cascade_incoil_chlen, cascade_inreg_chlen);
+		}else{
+			ret = OPT_FAILURE;
 		}
 		
 			

@@ -63,7 +63,7 @@ int main(void)
 	
 	while(1)
 	{  
-		if(u16TimeT>=400)
+		if(u16TimeT>=4000)
 		{
 			 u16TimeT = 0;
 			 LED1 = ~LED1;  

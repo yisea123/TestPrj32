@@ -24,6 +24,7 @@ int main (void) {
 	//static u16 send_len = 0;
 	//static u8* recv_buf = NULL;
 	//static u16 recv_len = 0;
+	int ret = 0;
 	
   if (SysTick_Config (SystemCoreClock / 10000)) { /* Setup SysTick for 0.1 msec interrupts */
     ;                                            /* Handle Error */
@@ -42,9 +43,11 @@ int main (void) {
 		// host
 		Cascade_Host_Stat();
 		// slave
-		if(0 != CascadeModbus_Map_Stat())
+		//if(0 != CascadeModbus_Map_Stat())
+		ret = CascadeModbus_Map_Stat2();
+		if(-1 ==ret)
 			LED3 = LED_ON;
-		else
+		else if(1==ret)
 			LED3 = LED_OFF;
 		
 		

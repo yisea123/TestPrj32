@@ -70,7 +70,7 @@ int CmdParse(u8 *rxbuf,u16 rxlen ,u8** rtbuf,u16* rtlen) {
 				
 					break;
 				case 'W':
-					if(0 != Cascade_Host_Transfer(rxbuf+2, rxlen-4, rtbuf, rtlen))
+					if(LED3 == LED_ON || 0 != Cascade_Host_Transfer(rxbuf+2, rxlen-4, rtbuf, rtlen))
 					{
 						len = 5;
 						//NEWCH(buf, len);
