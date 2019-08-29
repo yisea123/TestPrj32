@@ -35,15 +35,17 @@ void TIM4_Count_Init(u32 arr,u32 psc)
   TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
   TIM_OCInitTypeDef TIM_OCInitStructure;
   TIM_BDTRInitTypeDef TIM_BDTRInitStruct;
+	
+	NVIC_InitTypeDef NVIC_InitStructure;
  
-  RCC_APB2PeriphClockCmd(RCC_APB1Periph_TIM4,ENABLE);
+  RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4,ENABLE);
  
  
   TIM_TimeBaseStructure.TIM_Prescaler=psc; //定时器分频(0-65535对应1-65536分频)
   TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; //向上计数模式循环从0开始记到arr（上溢）
   TIM_TimeBaseStructure.TIM_Period=arr; //自动重装载值
   TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; //时钟1分频 1 * tck int
-  TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;//重复计数器，rcr+1次上溢后产生更新事件
+  //TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;//重复计数器，rcr+1次上溢后产生更新事件
   TIM_TimeBaseInit(TIM4,&TIM_TimeBaseStructure);//初始化定时器14
 	
   TIM_SelectInputTrigger(TIM4, TIM_TS_ITR3);//选择tim8为主
@@ -71,12 +73,18 @@ void TIM4_Count_Init(u32 arr,u32 psc)
 //  TIM_OC1Init(TIM4, &TIM_OCInitStructure); //根据T指定的参数初始化外设TIM1 4OC1
 //  TIM_OC1PreloadConfig(TIM4, TIM_OCPreload_Enable); //使能TIM14在CCR1上的预装载寄存器
   TIM_ARRPreloadConfig(TIM4, ENABLE);//ARPE使能 自动重载
+		//不设优先级不能出现中断
+	NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;//中断通道
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器
   TIM_ITConfig(TIM4, TIM_IT_Update | TIM_IT_Trigger, ENABLE);//使能中断，中断事件为定时器工薪事件
   TIM_Cmd(TIM4, ENABLE); //使能TIM14
 // TIM_CtrlPWMOutputs(TIM4, ENABLE); //设置PMW主输出//原子例程没有
 ////TIM_CCxCmd  TIM_CCxNCmd 
 //   TIM_SetCompare3(TIM4,arr/2);//设置占空比？
-}  
+}
 
 /**
   * @brief  This function TIM3 interrupt request.

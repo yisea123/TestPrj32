@@ -31,6 +31,7 @@ void DMA_ConfigDir(DMA_Channel_TypeDef *DMA_Channelx,u32 par/*外设地址*/,u32 mar
 #elif defined (STM32F40_41xxx)
 void DMA_Enable(DMA_Stream_TypeDef *DMA_Streamx,u32 mar/*内存地址*/,u16 ndtr/*内存长度*/);
 void DMA_ConfigDir(DMA_Stream_TypeDef *DMA_Streamx, u32 chx, u32 par/*外设地址*/,u32 mar/*内存地址*/,u16 ndtr/*内存字节长度，配置成字节*/,u32 dir);
+void DMA_ConfigDir16(DMA_Stream_TypeDef *DMA_Streamx, u32 chx, u32 par/*外设地址*/,u32 mar/*内存地址*/,u16 ndtr/*内存字节长度，配置成字节*/,u32 dir);
 
 #endif
 

@@ -20,7 +20,8 @@
   */
 	
 	#include "tim8.h"
-
+	#include "dmax.h"
+uint16_t dma_buf[14] = {2800,2800,1400,1400,700,700,350,350,700,700,1400,1400,2800,2800};
 //#if USE_PULSE_DRIVE == 1u
 
 //TIM PWM部分初始化
@@ -79,7 +80,7 @@ void TIM8_PWM_Init(u16 arr,u16 psc)
  TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; //向上计数模式循环从0开始记到arr（上溢）
  TIM_TimeBaseStructure.TIM_Period=arr; //自动重装载值
  TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; //时钟1分频 1 * tck int
- TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x02;
+ TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x02; // tim1 8 需要
  //重复计数器，rcr+1次上溢后产生更新事件，只影响update事件，不影响cc事件；
  /*update是cnt 与 arr的上溢 or 下溢使rep-到0产生；cc是cnt = min(ccrx, arr)的时候产生*/
  TIM_TimeBaseInit(TIM8,&TIM_TimeBaseStructure);//初始化定时器14
@@ -121,11 +122,17 @@ void TIM8_PWM_Init(u16 arr,u16 psc)
  // 主模式 输出设置
  TIM_SelectMasterSlaveMode(TIM8, TIM_MasterSlaveMode_Enable);
  TIM_SelectOutputTrigger(TIM8, TIM_TRGOSource_Update);
- //
+ //dma
+ TIM_DMACmd(TIM8, TIM_DMA_Update, ENABLE);
+DMA_ConfigDir16(DMA2_Stream1,DMA_Channel_7,(u32)&TIM8->ARR,(u32)dma_buf,sizeof(dma_buf),DMA_DIR_MemoryToPeripheral);
+	DMA_Cmd(DMA2_Stream1, ENABLE);
+//
+TIM_ClearITPendingBit(TIM8,TIM_IT_Update);  //清除中断标志位
+
   	TIM_Cmd(TIM8, ENABLE); //使能TIM14
- TIM_CtrlPWMOutputs(TIM8, ENABLE); //设置PMW主输出//原子例程没有
+ TIM_CtrlPWMOutputs(TIM8, ENABLE); //设置PMW主输出//tim1 8 需要
 //TIM_CCxCmd  TIM_CCxNCmd 
-   TIM_SetCompare3(TIM8,arr/2);//设置占空比
+   TIM_SetCompare3(TIM8,1/*arr/2*/);//设置占空比
 }  
 
 /**
