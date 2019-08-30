@@ -1188,6 +1188,11 @@
               <FileType>1</FileType>
               <FilePath>..\Config\tim4.c</FilePath>
             </File>
+            <File>
+              <FileName>tim1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Config\tim1.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -2628,6 +2633,11 @@
               <FileName>tim4.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Config\tim4.c</FilePath>
+            </File>
+            <File>
+              <FileName>tim1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Config\tim1.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -17,16 +17,12 @@
 
 
 
-#ifndef  _TIM_8_
-#define  _TIM_8_
+#ifndef  _TIM_1_
+#define  _TIM_1_
 
 #include "_include.h"
 
-
-#if USE_PULSE_DRIVE == 1u
-
-#endif
-
+void TIM1_Init(u32 arr,u32 psc);
 
 #endif
 

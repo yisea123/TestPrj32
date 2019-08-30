@@ -28,6 +28,7 @@
 //psc：时钟预分频数
 //定时器溢出时间计算方法:Tout=((arr+1)*(psc+1))/Ft s.
 //Ft=外部工作频率,hz
+//用来记主tim的更新次数
 void TIM4_Count_Init(u32 arr,u32 psc)
 {
   //此部分需手动修改IO口设置
@@ -50,6 +51,10 @@ void TIM4_Count_Init(u32 arr,u32 psc)
 	
   TIM_SelectInputTrigger(TIM4, TIM_TS_ITR3);//选择tim8为主
   TIM_SelectSlaveMode(TIM4, TIM_SlaveMode_External1);
+	
+  // 主模式 输出设置
+  TIM_SelectMasterSlaveMode(TIM4, TIM_MasterSlaveMode_Enable);
+  TIM_SelectOutputTrigger(TIM4, TIM_TRGOSource_Update);
 //  //死区 互补
 // TIM_BDTRStructInit(&TIM_BDTRInitStruct);
 //  TIM_BDTRInitStruct.TIM_OSSRState = TIM_OSSRState_Disable;

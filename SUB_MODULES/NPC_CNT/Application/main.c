@@ -15,7 +15,9 @@ __INLINE static void ConfigInit(void) {
 	
 	TIM8_PWM_Init(2800-1, 60000-1);
 	
-	TIM4_Count_Init(5-1,1-1);
+	TIM4_Count_Init(2-1,1-1);
+	
+	TIM1_Init(28000-1, 60000-1);
 	
 }
 

@@ -44,5 +44,6 @@
 #include "uartx.h"
 #include "tim8.h"
 #include "tim4.h"
+#include "tim1.h"
 #endif
 
