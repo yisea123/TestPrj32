@@ -139,6 +139,7 @@ void DMA_Enable(DMA_Channel_TypeDef *DMA_Channelx,u32 mar,u16 ndtr)
 	//return 1;
 }
 #elif defined (STM32F40_41xxx)
+// 到dma中计数器是ndtr - 1；
 void DMA_Enable(DMA_Stream_TypeDef *DMA_Streamx,u32 mar/*内存地址*/,u16 ndtr/*内存长度*/)
 {
 	DMA_Cmd(DMA_Streamx, DISABLE);                      //关闭DMA传输 

@@ -21,7 +21,8 @@
 	
 	#include "tim8.h"
 	#include "dmax.h"
-uint16_t dma_buf[14] = {2800,2800,1400,1400,700,700,350,350,700,700,1400,1400,2800,2800};
+	//用于更新arr
+uint16_t dma_buf[13] = {5600,2800,1400,1400,700,700/*,350,350*/,700,700,1400,1400,2800,2800,0};/*最后一个设成<ccr3都会停在pwm但是只有0会不产生update事件*/
 //#if USE_PULSE_DRIVE == 1u
 
 //TIM PWM部分初始化
@@ -95,10 +96,10 @@ void TIM8_PWM_Init(u16 arr,u16 psc)
   TIM_BDTRInitStruct.TIM_AutomaticOutput = TIM_AutomaticOutput_Enable;//TIM_AutomaticOutput_Disable;
   TIM_BDTRConfig(TIM8, &TIM_BDTRInitStruct);
   //初始化 Channel3 PWM模式
-  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式2
+  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式1 cnt < ccrx 输出ref电平 1 ； 模式2 cnt < ccrx 输出ref电平 0
   TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
   TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;//互补输出
-  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;//TIM_OCPolarity_Low; //输出极性:TIM输出比较极性低
+  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;//TIM_OCPolarity_Low; //输出极性:TIM输出比较极性低，low = ref ，high = ！ref
   TIM_OCInitStructure.TIM_OCNPolarity =TIM_OCNPolarity_Low; //TIM_OCNPolarity_Low;
   TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set; //输出空闲状态为1
   TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCNIdleState_Reset; //互补输出空闲状态为0
@@ -124,16 +125,27 @@ void TIM8_PWM_Init(u16 arr,u16 psc)
   TIM_SelectOutputTrigger(TIM8, TIM_TRGOSource_Update);
   //dma
   TIM_DMACmd(TIM8, TIM_DMA_Update, ENABLE);
-  DMA_ConfigDir16(DMA2_Stream1,DMA_Channel_7,(u32)&TIM8->ARR,(u32)dma_buf,sizeof(dma_buf),DMA_DIR_MemoryToPeripheral,DMA_Mode_Circular);
-	DMA_Cmd(DMA2_Stream1, ENABLE);
+  DMA_ConfigDir16(DMA2_Stream1,DMA_Channel_7,(u32)&TIM8->ARR,(u32)dma_buf,sizeof(dma_buf)/2,DMA_DIR_MemoryToPeripheral,DMA_Mode_Normal);
+	//
+	NVIC_InitStructure.NVIC_IRQChannel = DMA2_Stream1_IRQn;//串口1中断通道
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;//抢占优先级1
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority =0;		//子优先级1
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;			//IRQ通道使能
+	NVIC_Init(&NVIC_InitStructure);	//根据指定的参数初始化VIC寄存器、
+	DMA_ITConfig(DMA2_Stream1, DMA_IT_TC, ENABLE);  // 打开dam tc中断，用于判断dma传输结束
+	/* 清除标志位 */
+	DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);  
+
+	DMA_Cmd(DMA2_Stream1, DISABLE);//enable 一开始会被触发出一个dma事件
   //
   TIM_ClearITPendingBit(TIM8,TIM_IT_Update);  //清除中断标志位
 
   TIM_SetCompare3(TIM8,200/*arr/2*/);//设置占空比
-  TIM_Cmd(TIM8, ENABLE); //使能TIM14
+  TIM_Cmd(TIM8, DISABLE); //使能TIM14
   TIM_CtrlPWMOutputs(TIM8, ENABLE); //设置PMW主输出//tim1 8 需要
   //TIM_CCxCmd  TIM_CCxNCmd 
-	
+	//配置完后会产生一个update事件，应该是某些函数置位了ug
+	//这里直接disable
 }  
 
 /**
@@ -158,8 +170,30 @@ void TIM8_CC_IRQHandler(void)
 	{
 		TIM_ClearITPendingBit(TIM8,TIM_IT_CC3);  //清除中断标志位
 		
-		
+		StartPWM();
 	}
+	
+	
+}
+
+
+void DMA2_Stream1_IRQHandler(void) {
+	
+	if(DMA_GetITStatus(DMA2_Stream1,DMA_IT_TCIF1) != RESET)  
+	{
+		/* 清除标志位 */
+		DMA_ClearFlag(DMA2_Stream1,DMA_FLAG_TCIF1);  
+		/* 关闭DMA */
+		DMA_Cmd(DMA2_Stream1,DISABLE);
+			
+  }  
+	
+}
+
+void StartPWM(void) {
+	DMA_Enable(DMA2_Stream1,(u32)dma_buf,sizeof(dma_buf)/2);    //开始一次DMA传输！	到dma中计数器是ndtr - 1；
+  TIM8->ARR = 2800;//由于存在影子寄存器，所以需要提前赋值，应该是数组第一个，经试验，数组第一个会被跳过（当arr设置的比较小时，比如说1，可能有例外）
+  TIM8->EGR = 1;//产生更新事件 ，dma中计数器-- ，把arr的值传输到影子寄存器，才能起作用，或者如果arr是0，更新到影子寄存器还是0，不起作用。同时启动一次dma传输到arr，同时重载重复寄存器，另外psc也会更新到影子寄存器，还有计数器从0开始，这些都是更新事件的功劳
 	
 	
 }
