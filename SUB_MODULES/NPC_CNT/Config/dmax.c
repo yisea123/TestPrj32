@@ -142,9 +142,9 @@ void DMA_Enable(DMA_Channel_TypeDef *DMA_Channelx,u32 mar,u16 ndtr)
 // 到dma中计数器是ndtr - 1；
 void DMA_Enable(DMA_Stream_TypeDef *DMA_Streamx,u32 mar/*内存地址*/,u16 ndtr/*内存长度*/)
 {
-	DMA_Cmd(DMA_Streamx, DISABLE);                      //关闭DMA传输 
+	DMA_Cmd(DMA_Streamx, DISABLE);  // 如果之前是enable，会产生dma tc事件                   //关闭DMA传输 
 //	while(DMA_GetCmdStatus(DMA_Streamx) != DISABLE){};
-//	if(DMA_GetCmdStatus(DMA_Streamx) != DISABLE){return 0;}	//确保DMA可以被设置  
+//	if(DMA_GetCmdStatus(DMA_Streamx) != DISABLE){return ;}	//确保DMA可以被设置  
   DMA_MemoryTargetConfig(DMA_Streamx,mar,DMA_Memory_0);
 	
 	DMA_SetCurrDataCounter(DMA_Streamx,ndtr);          //数据传输量  
