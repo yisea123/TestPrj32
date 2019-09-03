@@ -2063,6 +2063,33 @@ int RegCmp(CDV_INT16U* buf, CDV_INT16U bufaddr, CDV_INT16U* reg, CDV_INT16U rega
 		}
 		return ret;
 	}
+
+
+	RET_STATUS CascadeModbus_Transfer_ReStart() {
+		
+		CDV_INT08U* recvBuf = cascade_recv_buf;
+
+		CDV_INT08U recvLen = 0;
+			CDV_INT08U buf[10];
+		CDV_INT08U len=2;
+		RET_STATUS ret = OPT_FAILURE;
+		
+		if(!g_line.init || !CascadeMap || !g_coilCascade || !g_regCascade) 
+			return ret;
+		
+		
+		buf[0] = 'T';
+		buf[1] = 'R';
+		
+		ret = UniSerialSendCRC(buf, len, recvBuf, CASCADE_BUF_LEN, &recvLen, CASCADE_USART,BUF_NONE);
+		
+		 if(OPT_SUCCESS == ret) {
+			 
+			 
+		 }
+		
+			return ret;
+		}
 	
 	/** @brief  中转初始化
   * @param  
@@ -2080,6 +2107,9 @@ RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
 		if(!g_line.init || !CascadeMap || !g_coilCascade || !g_regCascade) 
 			return ret;
 		
+		CascadeModbus_Transfer_ReStart();
+		
+		delay_ms(10);
 		
 		buf[0] = 'T';
 		buf[1] = 'I';
@@ -2093,6 +2123,8 @@ RET_STATUS CascadeModbus_Transfer_Init(CDV_INT08U* buf, CDV_INT16U len) {
 		
 			return ret;
 		}
+
+		
 //	RET_STATUS CascadeModbus_Transfer_Init(void) {
 //		
 //		CDV_INT08U* recvBuf = cascade_recv_buf;

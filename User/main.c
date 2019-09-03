@@ -914,8 +914,8 @@ void worker_manage_task(void *p_arg){
 		
 		time_local_map = CalcCount(GET_TICK, ftime_local_map);
 		
-		if(time_local_map > 100) {
-//			time_log(time_local_map);
+		if(time_local_map > 1000) {
+			time_log(time_local_map);
 			
 //			char tmp[50]={0};
 

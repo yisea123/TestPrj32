@@ -108,6 +108,7 @@ void TIM4_IRQHandler(void)
 	{
 		TIM_ClearITPendingBit(TIM4, TIM_IT_Trigger);  //清除中断标志位
 		
+		LED2 =~LED2;
 		
 	}
 	

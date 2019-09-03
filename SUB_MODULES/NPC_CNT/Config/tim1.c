@@ -23,7 +23,7 @@
 	#include "dmax.h"
 
 
-uint16_t dma_cnt_buf[50] = {0};
+uint16_t dma_cnt_buf[500] = {0};
 //TIM 
 //arr：自动重装值
 //psc：时钟预分频数

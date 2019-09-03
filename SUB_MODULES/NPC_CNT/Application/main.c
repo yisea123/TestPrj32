@@ -1,10 +1,36 @@
 
 #include "_include.h"
 
-extern uint16_t dma_buf[13];
+extern uint16_t dma_buf[200];
+//相当于周期
+#define MIN_ARR 1
+#define MAX_ARR 2800
+//相当于速度
+#define MIN_HZ 1/MAX_ARR
+#define MAX_HZ 1/MIN_ARR
+// st start arr
+// et end arr
+// n  num
+void CURVE_K(u16* arr, u16 n, u16 st, u16 et) {
+	u16 i;
+	
+	for(i = 0; i < n; i++) {
+		arr[i]= (st*et*n) / (et*n + i*st - i*et);
+	}
+}
+
+
+
+
+
+
+
+
+
+
 
 __INLINE static void ConfigInit(void) {
-	
+	CURVE_K(dma_buf, 199, 2800, 200);
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);	//设置NVIC中断分组2:2位抢占优先级，2位响应优先级
 	
 	InitGpio();
@@ -14,21 +40,20 @@ __INLINE static void ConfigInit(void) {
 	USART_Configuration();
 	
 	//TIM8_PWM_Init(2800-1, 60000-1);
-	TIM8_PWM_Init(1-1, 60000-1);// z置为0，不会有更新中断，
+	TIM8_PWM_Init(1-1, 60000-1);// 置为0，停止pwm跳变，并且不会有更新中断，
 	
 	TIM4_Count_Init(2-1,1-1);
 	
+	//溢出update时间：168000000HZ / 60000(分频) / 28000 （比较） = 1 / 10 HZ -》10s
+	//输入捕获最小分辨率时间：168000000HZ / 60000(分频) / 1 （比较） = 2800 HZ -》0.357ms
 	TIM1_Init(28000-1, 60000-1);
-	
-	
-//	DMA_Enable(DMA2_Stream1,(u32)dma_buf,sizeof(dma_buf)/2);    //开始一次DMA传输！	  
-//	TIM8->EGR = 1;//产生更新事件
-//	TIM_Cmd(TIM8, ENABLE);
   StartPWM();
 //	TIM8->ARR = 2800;
 	TIM8->EGR = 1;
   
 	TIM_Cmd(TIM8, ENABLE);
+	
+
 }
 
 
